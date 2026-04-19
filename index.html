@@ -2,1039 +2,939 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>מאפה הבית - Business OS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>מאפה הבית</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;900&family=Frank+Ruhl+Libre:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-dark: #1a1612;
-    --bg-card: #231f1a;
-    --bg-card2: #2d2720;
-    --amber: #d4852a;
-    --amber-light: #f0a843;
-    --amber-glow: rgba(212,133,42,0.15);
-    --red-alert: #c0392b;
-    --green: #27ae60;
-    --text-primary: #f0ead8;
-    --text-muted: #8a7d6b;
-    --border: rgba(212,133,42,0.2);
-    --border-strong: rgba(212,133,42,0.4);
-    --shadow: 0 8px 32px rgba(0,0,0,0.6);
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family: 'Heebo', sans-serif;
-    background: var(--bg-dark);
-    color: var(--text-primary);
-    min-height: 100vh;
-    overflow-x: hidden;
-    background-image: radial-gradient(ellipse at 80% 10%, rgba(212,133,42,0.05) 0%, transparent 60%);
-  }
-
-  /* ===== LOGIN ===== */
-  #loginScreen {
-    min-height: 100vh; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; padding:24px;
-    background: linear-gradient(160deg, #1a1612 0%, #2a1f10 100%);
-  }
-  .login-logo {
-    font-family:'Frank Ruhl Libre',serif; font-size:48px; font-weight:900;
-    color:var(--amber); text-shadow:0 0 40px rgba(212,133,42,0.5);
-    margin-bottom:6px; text-align:center;
-  }
-  .login-sub {
-    font-size:13px; letter-spacing:3px; color:var(--text-muted);
-    margin-bottom:48px; text-transform:uppercase;
-  }
-  .login-box {
-    background:var(--bg-card); border:1px solid var(--border); border-radius:20px;
-    padding:36px 28px; width:100%; max-width:340px;
-    box-shadow:var(--shadow), 0 0 60px rgba(212,133,42,0.07);
-  }
-  .login-box h2 { font-size:18px; margin-bottom:24px; text-align:center; font-weight:500; }
-  .pin-dots { display:flex; justify-content:center; gap:14px; margin-bottom:28px; }
-  .pin-dot {
-    width:14px; height:14px; border-radius:50%;
-    border:2px solid var(--border-strong); background:transparent; transition:all 0.2s;
-  }
-  .pin-dot.filled { background:var(--amber); border-color:var(--amber); box-shadow:0 0 12px rgba(212,133,42,0.6); }
-  .numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  .numpad-btn {
-    background:var(--bg-card2); border:1px solid var(--border); color:var(--text-primary);
-    font-family:'Heebo',sans-serif; font-size:22px; font-weight:600; height:60px;
-    border-radius:12px; cursor:pointer; transition:all 0.15s;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .numpad-btn:active { background:var(--amber-glow); transform:scale(0.96); }
-  .numpad-btn.del { font-size:16px; color:var(--text-muted); }
-  .numpad-btn.empty { visibility:hidden; }
-  .login-error { color:var(--red-alert); text-align:center; margin-top:14px; font-size:14px; min-height:20px; }
-
-  /* ===== APP ===== */
-  #appScreen { display:none; min-height:100vh; }
-  .topbar {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:16px 20px; background:var(--bg-card); border-bottom:1px solid var(--border);
-    position:sticky; top:0; z-index:100; backdrop-filter:blur(10px);
-  }
-  .topbar-title { font-family:'Frank Ruhl Libre',serif; font-size:22px; font-weight:900; color:var(--amber); }
-  .topbar-user { font-size:12px; color:var(--text-muted); text-align:left; }
-  .logout-btn {
-    background:none; border:1px solid var(--border); color:var(--text-muted);
-    padding:6px 12px; border-radius:8px; cursor:pointer;
-    font-family:'Heebo',sans-serif; font-size:13px;
-  }
-  .nav-tabs {
-    display:flex; overflow-x:auto; background:var(--bg-card);
-    border-bottom:1px solid var(--border); scrollbar-width:none; gap:4px; padding:0 12px;
-  }
-  .nav-tabs::-webkit-scrollbar { display:none; }
-  .nav-tab {
-    padding:14px 16px; font-size:13px; font-weight:500; color:var(--text-muted);
-    white-space:nowrap; cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s;
-    font-family:'Heebo',sans-serif; background:none;
-    border-top:none; border-left:none; border-right:none;
-  }
-  .nav-tab.active { color:var(--amber); border-bottom-color:var(--amber); }
-  .content { padding:20px 16px 100px; max-width:700px; margin:0 auto; }
-  .section-title {
-    font-family:'Frank Ruhl Libre',serif; font-size:20px; font-weight:700;
-    color:var(--text-primary); margin-bottom:16px; display:flex; align-items:center; gap:10px;
-  }
-  .card {
-    background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
-    padding:18px; margin-bottom:14px; box-shadow:0 4px 20px rgba(0,0,0,0.3);
-  }
-
-  /* ===== INVENTORY ===== */
-  .inv-card {
-    background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
-    overflow:hidden; margin-bottom:14px; box-shadow:0 4px 20px rgba(0,0,0,0.3);
-    display:flex; align-items:stretch; transition:all 0.2s;
-  }
-  .inv-card.alert-low { border-color:var(--red-alert); box-shadow:0 4px 20px rgba(192,57,43,0.25); }
-  .inv-img {
-    width:90px; min-height:100px; flex-shrink:0;
-    background:var(--bg-card2); display:flex; align-items:center; justify-content:center; font-size:40px;
-  }
-  .inv-body { flex:1; padding:14px; display:flex; flex-direction:column; justify-content:space-between; }
-  .inv-name { font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:4px; }
-  .inv-unit { font-size:12px; color:var(--text-muted); margin-bottom:10px; }
-  .inv-controls { display:flex; align-items:center; gap:12px; }
-  .qty-btn {
-    width:44px; height:44px; border-radius:12px; border:1px solid var(--border-strong);
-    background:var(--bg-card2); color:var(--amber); font-size:22px; font-weight:700;
-    cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s;
-    font-family:'Heebo',sans-serif;
-  }
-  .qty-btn:active { background:var(--amber-glow); transform:scale(0.94); }
-  .qty-display { font-size:20px; font-weight:700; color:var(--text-primary); min-width:40px; text-align:center; }
-  .qty-display.low { color:var(--red-alert); }
-  .alert-banner {
-    background:rgba(192,57,43,0.15); border:1px solid rgba(192,57,43,0.4); border-radius:12px;
-    padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; gap:10px;
-    font-size:14px; color:#e74c3c;
-  }
-  .search-bar {
-    display:flex; align-items:center; gap:10px; background:var(--bg-card);
-    border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin-bottom:16px;
-  }
-  .search-bar input {
-    background:none; border:none; outline:none; color:var(--text-primary);
-    font-family:'Heebo',sans-serif; font-size:14px; flex:1; text-align:right;
-  }
-  .voice-btn {
-    width:48px; height:48px; border-radius:50%; background:var(--amber-glow);
-    border:1px solid var(--border-strong); color:var(--amber); font-size:20px;
-    cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  }
-  .voice-btn.recording { background:rgba(192,57,43,0.2); border-color:var(--red-alert); color:var(--red-alert); animation:pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-
-  /* ===== TEAM ===== */
-  .team-card {
-    background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
-    padding:16px; margin-bottom:12px; display:flex; align-items:center;
-    justify-content:space-between; gap:12px;
-  }
-  .team-avatar {
-    width:48px; height:48px; border-radius:12px; background:var(--amber-glow);
-    border:1px solid var(--border-strong); display:flex; align-items:center;
-    justify-content:center; font-size:22px; flex-shrink:0;
-  }
-  .team-info { flex:1; min-width:0; }
-  .team-name { font-size:15px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .team-detail { font-size:12px; color:var(--text-muted); margin-top:3px; }
-  .team-pin {
-    font-family:monospace; font-size:15px; background:var(--bg-card2);
-    padding:5px 12px; border-radius:8px; color:var(--amber);
-    border:1px solid var(--border); letter-spacing:3px; font-weight:700;
-  }
-  .tag {
-    display:inline-flex; align-items:center; gap:4px; padding:2px 8px;
-    border-radius:20px; font-size:11px; font-weight:600;
-  }
-  .tag-admin { background:var(--amber-glow); color:var(--amber); border:1px solid var(--border-strong); }
-  .tag-staff { background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid var(--border); }
-
-  /* ===== AUDIT ===== */
-  .audit-item { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); font-size:13px; }
-  .audit-dot { width:8px; height:8px; border-radius:50%; background:var(--amber); margin-top:5px; flex-shrink:0; }
-  .audit-time { color:var(--text-muted); font-size:12px; }
-
-  /* ===== PROFITS ===== */
-  .stats-row { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:20px; }
-  .stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:16px; text-align:center; }
-  .stat-value { font-family:'Frank Ruhl Libre',serif; font-size:28px; font-weight:900; color:var(--amber); }
-  .stat-label { font-size:12px; color:var(--text-muted); margin-top:4px; }
-  .profit-row {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 0; border-bottom:1px solid var(--border); font-size:14px; gap:10px;
-  }
-  .profit-name { flex:1; font-weight:600; }
-  .profit-margin { font-size:13px; padding:3px 10px; border-radius:20px; font-weight:700; }
-  .margin-good { background:rgba(39,174,96,0.15); color:#2ecc71; }
-  .margin-ok { background:rgba(212,133,42,0.15); color:var(--amber); }
-  .margin-bad { background:rgba(192,57,43,0.15); color:var(--red-alert); }
-  .waste-summary {
-    background:linear-gradient(135deg,rgba(192,57,43,0.1),rgba(192,57,43,0.05));
-    border:1px solid rgba(192,57,43,0.3); border-radius:14px; padding:18px; margin-bottom:16px;
-  }
-
-  /* ===== WASTE ===== */
-  .waste-log-item {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;
-  }
-
-  /* ===== INVOICES ===== */
-  .upload-area {
-    border:2px dashed var(--border-strong); border-radius:14px; padding:30px;
-    text-align:center; color:var(--text-muted); cursor:pointer; transition:all 0.2s; font-size:14px;
-  }
-  .upload-area:hover { border-color:var(--amber); color:var(--amber); }
-  .upload-area .icon { font-size:36px; margin-bottom:8px; display:block; }
-  .invoice-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-  .invoice-thumb {
-    background:var(--bg-card2); border:1px solid var(--border); border-radius:12px;
-    aspect-ratio:3/4; display:flex; flex-direction:column; align-items:center;
-    justify-content:center; gap:8px; cursor:pointer; font-size:12px;
-    color:var(--text-muted); text-align:center; padding:10px;
-  }
-
-  /* ===== FORMS ===== */
-  .form-group { margin-bottom:16px; }
-  .form-label { font-size:13px; color:var(--text-muted); margin-bottom:6px; display:block; }
-  .form-input {
-    width:100%; background:var(--bg-card2); border:1px solid var(--border);
-    color:var(--text-primary); font-family:'Heebo',sans-serif; font-size:15px;
-    padding:12px 14px; border-radius:10px; outline:none; transition:border-color 0.2s; text-align:right;
-    appearance:none; -webkit-appearance:none;
-  }
-  .form-input:focus { border-color:var(--amber); }
-  .btn-primary {
-    width:100%; background:linear-gradient(135deg,var(--amber),#c97a1f); color:#1a1612;
-    border:none; font-family:'Heebo',sans-serif; font-size:16px; font-weight:700;
-    padding:15px; border-radius:12px; cursor:pointer; transition:all 0.2s;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-  }
-  .btn-primary:active { transform:scale(0.98); opacity:0.9; }
-  .btn-secondary {
-    background:var(--bg-card2); color:var(--text-primary); border:1px solid var(--border);
-    font-family:'Heebo',sans-serif; font-size:14px; padding:10px 16px; border-radius:10px; cursor:pointer;
-  }
-  .btn-danger {
-    background:rgba(192,57,43,0.15); color:var(--red-alert); border:1px solid rgba(192,57,43,0.3);
-    font-family:'Heebo',sans-serif; font-size:13px; padding:8px 14px; border-radius:8px; cursor:pointer;
-  }
-
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:200;
-    display:none; align-items:flex-end; justify-content:center; padding:20px;
-  }
-  .modal-overlay.open { display:flex; }
-  .modal {
-    background:var(--bg-card); border:1px solid var(--border); border-radius:20px 20px 16px 16px;
-    padding:24px; width:100%; max-width:500px; max-height:85vh; overflow-y:auto;
-    box-shadow:0 -20px 60px rgba(0,0,0,0.6);
-  }
-  .modal-title {
-    font-size:18px; font-weight:700; margin-bottom:20px;
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .modal-close {
-    background:var(--bg-card2); border:1px solid var(--border); color:var(--text-muted);
-    width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:16px;
-  }
-
-  /* ===== MISC ===== */
-  .header-section { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-  .tab-content { display:none; }
-  .tab-content.active { display:block; }
-  .hidden { display:none !important; }
-  .divider { height:1px; background:var(--border); margin:16px 0; }
-  .toast {
-    position:fixed; bottom:24px; right:50%; transform:translateX(50%);
-    background:var(--bg-card2); border:1px solid var(--amber); color:var(--text-primary);
-    padding:12px 20px; border-radius:12px; z-index:999; font-size:14px; font-weight:500;
-    box-shadow:var(--shadow); opacity:0; transition:opacity 0.3s; white-space:nowrap;
-  }
-  .toast.show { opacity:1; }
-
-  /* role toggle switch */
-  .role-toggle { display:flex; gap:8px; margin-top:6px; }
-  .role-btn {
-    flex:1; padding:10px; border-radius:10px; border:1px solid var(--border);
-    background:var(--bg-card2); color:var(--text-muted); cursor:pointer;
-    font-family:'Heebo',sans-serif; font-size:14px; font-weight:600; transition:all 0.2s; text-align:center;
-  }
-  .role-btn.active-admin { background:var(--amber-glow); color:var(--amber); border-color:var(--border-strong); }
-  .role-btn.active-staff { background:rgba(255,255,255,0.05); color:var(--text-primary); border-color:rgba(255,255,255,0.15); }
-
-  @media(max-width:400px){ .stats-row{grid-template-columns:1fr} .inv-img{width:75px} }
+:root {
+  --bg: #161210;
+  --bg1: #1e1a16;
+  --bg2: #26211b;
+  --bg3: #2f2820;
+  --amber: #d4852a;
+  --amber2: #f0a843;
+  --amberglow: rgba(212,133,42,0.13);
+  --red: #c0392b;
+  --green: #27ae60;
+  --txt: #f0ead8;
+  --muted: #8a7d6b;
+  --border: rgba(212,133,42,0.18);
+  --border2: rgba(212,133,42,0.38);
+  --shadow: 0 8px 32px rgba(0,0,0,0.55);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Heebo',sans-serif;
+  background:var(--bg);
+  color:var(--txt);
+  display:flex;flex-direction:column;
+  background-image:
+    radial-gradient(ellipse 70% 40% at 85% 5%, rgba(212,133,42,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 5% 95%, rgba(212,133,42,0.04) 0%, transparent 60%);
+}
+#loginScreen{
+  position:fixed;inset:0;z-index:500;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+  background:linear-gradient(160deg,#161210 0%,#27190a 100%);
+}
+.brand{text-align:center;margin-bottom:44px;}
+.brand-icon{font-size:52px;line-height:1;margin-bottom:8px}
+.brand-name{font-family:'Frank Ruhl Libre',serif;font-size:36px;font-weight:900;color:var(--amber);text-shadow:0 0 40px rgba(212,133,42,0.45);letter-spacing:-1px}
+.brand-sub{font-size:11px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:4px}
+.login-card{
+  background:var(--bg1);border:1px solid var(--border);border-radius:24px;
+  padding:32px 28px;width:100%;max-width:320px;
+  box-shadow:var(--shadow),0 0 80px rgba(212,133,42,0.06);
+}
+.login-label{font-size:14px;font-weight:500;color:var(--muted);text-align:center;margin-bottom:20px}
+.dots{display:flex;justify-content:center;gap:16px;margin-bottom:28px}
+.dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--border2);transition:all 0.2s}
+.dot.on{background:var(--amber);border-color:var(--amber);box-shadow:0 0 14px rgba(212,133,42,0.7)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.nk{
+  height:58px;border-radius:14px;border:1px solid var(--border);
+  background:var(--bg2);color:var(--txt);font-family:'Heebo',sans-serif;
+  font-size:20px;font-weight:600;cursor:pointer;transition:all 0.12s;
+  display:flex;align-items:center;justify-content:center;
+}
+.nk:active{background:var(--amberglow);transform:scale(0.94);border-color:var(--border2)}
+.nk.ghost{visibility:hidden}
+.nk.del{font-size:15px;color:var(--muted)}
+.lerr{min-height:22px;text-align:center;font-size:13px;color:var(--red);margin-top:12px}
+.cloud-status{font-size:12px;color:var(--amber);margin-top:20px;text-align:center;animation:pulse 1.5s infinite;}
+#app{flex:1;display:none;flex-direction:column;height:100%;overflow:hidden}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 18px;background:var(--bg1);border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.topbar-brand{font-family:'Frank Ruhl Libre',serif;font-size:20px;font-weight:900;color:var(--amber)}
+.topbar-right{display:flex;align-items:center;gap:7px}
+.topbar-user{text-align:left;margin-left:5px;}
+.topbar-name{font-size:13px;font-weight:700}
+.topbar-role{font-size:11px;color:var(--muted)}
+.topbar-out{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  padding:6px 10px;border-radius:8px;cursor:pointer;font-family:'Heebo';font-size:12px;transition:all 0.2s;
+}
+.topbar-out:active{background:var(--bg2);transform:scale(0.95)}
+.tabs{
+  display:flex;overflow-x:auto;background:var(--bg1);
+  border-bottom:1px solid var(--border);scrollbar-width:none;padding:0 10px;flex-shrink:0
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  padding:13px 14px;font-size:12.5px;font-weight:600;color:var(--muted);
+  white-space:nowrap;cursor:pointer;border-bottom:2.5px solid transparent;
+  background:none;border-top:none;border-left:none;border-right:none;
+  font-family:'Heebo';transition:all 0.18s;
+}
+.tab.on{color:var(--amber);border-bottom-color:var(--amber)}
+.pages{flex:1;overflow-y:auto;padding:18px 15px 90px;max-width:680px;margin:0 auto;width:100%}
+.page{display:none}
+.page.on{display:block}
+.sec-title{
+  font-family:'Frank Ruhl Libre',serif;font-size:19px;font-weight:700;
+  color:var(--txt);margin-bottom:14px;display:flex;align-items:center;gap:9px
+}
+.row-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:16px;padding:17px;margin-bottom:13px}
+.icard{
+  background:var(--bg1);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;margin-bottom:12px;display:flex;align-items:stretch;
+  box-shadow:0 3px 16px rgba(0,0,0,0.28);transition:border-color 0.2s
+}
+.icard.low{border-color:var(--red)}
+.icard-img{
+  width:82px;flex-shrink:0;background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;font-size:36px
+}
+.icard-body{flex:1;padding:12px}
+.icard-name{font-size:15px;font-weight:700;margin-bottom:3px}
+.icard-sub{font-size:11px;color:var(--muted);margin-bottom:10px}
+.ictrl{display:flex;align-items:center;gap:10px}
+.qbtn{
+  width:42px;height:42px;border-radius:11px;border:1px solid var(--border2);
+  background:var(--bg2);color:var(--amber);font-size:20px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-family:'Heebo';transition:all 0.12s
+}
+.qbtn:active{background:var(--amberglow);transform:scale(0.92)}
+.qnum{font-size:19px;font-weight:700;min-width:36px;text-align:center}
+.qnum.low{color:var(--red)}
+.alert-bar{
+  background:rgba(192,57,43,0.13);border:1px solid rgba(192,57,43,0.38);
+  border-radius:11px;padding:11px 14px;margin-bottom:14px;
+  display:flex;align-items:center;gap:9px;font-size:13px;color:#e74c3c
+}
+.search{
+  display:flex;align-items:center;gap:9px;background:var(--bg1);
+  border:1px solid var(--border);border-radius:11px;padding:9px 13px;margin-bottom:14px
+}
+.search input{
+  background:none;border:none;outline:none;color:var(--txt);
+  font-family:'Heebo';font-size:14px;flex:1;text-align:right
+}
+.mic{
+  width:44px;height:44px;border-radius:50%;background:var(--amberglow);
+  border:1px solid var(--border2);color:var(--amber);font-size:18px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.mic.rec{background:rgba(192,57,43,0.18);border-color:var(--red);color:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.emp-row{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-bottom:1px solid var(--border)
+}
+.emp-row:last-child{border-bottom:none}
+.emp-av{
+  width:44px;height:44px;border-radius:11px;background:var(--amberglow);
+  border:1px solid var(--border2);display:flex;align-items:center;
+  justify-content:center;font-size:20px;flex-shrink:0
+}
+.emp-info{flex:1;min-width:0}
+.emp-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.emp-phone{font-size:11px;color:var(--muted);margin-top:2px}
+.emp-pin{
+  font-family:monospace;font-size:14px;font-weight:700;letter-spacing:3px;
+  background:var(--bg2);padding:5px 11px;border-radius:8px;
+  color:var(--amber);border:1px solid var(--border);flex-shrink:0
+}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700}
+.tag-a{background:var(--amberglow);color:var(--amber);border:1px solid var(--border2)}
+.tag-s{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
+.emp-btns{display:flex;flex-direction:column;gap:5px}
+.aitem{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+.adot{width:7px;height:7px;border-radius:50%;background:var(--amber);margin-top:4px;flex-shrink:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}
+.scard{background:var(--bg1);border:1px solid var(--border);border-radius:13px;padding:15px;text-align:center}
+.sval{font-family:'Frank Ruhl Libre',serif;font-size:26px;font-weight:900;color:var(--amber)}
+.slbl{font-size:11px;color:var(--muted);margin-top:3px}
+.prow{display:flex;align-items:center;gap:9px;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pname{flex:1;font-weight:600}
+.pmgn{font-size:12px;padding:2px 8px;border-radius:20px;font-weight:700}
+.mg{background:rgba(39,174,96,0.13);color:#2ecc71}
+.mo{background:rgba(212,133,42,0.13);color:var(--amber)}
+.mb{background:rgba(192,57,43,0.13);color:var(--red)}
+.wrow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+.upload-zone{
+  border:2px dashed var(--border2);border-radius:13px;padding:28px 20px;
+  text-align:center;color:var(--muted);cursor:pointer;transition:all 0.2s;font-size:14px
+}
+.upload-zone:hover{border-color:var(--amber);color:var(--amber)}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px}
+.ithumb{
+  background:var(--bg2);border:1px solid var(--border);border-radius:11px;
+  aspect-ratio:3/4;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:7px;font-size:12px;color:var(--muted);text-align:center;padding:10px
+}
+.fg{margin-bottom:14px}
+.fl{font-size:12px;color:var(--muted);margin-bottom:5px;display:block}
+.fi{
+  width:100%;background:var(--bg2);border:1px solid var(--border);
+  color:var(--txt);font-family:'Heebo';font-size:14px;
+  padding:11px 13px;border-radius:10px;outline:none;
+  transition:border-color 0.2s;text-align:right;
+  appearance:none;-webkit-appearance:none
+}
+.fi:focus{border-color:var(--amber)}
+.btn{
+  width:100%;background:linear-gradient(135deg,var(--amber),#c07820);
+  color:#161210;border:none;font-family:'Heebo';font-size:15px;font-weight:700;
+  padding:14px;border-radius:12px;cursor:pointer;transition:all 0.15s;
+  display:flex;align-items:center;justify-content:center;gap:7px
+}
+.btn:active{transform:scale(0.97);opacity:0.88}
+.btn2{
+  background:var(--bg2);color:var(--txt);border:1px solid var(--border);
+  font-family:'Heebo';font-size:13px;padding:8px 13px;border-radius:9px;cursor:pointer
+}
+.btnd{
+  background:rgba(192,57,43,0.13);color:var(--red);
+  border:1px solid rgba(192,57,43,0.28);
+  font-family:'Heebo';font-size:12px;padding:7px 11px;border-radius:8px;cursor:pointer
+}
+.rtog{display:flex;gap:7px;margin-top:5px}
+.rtbtn{
+  flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg2);color:var(--muted);cursor:pointer;
+  font-family:'Heebo';font-size:13px;font-weight:600;transition:all 0.18s;text-align:center
+}
+.rtbtn.ra{background:var(--amberglow);color:var(--amber);border-color:var(--border2)}
+.rtbtn.rs{background:rgba(255,255,255,0.04);color:var(--txt);border-color:rgba(255,255,255,0.12)}
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:300;
+  display:none;align-items:flex-end;justify-content:center;padding:16px
+}
+.overlay.on{display:flex}
+.modal{
+  background:var(--bg1);border:1px solid var(--border);border-radius:20px 20px 15px 15px;
+  padding:22px 20px;width:100%;max-width:480px;max-height:87vh;overflow-y:auto;
+  box-shadow:0 -20px 60px rgba(0,0,0,0.6)
+}
+.mhdr{font-size:17px;font-weight:700;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.mclose{
+  background:var(--bg2);border:1px solid var(--border);color:var(--muted);
+  width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:15px
+}
+.perm-box{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:11px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.7
+}
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  background:var(--bg2);border:1px solid var(--amber);color:var(--txt);
+  padding:10px 18px;border-radius:11px;z-index:999;font-size:13px;font-weight:500;
+  box-shadow:var(--shadow);opacity:0;transition:opacity 0.25s;white-space:nowrap
+}
+.toast.on{opacity:1}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 
-<!-- ======== LOGIN ======== -->
 <div id="loginScreen">
-  <div class="login-logo">🥐 מאפה הבית</div>
-  <div class="login-sub">Business Management OS</div>
-  <div class="login-box">
-    <h2>הזן קוד PIN</h2>
-    <div class="pin-dots">
-      <div class="pin-dot" id="d1"></div>
-      <div class="pin-dot" id="d2"></div>
-      <div class="pin-dot" id="d3"></div>
-      <div class="pin-dot" id="d4"></div>
+  <div class="brand">
+    <div class="brand-icon">🥐</div>
+    <div class="brand-name">מאפה הבית</div>
+    <div class="brand-sub">Business OS</div>
+  </div>
+  <div class="login-card">
+    <div class="login-label">הזן קוד PIN</div>
+    <div class="dots">
+      <div class="dot" id="d0"></div><div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div><div class="dot" id="d3"></div>
     </div>
     <div class="numpad">
-      <button class="numpad-btn" onclick="enterPin('1')">1</button>
-      <button class="numpad-btn" onclick="enterPin('2')">2</button>
-      <button class="numpad-btn" onclick="enterPin('3')">3</button>
-      <button class="numpad-btn" onclick="enterPin('4')">4</button>
-      <button class="numpad-btn" onclick="enterPin('5')">5</button>
-      <button class="numpad-btn" onclick="enterPin('6')">6</button>
-      <button class="numpad-btn" onclick="enterPin('7')">7</button>
-      <button class="numpad-btn" onclick="enterPin('8')">8</button>
-      <button class="numpad-btn" onclick="enterPin('9')">9</button>
-      <button class="numpad-btn empty"></button>
-      <button class="numpad-btn" onclick="enterPin('0')">0</button>
-      <button class="numpad-btn del" onclick="deletePin()">⌫</button>
+      <button class="nk" onclick="pin('1')">1</button>
+      <button class="nk" onclick="pin('2')">2</button>
+      <button class="nk" onclick="pin('3')">3</button>
+      <button class="nk" onclick="pin('4')">4</button>
+      <button class="nk" onclick="pin('5')">5</button>
+      <button class="nk" onclick="pin('6')">6</button>
+      <button class="nk" onclick="pin('7')">7</button>
+      <button class="nk" onclick="pin('8')">8</button>
+      <button class="nk" onclick="pin('9')">9</button>
+      <button class="nk ghost"></button>
+      <button class="nk" onclick="pin('0')">0</button>
+      <button class="nk del" onclick="delPin()">⌫</button>
     </div>
-    <div class="login-error" id="loginError"></div>
+    <div class="lerr" id="lerr"></div>
+    <div class="cloud-status" id="cloudStatus">☁️ מתחבר לענן...</div>
   </div>
 </div>
 
-<!-- ======== MAIN APP ======== -->
-<div id="appScreen">
+<div id="app">
   <div class="topbar">
-    <div class="topbar-title">🥐 מאפה הבית</div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div>
-        <div style="font-size:14px;font-weight:600;" id="topbarUser">—</div>
-        <div class="topbar-user" id="topbarRole">—</div>
+    <div class="topbar-brand">🥐 מאפה הבית</div>
+    <div class="topbar-right">
+      <div class="topbar-user">
+        <div class="topbar-name" id="tName">—</div>
+        <div class="topbar-role" id="tRole">—</div>
       </div>
-      <button class="logout-btn" onclick="logout()">יציאה</button>
+      <button class="topbar-out" onclick="syncCloud()">🔄 סנכרן</button>
+      <button class="topbar-out" onclick="logout()">יציאה</button>
     </div>
   </div>
-  <div class="nav-tabs" id="navTabs"></div>
-  <div class="content">
+  <div class="tabs" id="tabs"></div>
+  <div class="pages" id="pages">
 
-    <!-- INVENTORY -->
-    <div class="tab-content" id="tab-inventory">
-      <div class="header-section">
-        <div class="section-title">📦 מלאי</div>
-        <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+    <div class="page" id="pg-inventory">
+      <div class="row-hdr">
+        <div class="sec-title">📦 מלאי</div>
       </div>
-      <div class="search-bar">
-        <span style="color:var(--text-muted)">🔍</span>
-        <input type="text" id="invSearch" placeholder="חיפוש מוצר..." oninput="renderInventory()">
+      
+      <div class="search" style="border-color: var(--amber); background: rgba(212,133,42,0.06); padding: 7px 9px;">
+        <button class="mic" id="micBtn" onclick="toggleMic()" style="width:38px;height:38px;margin-left:6px;flex-shrink:0;">🎤</button>
+        <input id="aiInput" placeholder="דבר או הקלד (למשל: הוסף 5 קרואסון)..." style="font-size:13px;" onkeypress="if(event.key==='Enter') runAIText()">
+        <button class="btn" style="width:auto; padding: 8px 14px; border-radius: 9px; font-size:13px;" onclick="runAIText()">שלח 🤖</button>
       </div>
-      <div id="alertBanner" class="alert-banner hidden">⚠️ <span id="alertText"></span></div>
-      <div id="inventoryList"></div>
+
+      <div class="search" style="margin-top: -5px;">
+        <span style="color:var(--muted)">🔍</span>
+        <input id="srch" placeholder="חיפוש פריט במלאי..." oninput="renderInv()">
+      </div>
+      
+      <div id="alertBar" class="alert-bar hidden">⚠️ <span id="alertTxt"></span></div>
+      <div id="invList"></div>
     </div>
 
-    <!-- WASTE -->
-    <div class="tab-content" id="tab-waste">
-      <div class="section-title">🗑️ דיווח פחת</div>
+    <div class="page" id="pg-waste">
+      <div class="sec-title">🗑️ דיווח פחת</div>
       <div class="card">
-        <div class="form-group">
-          <label class="form-label">בחר מוצר</label>
-          <select class="form-input" id="wasteProduct"></select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">כמות</label>
-          <input class="form-input" type="number" id="wasteQty" placeholder="הזן כמות">
-        </div>
-        <div class="form-group">
-          <label class="form-label">סיבה</label>
-          <select class="form-input" id="wasteReason">
+        <div class="fg"><label class="fl">מוצר</label><select class="fi" id="wProd"></select></div>
+        <div class="fg"><label class="fl">כמות</label><input class="fi" type="number" id="wQty" placeholder="0"></div>
+        <div class="fg">
+          <label class="fl">סיבה</label>
+          <select class="fi" id="wReason">
             <option>תוקף פג</option><option>נפילה / נזק</option>
             <option>שאריות מכירה</option><option>אחר</option>
           </select>
         </div>
-        <button class="btn-primary" onclick="logWaste()">📝 שמור דיווח</button>
+        <button class="btn" onclick="saveWaste()">📝 שמור דיווח</button>
       </div>
-      <div class="section-title" style="margin-top:20px;">📋 יומן פחת</div>
+      <div class="sec-title" style="margin-top:18px">📋 יומן</div>
       <div id="wasteLog"></div>
     </div>
 
-    <!-- INVOICES -->
-    <div class="tab-content" id="tab-invoices">
-      <div class="section-title">📄 חשבוניות</div>
-      <div class="upload-area" onclick="document.getElementById('invoiceFile').click()">
-        <span class="icon">📷</span>
+    <div class="page" id="pg-invoices">
+      <div class="sec-title">📄 חשבוניות</div>
+      <div class="upload-zone" onclick="document.getElementById('invFile').click()">
+        <div style="font-size:34px;margin-bottom:7px">📷</div>
         <strong>צלם / העלה חשבונית</strong>
-        <div style="margin-top:4px;font-size:12px;">לחץ לצילום או בחירה מהגלריה</div>
-        <input type="file" id="invoiceFile" accept="image/*" capture="environment" style="display:none" onchange="handleInvoiceUpload(event)">
+        <div style="font-size:12px;margin-top:4px">לחץ לצילום או בחירה מגלריה</div>
+        <input type="file" id="invFile" accept="image/*" capture="environment" style="display:none" onchange="uploadInv(event)">
       </div>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-        <button class="btn-secondary" onclick="filterInvoices('all')" style="font-family:Heebo;">הכל</button>
-        <button class="btn-secondary" onclick="filterInvoices('today')" style="font-family:Heebo;">היום</button>
-        <button class="btn-secondary" onclick="filterInvoices('week')" style="font-family:Heebo;">שבוע</button>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button class="btn2" onclick="setInvF('all')">הכל</button>
+        <button class="btn2" onclick="setInvF('today')">היום</button>
+        <button class="btn2" onclick="setInvF('week')">שבוע</button>
       </div>
-      <div class="invoice-grid" id="invoiceGrid"></div>
+      <div class="igrid" id="invGrid"></div>
     </div>
 
-    <!-- TEAM (Admin only) -->
-    <div class="tab-content" id="tab-team">
-      <div class="header-section">
-        <div class="section-title">👥 ניהול עובדים</div>
-        <button class="btn-primary" style="width:auto;padding:10px 16px;font-size:14px;" onclick="openAddEmployee()">+ עובד חדש</button>
+    <div class="page" id="pg-team">
+      <div class="row-hdr">
+        <div class="sec-title">👥 עובדים</div>
+        <button class="btn" style="width:auto;padding:9px 15px;font-size:13px" onclick="openEmpModal()">+ עובד חדש</button>
       </div>
-
-      <!-- EMPLOYEES TABLE -->
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-muted);display:flex;gap:8px;align-items:center;">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:11px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)">
           📋 כל העובדים במערכת
         </div>
-        <div id="teamList"></div>
+        <div id="empList"></div>
       </div>
-
-      <div class="section-title" style="margin-top:24px;">📋 יומן פעולות</div>
-      <div id="auditLog"></div>
+      <div class="sec-title" style="margin-top:22px">📋 יומן פעולות</div>
+      <div id="auditList"></div>
     </div>
 
-    <!-- PROFITS (Admin only) -->
-    <div class="tab-content" id="tab-profits">
-      <div class="section-title">💰 רווחיות</div>
-      <div class="stats-row" id="statsRow"></div>
+    <div class="page" id="pg-profits">
+      <div class="sec-title">💰 רווחיות</div>
+      <div class="stats" id="statsGrid"></div>
       <div class="card">
-        <div style="font-size:15px;font-weight:700;margin-bottom:14px;">📊 שולי רווח לפי מוצר</div>
-        <div id="profitList"></div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px">📊 שולי רווח לפי מוצר</div>
+        <div id="profitRows"></div>
       </div>
-      <div class="waste-summary" id="wasteSummaryAdmin"></div>
+      <div style="background:linear-gradient(135deg,rgba(192,57,43,0.09),rgba(192,57,43,0.04));border:1px solid rgba(192,57,43,0.28);border-radius:13px;padding:16px" id="wasteSumm"></div>
     </div>
 
-    <!-- MANAGEMENT (Admin only) -->
-    <div class="tab-content" id="tab-management">
-      <div class="section-title">⚙️ ניהול מוצרים</div>
-      <button class="btn-primary" onclick="openAddProduct()" style="margin-bottom:16px;">+ הוסף מוצר</button>
-      <div id="managementList"></div>
+    <div class="page" id="pg-management">
+      <div class="sec-title">⚙️ ניהול מוצרים</div>
+      <button class="btn" style="margin-bottom:14px" onclick="openProdModal()">+ הוסף מוצר</button>
+      <div id="mgmtList"></div>
     </div>
 
-  </div><!-- /content -->
-</div><!-- /appScreen -->
-
-<!-- ======== EMPLOYEE MODAL ======== -->
-<div class="modal-overlay" id="empModal">
-  <div class="modal">
-    <div class="modal-title">
-      <span id="empModalTitle">עובד חדש</span>
-      <button class="modal-close" onclick="closeModal('empModal')">✕</button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">שם מלא</label>
-      <input class="form-input" id="empName" placeholder="שם העובד">
-    </div>
-    <div class="form-group">
-      <label class="form-label">טלפון</label>
-      <input class="form-input" id="empPhone" type="tel" placeholder="050-0000000">
-    </div>
-    <div class="form-group">
-      <label class="form-label">קוד PIN (4 ספרות בדיוק)</label>
-      <input class="form-input" id="empPin" type="number" placeholder="1234">
-    </div>
-    <div class="form-group">
-      <label class="form-label">תפקיד</label>
-      <div class="role-toggle">
-        <button class="role-btn" id="roleStaffBtn" onclick="selectRole('staff')">👤 עובד</button>
-        <button class="role-btn" id="roleAdminBtn" onclick="selectRole('admin')">⭐ מנהל</button>
-      </div>
-      <input type="hidden" id="empRole" value="staff">
-    </div>
-    <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--text-muted);">
-      <strong style="color:var(--text-primary);">הרשאות לפי תפקיד:</strong><br>
-      👤 עובד — מלאי, פחת, חשבוניות בלבד<br>
-      ⭐ מנהל — גישה מלאה + צוות + רווחיות + ניהול
-    </div>
-    <button class="btn-primary" onclick="saveEmployee()">💾 שמור עובד</button>
   </div>
 </div>
 
-<!-- ======== PRODUCT MODAL ======== -->
-<div class="modal-overlay" id="productModal">
+<div class="overlay" id="empOverlay">
   <div class="modal">
-    <div class="modal-title">
-      <span id="productModalTitle">מוצר חדש</span>
-      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
+    <div class="mhdr">
+      <span id="empMTitle">עובד חדש</span>
+      <button class="mclose" onclick="closeModal('empOverlay')">✕</button>
     </div>
-    <div class="form-group">
-      <label class="form-label">שם מוצר</label>
-      <input class="form-input" id="prodName" placeholder="לדוג': רוגלך שוקולד">
+    <div class="fg"><label class="fl">שם מלא</label><input class="fi" id="eName" placeholder="שם העובד"></div>
+    <div class="fg"><label class="fl">טלפון</label><input class="fi" id="ePhone" type="tel" placeholder="050-0000000"></div>
+    <div class="fg"><label class="fl">קוד PIN (4 ספרות)</label><input class="fi" id="ePin" type="number" placeholder="1234"></div>
+    <div class="fg">
+      <label class="fl">תפקיד</label>
+      <div class="rtog">
+        <button class="rtbtn" id="rStaff" onclick="setRole('staff')">👤 עובד</button>
+        <button class="rtbtn" id="rAdmin" onclick="setRole('admin')">⭐ מנהל</button>
+      </div>
+      <input type="hidden" id="eRole" value="staff">
     </div>
-    <div class="form-group">
-      <label class="form-label">יחידת מידה</label>
-      <select class="form-input" id="prodUnit">
-        <option value="קרטון">קרטון</option>
-        <option value="יחידה">יחידה</option>
-      </select>
+    <div class="perm-box">
+      <strong style="color:var(--txt)">הרשאות לפי תפקיד:</strong><br>
+      👤 עובד — מלאי, פחת, חשבוניות בלבד<br>
+      ⭐ מנהל — גישה מלאה לכל הפאנלים
     </div>
-    <div class="form-group">
-      <label class="form-label">כמות התחלתית</label>
-      <input class="form-input" id="prodQty" type="number" value="10">
+    <button class="btn" onclick="saveEmp()">💾 שמור עובד</button>
+  </div>
+</div>
+
+<div class="overlay" id="prodOverlay">
+  <div class="modal">
+    <div class="mhdr">
+      <span id="prodMTitle">מוצר חדש</span>
+      <button class="mclose" onclick="closeModal('prodOverlay')">✕</button>
     </div>
-    <div class="form-group">
-      <label class="form-label">עלות (₪)</label>
-      <input class="form-input" id="prodCost" type="number" placeholder="50">
+    <div class="fg"><label class="fl">שם מוצר</label><input class="fi" id="pName" placeholder="לדוג': רוגלך שוקולד"></div>
+    <div class="fg">
+      <label class="fl">יחידת מידה</label>
+      <select class="fi" id="pUnit"><option value="קרטון">קרטון</option><option value="יחידה">יחידה</option></select>
     </div>
-    <div class="form-group">
-      <label class="form-label">מחיר מכירה (₪)</label>
-      <input class="form-input" id="prodPrice" type="number" placeholder="80">
-    </div>
-    <button class="btn-primary" onclick="saveProduct()">💾 שמור מוצר</button>
+    <div class="fg"><label class="fl">כמות התחלתית</label><input class="fi" id="pQty" type="number" value="10"></div>
+    <div class="fg"><label class="fl">עלות (₪)</label><input class="fi" id="pCost" type="number" placeholder="50"></div>
+    <div class="fg"><label class="fl">מחיר מכירה (₪)</label><input class="fi" id="pPrice" type="number" placeholder="80"></div>
+    <button class="btn" onclick="saveProd()">💾 שמור מוצר</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// =============================================
-//  STATE
-// =============================================
-let state = {
-  currentUser: null,
-  pinEntry: '',
-  employees: [
-    { id:1, name:'מרדכי קירזון', pin:'1273', role:'admin', phone:'050-0000001' },
-    { id:2, name:'יורם בסן',     pin:'8888', role:'admin', phone:'050-0000002' },
+// הגדרות הענן של JSONBin
+const BIN_URL = "https://api.jsonbin.io/v3/b/69e4f50f10716a4d5de5ce15";
+const BIN_KEY = "$2a$10$N5zzorC7.3KqOcKxv66cn.RxNK6V7SYL/xTVJS194Owgv8YwupFKO";
+
+let S = {
+  user:null, buf:'',
+  emps:[
+    {id:1,name:'מרדכי קירזון',pin:'1273',role:'admin',phone:'050-0000001'},
+    {id:2,name:'יורם בסן',    pin:'8888',role:'admin',phone:'050-0000002'},
   ],
-  inventory: [
-    { id:1, name:'רוגלך שוקולד',      unit:'קרטון', qty:8,  cost:45, price:80  },
-    { id:2, name:'רוגלך גבינה',        unit:'קרטון', qty:3,  cost:45, price:80  },
-    { id:3, name:'בורקס גבינה',        unit:'קרטון', qty:12, cost:55, price:95  },
-    { id:4, name:'בורקס תפוח אדמה',    unit:'קרטון', qty:2,  cost:55, price:95  },
-    { id:5, name:'אייס קפה פרמיום',    unit:'יחידה', qty:24, cost:8,  price:18  },
-    { id:6, name:'קרואסון חמאה',       unit:'קרטון', qty:6,  cost:60, price:110 },
-    { id:7, name:'דנישים פירות',        unit:'קרטון', qty:4,  cost:50, price:90  },
-    { id:8, name:'שניצל מיני',         unit:'קרטון', qty:1,  cost:70, price:120 },
+  inv:[
+    {id:1,name:'רוגלך שוקולד',   unit:'קרטון',qty:8, cost:45,price:80 },
+    {id:2,name:'רוגלך גבינה',    unit:'קרטון',qty:3, cost:45,price:80 },
+    {id:3,name:'בורקס גבינה',    unit:'קרטון',qty:12,cost:55,price:95 },
+    {id:4,name:'בורקס תפוח אדמה',unit:'קרטון',qty:2, cost:55,price:95 },
+    {id:5,name:'אייס קפה פרמיום',unit:'יחידה',qty:24,cost:8, price:18 },
+    {id:6,name:'קרואסון חמאה',   unit:'קרטון',qty:6, cost:60,price:110},
   ],
-  waste: [],
-  invoices: [],
-  auditLog: [
-    { user:'מרדכי קירזון', action:'עדכן מלאי', detail:'רוגלך שוקולד: 10 → 8', time: new Date(Date.now()-3600000).toISOString() },
-    { user:'יורם בסן',     action:'עדכן מלאי', detail:'בורקס גבינה: 15 → 12',  time: new Date(Date.now()-7200000).toISOString() },
-  ],
-  nextId: 100,
-  editingEmployee: null,
-  editingProduct: null,
-  voiceActive: false,
-  invoiceFilter: 'all',
+  waste:[],invoices:[],
+  audit:[],
+  nid:100,editEmp:null,editProd:null,invF:'all',micOn:false,
 };
 
-// =============================================
-//  EMOJI MAP
-// =============================================
-function getEmoji(name) {
-  const n = name.toLowerCase();
-  if (n.includes('רוגלך'))  return '🥐';
-  if (n.includes('בורקס'))  return '🥟';
-  if (n.includes('קפה'))    return '☕';
-  if (n.includes('קרואסון')) return '🥐';
-  if (n.includes('דניש') || n.includes('פירות')) return '🍰';
-  if (n.includes('שניצל') || n.includes('בשר'))  return '🍖';
-  if (n.includes('גבינה') || n.includes('חמאה')) return '🧀';
-  if (n.includes('שוקולד')) return '🍫';
-  if (n.includes('תפוח'))   return '🍎';
-  return '🥖';
-}
-
-// =============================================
-//  PIN LOGIN
-// =============================================
-function enterPin(digit) {
-  if (state.pinEntry.length >= 4) return;
-  state.pinEntry += digit;
-  updateDots();
-  if (state.pinEntry.length === 4) setTimeout(checkPin, 120);
-}
-function deletePin() {
-  state.pinEntry = state.pinEntry.slice(0,-1);
-  updateDots();
-  document.getElementById('loginError').textContent = '';
-}
-function updateDots() {
-  for (let i=1;i<=4;i++)
-    document.getElementById('d'+i).classList.toggle('filled', i <= state.pinEntry.length);
-}
-function checkPin() {
-  const user = state.employees.find(e => e.pin === state.pinEntry);
-  state.pinEntry = '';
-  updateDots();
-  if (user) {
-    state.currentUser = user;
-    document.getElementById('loginError').textContent = '';
-    enterApp();
-  } else {
-    document.getElementById('loginError').textContent = '❌ קוד שגוי, נסה שוב';
-  }
-}
-
-// =============================================
-//  APP SHELL
-// =============================================
-function enterApp() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('appScreen').style.display = 'block';
-  document.getElementById('topbarUser').textContent = state.currentUser.name;
-  document.getElementById('topbarRole').textContent =
-    state.currentUser.role === 'admin' ? '⭐ מנהל' : '👤 עובד';
-  buildNav();
-  showTab('inventory');
-}
-function logout() {
-  state.currentUser = null;
-  state.pinEntry = '';
-  updateDots();
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('appScreen').style.display = 'none';
-}
-function isAdmin() { return state.currentUser?.role === 'admin'; }
-
-function buildNav() {
-  const tabs = [
-    { id:'inventory',   label:'📦 מלאי',      adminOnly:false },
-    { id:'waste',       label:'🗑️ פחת',        adminOnly:false },
-    { id:'invoices',    label:'📄 חשבוניות',   adminOnly:false },
-    { id:'team',        label:'👥 עובדים',     adminOnly:true  },
-    { id:'profits',     label:'💰 רווחיות',    adminOnly:true  },
-    { id:'management',  label:'⚙️ מוצרים',     adminOnly:true  },
-  ];
-  const nav = document.getElementById('navTabs');
-  nav.innerHTML = '';
-  tabs.forEach(t => {
-    if (t.adminOnly && !isAdmin()) return;
-    const btn = document.createElement('button');
-    btn.className = 'nav-tab';
-    btn.textContent = t.label;
-    btn.id = 'navTab-' + t.id;
-    btn.onclick = () => showTab(t.id);
-    nav.appendChild(btn);
-  });
-}
-function showTab(id) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-'+id)?.classList.add('active');
-  document.getElementById('navTab-'+id)?.classList.add('active');
-  const renders = { inventory:renderInventory, team:renderTeam, profits:renderProfits,
-                    waste:renderWasteTab, invoices:renderInvoices, management:renderManagement };
-  renders[id]?.();
-}
-
-// =============================================
-//  INVENTORY
-// =============================================
-function renderInventory() {
-  const q = (document.getElementById('invSearch')?.value || '').toLowerCase();
-  const lowItems = state.inventory.filter(i => i.qty < 5);
-  const banner = document.getElementById('alertBanner');
-  if (lowItems.length) {
-    banner.classList.remove('hidden');
-    document.getElementById('alertText').textContent = `${lowItems.length} פריטים במלאי נמוך!`;
-  } else banner.classList.add('hidden');
-
-  const sorted = [...state.inventory]
-    .sort((a,b) => (a.qty<5?0:1) - (b.qty<5?0:1))
-    .filter(i => !q || i.name.includes(q));
-
-  document.getElementById('inventoryList').innerHTML = sorted.map(item => `
-    <div class="inv-card ${item.qty<5?'alert-low':''}">
-      <div class="inv-img">${getEmoji(item.name)}</div>
-      <div class="inv-body">
-        <div>
-          <div class="inv-name">${item.name}</div>
-          <div class="inv-unit">${item.unit} &nbsp;|&nbsp; ${item.qty<5
-            ? '<span style="color:var(--red-alert)">⚠️ מלאי נמוך</span>'
-            : '<span style="color:var(--green)">✓ תקין</span>'}</div>
-        </div>
-        <div class="inv-controls">
-          <button class="qty-btn" onclick="updateQty(${item.id},-1)">−</button>
-          <div class="qty-display ${item.qty<5?'low':''}" id="qty-${item.id}">${item.qty}</div>
-          <button class="qty-btn" onclick="updateQty(${item.id},1)">+</button>
-          <span style="font-size:11px;color:var(--text-muted);margin-right:auto;">${item.unit}ים</span>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-function updateQty(id, delta) {
-  const item = state.inventory.find(i => i.id===id);
-  if (!item) return;
-  const old = item.qty;
-  item.qty = Math.max(0, item.qty + delta);
-  addAudit('עדכן מלאי', `${item.name}: ${old} → ${item.qty}`);
-  renderInventory();
-  showToast(`✅ ${item.name}: ${item.qty} ${item.unit}ים`);
-}
-
-// =============================================
-//  WASTE
-// =============================================
-function renderWasteTab() {
-  const sel = document.getElementById('wasteProduct');
-  sel.innerHTML = state.inventory.map(i=>`<option value="${i.id}">${i.name}</option>`).join('');
-  renderWasteLog();
-}
-function logWaste() {
-  const pid  = parseInt(document.getElementById('wasteProduct').value);
-  const qty  = parseFloat(document.getElementById('wasteQty').value);
-  const reason = document.getElementById('wasteReason').value;
-  if (!qty || qty<=0) { showToast('⚠️ הזן כמות תקינה'); return; }
-  const item = state.inventory.find(i=>i.id===pid);
-  state.waste.unshift({
-    id:state.nextId++, productName:item?.name||'—', qty, reason,
-    user:state.currentUser.name, time:new Date().toISOString(),
-    cost: item ? item.cost*qty : 0,
-  });
-  document.getElementById('wasteQty').value = '';
-  addAudit('דיווח פחת', `${item?.name}: ${qty} יח' — ${reason}`);
-  showToast('📝 פחת נרשם');
-  renderWasteLog();
-}
-function renderWasteLog() {
-  const el = document.getElementById('wasteLog');
-  if (!state.waste.length) {
-    el.innerHTML='<div style="color:var(--text-muted);text-align:center;padding:20px;font-size:14px;">אין דיווחי פחת</div>';
-    return;
-  }
-  el.innerHTML = state.waste.slice(0,10).map(w=>`
-    <div class="waste-log-item">
-      <div><div style="font-weight:600">${w.productName}</div>
-           <div style="color:var(--text-muted);font-size:12px">${w.reason} | ${w.user}</div></div>
-      <div style="text-align:left">
-        <div style="color:var(--red-alert);font-weight:700">${w.qty} יח'</div>
-        <div style="color:var(--text-muted);font-size:12px">₪${w.cost.toFixed(0)}</div>
-      </div>
-    </div>`).join('');
-}
-
-// =============================================
-//  INVOICES
-// =============================================
-function renderInvoices() {
-  const grid = document.getElementById('invoiceGrid');
-  const now  = new Date();
-  let list   = [...state.invoices];
-  if (state.invoiceFilter==='today')
-    list = list.filter(i => new Date(i.time).toDateString()===now.toDateString());
-  if (state.invoiceFilter==='week')
-    list = list.filter(i => new Date(i.time) > new Date(now-7*86400000));
-  if (!list.length) {
-    grid.innerHTML='<div style="color:var(--text-muted);text-align:center;padding:30px;grid-column:span 2;font-size:14px;">אין חשבוניות</div>';
-    return;
-  }
-  grid.innerHTML = list.map(inv=>`
-    <div class="invoice-thumb">
-      <span style="font-size:32px">${inv.preview||'📄'}</span>
-      <div style="font-weight:600;font-size:13px">${inv.name}</div>
-      <div>${fmtTime(inv.time)}</div>
-    </div>`).join('');
-}
-function filterInvoices(f) { state.invoiceFilter=f; renderInvoices(); }
-function handleInvoiceUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  state.invoices.unshift({
-    id:state.nextId++,
-    name: 'חשבונית ' + new Date().toLocaleDateString('he-IL'),
-    time:new Date().toISOString(), preview:'🖼️'
-  });
-  showToast('📄 חשבונית הועלתה!');
-  renderInvoices();
-  e.target.value='';
-}
-
-// =============================================
-//  TEAM  ← main new feature
-// =============================================
-function renderTeam() {
-  // Build employee rows
-  const el = document.getElementById('teamList');
-  el.innerHTML = state.employees.map(emp => `
-    <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);">
-      <div class="team-avatar">${emp.role==='admin'?'⭐':'👤'}</div>
-      <div class="team-info">
-        <div class="team-name">
-          ${emp.name}
-          <span class="tag ${emp.role==='admin'?'tag-admin':'tag-staff'}" style="margin-right:6px">
-            ${emp.role==='admin'?'מנהל':'עובד'}
-          </span>
-        </div>
-        <div class="team-detail">📞 ${emp.phone||'—'}</div>
-        <div style="margin-top:4px;display:flex;align-items:center;gap:6px;">
-          <span style="font-size:11px;color:var(--text-muted);">PIN:</span>
-          <span class="team-pin">${emp.pin}</span>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <button class="btn-secondary" style="padding:7px 12px;font-size:13px;" onclick="openEditEmployee(${emp.id})">✏️ עריכה</button>
-        <button class="btn-danger"    style="padding:7px 12px;font-size:12px;" onclick="deleteEmployee(${emp.id})">🗑️ מחק</button>
-      </div>
-    </div>
-  `).join('');
-
-  // Audit log
-  document.getElementById('auditLog').innerHTML =
-    state.auditLog.slice(0,20).map(a=>`
-      <div class="audit-item">
-        <div class="audit-dot"></div>
-        <div>
-          <div><strong>${a.user}</strong> — ${a.action}</div>
-          <div class="audit-time">${a.detail} | ${fmtTime(a.time)}</div>
-        </div>
-      </div>`).join('');
-}
-
-let _selectedRole = 'staff';
-function selectRole(role) {
-  _selectedRole = role;
-  document.getElementById('empRole').value = role;
-  document.getElementById('roleStaffBtn').className =
-    'role-btn' + (role==='staff' ? ' active-staff' : '');
-  document.getElementById('roleAdminBtn').className =
-    'role-btn' + (role==='admin' ? ' active-admin' : '');
-}
-
-function openAddEmployee() {
-  state.editingEmployee = null;
-  document.getElementById('empModalTitle').textContent = 'עובד חדש';
-  document.getElementById('empName').value  = '';
-  document.getElementById('empPhone').value = '';
-  document.getElementById('empPin').value   = '';
-  selectRole('staff');
-  document.getElementById('empModal').classList.add('open');
-}
-
-function openEditEmployee(id) {
-  const emp = state.employees.find(e=>e.id===id);
-  if (!emp) return;
-  state.editingEmployee = id;
-  document.getElementById('empModalTitle').textContent = 'עריכת עובד';
-  document.getElementById('empName').value  = emp.name;
-  document.getElementById('empPhone').value = emp.phone||'';
-  document.getElementById('empPin').value   = emp.pin;
-  selectRole(emp.role);
-  document.getElementById('empModal').classList.add('open');
-}
-
-function saveEmployee() {
-  const name  = document.getElementById('empName').value.trim();
-  const phone = document.getElementById('empPhone').value.trim();
-  const pin   = String(document.getElementById('empPin').value).trim();
-  const role  = document.getElementById('empRole').value;
-
-  if (!name)        { showToast('⚠️ הזן שם עובד');              return; }
-  if (pin.length !== 4 || isNaN(pin))
-                    { showToast('⚠️ PIN חייב להיות 4 ספרות');    return; }
-
-  // Check PIN uniqueness (excluding self if editing)
-  const dup = state.employees.find(e => e.pin===pin && e.id!==state.editingEmployee);
-  if (dup)          { showToast('⚠️ PIN זה כבר בשימוש ע"י '+dup.name); return; }
-
-  if (state.editingEmployee) {
-    const emp = state.employees.find(e=>e.id===state.editingEmployee);
-    if (emp) { emp.name=name; emp.phone=phone; emp.pin=pin; emp.role=role; }
-    addAudit('עדכן עובד', `${name} (${role==='admin'?'מנהל':'עובד'})`);
-  } else {
-    state.employees.push({ id:state.nextId++, name, phone, pin, role });
-    addAudit('הוסיף עובד', `${name} (${role==='admin'?'מנהל':'עובד'})`);
-  }
-  closeModal('empModal');
-  renderTeam();
-  showToast('✅ נשמר בהצלחה');
-}
-
-function deleteEmployee(id) {
-  if (id===state.currentUser.id) { showToast('⚠️ לא ניתן למחוק את עצמך'); return; }
-  const emp = state.employees.find(e=>e.id===id);
-  if (!confirm(`למחוק את ${emp?.name}?`)) return;
-  state.employees = state.employees.filter(e=>e.id!==id);
-  addAudit('מחק עובד', emp?.name||'');
-  renderTeam();
-  showToast('🗑️ עובד נמחק');
-}
-
-// =============================================
-//  PROFITS
-// =============================================
-function renderProfits() {
-  const totalInv  = state.inventory.reduce((s,i)=>s+i.qty*i.cost, 0);
-  const totalWaste = state.waste.reduce((s,w)=>s+w.cost, 0);
-  const withMargin = state.inventory.filter(i=>i.price&&i.cost);
-  const avgMargin  = withMargin.length
-    ? withMargin.reduce((s,i)=>s+((i.price-i.cost)/i.price*100),0)/withMargin.length : 0;
-
-  document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card"><div class="stat-value">₪${totalInv.toLocaleString()}</div><div class="stat-label">שווי מלאי</div></div>
-    <div class="stat-card"><div class="stat-value">${avgMargin.toFixed(1)}%</div><div class="stat-label">מרווח ממוצע</div></div>
-    <div class="stat-card"><div class="stat-value" style="color:var(--red-alert)">₪${totalWaste.toFixed(0)}</div><div class="stat-label">הפסד פחת</div></div>
-    <div class="stat-card"><div class="stat-value">${state.inventory.filter(i=>i.qty<5).length}</div><div class="stat-label">מלאי נמוך</div></div>
-  `;
-  document.getElementById('profitList').innerHTML = state.inventory.map(item=>{
-    if (!item.price||!item.cost) return '';
-    const m = ((item.price-item.cost)/item.price*100).toFixed(1);
-    const cls = m>40?'margin-good':m>25?'margin-ok':'margin-bad';
-    return `<div class="profit-row">
-      <div>${getEmoji(item.name)}</div>
-      <div class="profit-name">${item.name}</div>
-      <div style="font-size:12px;color:var(--text-muted)">₪${item.cost}→₪${item.price}</div>
-      <div class="profit-margin ${cls}">${m}%</div>
-    </div>`;
-  }).join('');
-  document.getElementById('wasteSummaryAdmin').innerHTML = `
-    <div style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--red-alert)">🗑️ סיכום פחת</div>
-    <div style="font-size:28px;font-weight:900;color:var(--red-alert)">₪${totalWaste.toFixed(0)}</div>
-    <div style="font-size:13px;color:var(--text-muted);margin-top:4px">${state.waste.length} דיווחי פחת</div>
-  `;
-}
-
-// =============================================
-//  MANAGEMENT
-// =============================================
-function renderManagement() {
-  document.getElementById('managementList').innerHTML = state.inventory.map(item=>`
-    <div class="inv-card" style="margin-bottom:12px">
-      <div class="inv-img">${getEmoji(item.name)}</div>
-      <div class="inv-body">
-        <div>
-          <div class="inv-name">${item.name}</div>
-          <div class="inv-unit">${item.unit} | עלות: ₪${item.cost||'—'} | מחיר: ₪${item.price||'—'}</div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn-secondary" style="font-size:13px;padding:7px 12px" onclick="openEditProduct(${item.id})">✏️ עריכה</button>
-          <button class="btn-danger" onclick="deleteProduct(${item.id})">🗑️</button>
-        </div>
-      </div>
-    </div>`).join('');
-}
-function openAddProduct() {
-  state.editingProduct = null;
-  document.getElementById('productModalTitle').textContent = 'מוצר חדש';
-  ['prodName','prodQty','prodCost','prodPrice'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('prodUnit').value = 'קרטון';
-  document.getElementById('productModal').classList.add('open');
-}
-function openEditProduct(id) {
-  const item = state.inventory.find(i=>i.id===id);
-  if (!item) return;
-  state.editingProduct = id;
-  document.getElementById('productModalTitle').textContent = 'עריכת מוצר';
-  document.getElementById('prodName').value  = item.name;
-  document.getElementById('prodUnit').value  = item.unit;
-  document.getElementById('prodQty').value   = item.qty;
-  document.getElementById('prodCost').value  = item.cost||'';
-  document.getElementById('prodPrice').value = item.price||'';
-  document.getElementById('productModal').classList.add('open');
-}
-function saveProduct() {
-  const name  = document.getElementById('prodName').value.trim();
-  const unit  = document.getElementById('prodUnit').value;
-  const qty   = parseInt(document.getElementById('prodQty').value)||0;
-  const cost  = parseFloat(document.getElementById('prodCost').value)||0;
-  const price = parseFloat(document.getElementById('prodPrice').value)||0;
-  if (!name) { showToast('⚠️ הזן שם מוצר'); return; }
-  if (state.editingProduct) {
-    const item = state.inventory.find(i=>i.id===state.editingProduct);
-    if (item) { item.name=name; item.unit=unit; item.qty=qty; item.cost=cost; item.price=price; }
-  } else {
-    state.inventory.push({ id:state.nextId++, name, unit, qty, cost, price });
-  }
-  closeModal('productModal');
-  renderManagement();
-  showToast('✅ מוצר נשמר');
-}
-function deleteProduct(id) {
-  if (!confirm('למחוק מוצר זה?')) return;
-  state.inventory = state.inventory.filter(i=>i.id!==id);
-  renderManagement();
-  showToast('🗑️ מוצר נמחק');
-}
-
-// =============================================
-//  VOICE
-// =============================================
-let recognition = null;
-function toggleVoice() {
-  const btn = document.getElementById('voiceBtn');
-  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    showToast('🎤 קול לא נתמך בדפדפן זה'); return;
-  }
-  if (state.voiceActive) {
-    recognition?.stop(); state.voiceActive=false;
-    btn.classList.remove('recording'); btn.textContent='🎤'; return;
-  }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang='he-IL'; recognition.interimResults=false;
-  recognition.onresult = e => processVoice(e.results[0][0].transcript);
-  recognition.onend = () => { state.voiceActive=false; btn.classList.remove('recording'); btn.textContent='🎤'; };
-  recognition.start();
-  state.voiceActive=true; btn.classList.add('recording'); btn.textContent='🔴';
-  showToast('🎤 מקשיב...');
-}
-function processVoice(text) {
-  showToast('🎤 '+text);
-  state.inventory.forEach(item => {
-    if (text.includes(item.name.split(' ')[0])) {
-      const nums = text.match(/\d+/);
-      if (nums) {
-        const old = item.qty; item.qty = parseInt(nums[0]);
-        addAudit('עדכן מלאי (קול)', `${item.name}: ${old} → ${item.qty}`);
-        renderInventory(); showToast(`✅ ${item.name} עודכן ל-${item.qty}`);
+// טעינת נתונים ראשונית מהענן כשהאתר נפתח
+window.onload = async () => {
+  try {
+    const res = await fetch(BIN_URL, {
+      headers: { "X-Master-Key": BIN_KEY, "X-Bin-Meta": "false" }
+    });
+    if(res.ok) {
+      const data = await res.json();
+      if(data && data.emps) {
+        // המידע נטען בהצלחה!
+        S.emps = data.emps || S.emps;
+        S.inv = data.inv || S.inv;
+        S.waste = data.waste || [];
+        S.invoices = data.invoices || [];
+        S.audit = data.audit || [];
+        S.nid = data.nid || S.nid;
+      } else {
+        // מסד ריק, שומרים את נתוני ברירת המחדל לענן
+        saveToCloud();
       }
     }
+    document.getElementById('cloudStatus').textContent = "✅ מחובר לענן";
+    setTimeout(() => document.getElementById('cloudStatus').style.display='none', 2000);
+  } catch(e) {
+    document.getElementById('cloudStatus').textContent = "⚠️ עובד במצב מקומי";
+    console.error("Cloud Error", e);
+  }
+};
+
+// פונקציה לשמירת נתונים לענן
+async function saveToCloud() {
+  const dataToSave = {
+    emps: S.emps,
+    inv: S.inv,
+    waste: S.waste,
+    invoices: S.invoices,
+    audit: S.audit,
+    nid: S.nid
+  };
+  
+  try {
+    fetch(BIN_URL, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "X-Master-Key": BIN_KEY },
+      body: JSON.stringify(dataToSave)
+    });
+  } catch(e) { console.error("Save error", e); }
+}
+
+// כפתור סנכרון ידני
+async function syncCloud() {
+  toast('🔄 מסנכרן נתונים מהענן...');
+  try {
+    const res = await fetch(BIN_URL, { headers: { "X-Master-Key": BIN_KEY, "X-Bin-Meta": "false" } });
+    if(res.ok) {
+      const data = await res.json();
+      if(data && data.emps) {
+        S.emps = data.emps; S.inv = data.inv; S.waste = data.waste; S.invoices = data.invoices; S.audit = data.audit; S.nid = data.nid;
+        goTab(document.querySelector('.tab.on').id.replace('t-','')); // רענון המסך הנוכחי
+        toast('✅ סונכרן בהצלחה');
+      }
+    }
+  } catch(e) { toast('❌ שגיאה בסנכרון'); }
+}
+
+
+function emoji(n){
+  const s=n.toLowerCase();
+  if(s.includes('רוגלך'))return'🥐';
+  if(s.includes('בורקס'))return'🥟';
+  if(s.includes('קפה'))return'☕';
+  if(s.includes('קרואסון'))return'🥐';
+  if(s.includes('דניש')||s.includes('פירות'))return'🍰';
+  if(s.includes('שניצל')||s.includes('בשר'))return'🍖';
+  if(s.includes('גבינה')||s.includes('חמאה'))return'🧀';
+  if(s.includes('שוקולד'))return'🍫';
+  if(s.includes('תפוח'))return'🍎';
+  if(s.includes('עוגי'))return'🍪';
+  if(s.includes('לחם'))return'🍞';
+  return'🥖';
+}
+
+let lastTap = 0;
+function pin(d){
+  const now = Date.now();
+  if(now - lastTap < 200) return; 
+  lastTap = now;
+
+  if(S.buf.length>=4)return;
+  S.buf+=d;updDots();
+  if(S.buf.length===4)setTimeout(tryPin,120);
+}
+
+function delPin(){S.buf=S.buf.slice(0,-1);updDots();document.getElementById('lerr').textContent='';}
+function updDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('on',i<S.buf.length);}
+function tryPin(){
+  const u=S.emps.find(e=>e.pin===S.buf);
+  S.buf='';updDots();
+  if(u){S.user=u;document.getElementById('lerr').textContent='';startApp();}
+  else document.getElementById('lerr').textContent='❌ קוד שגוי, נסה שוב';
+}
+
+function startApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('tName').textContent=S.user.name;
+  document.getElementById('tRole').textContent=S.user.role==='admin'?'⭐ מנהל':'👤 עובד';
+  buildTabs();goTab('inventory');
+}
+function logout(){
+  S.user=null;S.buf='';updDots();
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+const isAdmin=()=>S.user?.role==='admin';
+
+function buildTabs(){
+  const defs=[
+    {id:'inventory',lbl:'📦 מלאי'},
+    {id:'waste',lbl:'🗑️ פחת'},
+    {id:'invoices',lbl:'📄 חשבוניות'},
+    {id:'team',lbl:'👥 עובדים',admin:true},
+    {id:'profits',lbl:'💰 רווחיות',admin:true},
+    {id:'management',lbl:'⚙️ מוצרים',admin:true},
+  ];
+  const c=document.getElementById('tabs');c.innerHTML='';
+  defs.forEach(d=>{
+    if(d.admin&&!isAdmin())return;
+    const b=document.createElement('button');
+    b.className='tab';b.textContent=d.lbl;b.id='t-'+d.id;
+    b.onclick=()=>goTab(d.id);c.appendChild(b);
   });
 }
+function goTab(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pg-'+id)?.classList.add('on');
+  document.getElementById('t-'+id)?.classList.add('on');
+  ({inventory:renderInv,team:renderTeam,profits:renderProfits,
+    waste:renderWaste,invoices:renderInvoices,management:renderMgmt})[id]?.();
+}
 
-// =============================================
-//  UTILS
-// =============================================
-function addAudit(action, detail) {
-  state.auditLog.unshift({ user:state.currentUser.name, action, detail, time:new Date().toISOString() });
+function renderInv(){
+  const q=(document.getElementById('srch')?.value||'').toLowerCase();
+  const low=S.inv.filter(i=>i.qty<5);
+  const bar=document.getElementById('alertBar');
+  if(low.length){bar.classList.remove('hidden');document.getElementById('alertTxt').textContent=`${low.length} פריטים במלאי נמוך!`;}
+  else bar.classList.add('hidden');
+  const list=[...S.inv].sort((a,b)=>(a.qty<5?0:1)-(b.qty<5?0:1)).filter(i=>!q||i.name.includes(q));
+  document.getElementById('invList').innerHTML=list.map(i=>`
+    <div class="icard ${i.qty<5?'low':''}">
+      <div class="icard-img">${emoji(i.name)}</div>
+      <div class="icard-body">
+        <div class="icard-name">${i.name}</div>
+        <div class="icard-sub">${i.unit} · ${i.qty<5?'<span style="color:var(--red)">⚠️ מלאי נמוך</span>':'<span style="color:var(--green)">✓ תקין</span>'}</div>
+        <div class="ictrl">
+          <button class="qbtn" onclick="chQty(${i.id},-1)">−</button>
+          <div class="qnum ${i.qty<5?'low':''}" id="q${i.id}">${i.qty}</div>
+          <button class="qbtn" onclick="chQty(${i.id},1)">+</button>
+          <span style="font-size:11px;color:var(--muted);margin-right:auto">${i.unit}ים</span>
+        </div>
+      </div>
+    </div>`).join('');
 }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2500);
+function chQty(id,d){
+  const it=S.inv.find(i=>i.id===id);if(!it)return;
+  const old=it.qty;it.qty=Math.max(0,it.qty+d);
+  addAudit('עדכן מלאי',`${it.name}: ${old}→${it.qty}`);
+  renderInv();
+  saveToCloud(); // שומר לענן מיד כשמשנים כמות
 }
-function fmtTime(iso) {
-  const d = new Date(iso), now = new Date();
-  const diff = Math.floor((now-d)/60000);
-  if (diff<1)    return 'עכשיו';
-  if (diff<60)   return `לפני ${diff} דק'`;
-  if (diff<1440) return `לפני ${Math.floor(diff/60)} שע'`;
+
+function renderWaste(){
+  document.getElementById('wProd').innerHTML=S.inv.map(i=>`<option value="${i.id}">${i.name}</option>`).join('');
+  renderWasteLog();
+}
+function saveWaste(){
+  const pid=parseInt(document.getElementById('wProd').value);
+  const qty=parseFloat(document.getElementById('wQty').value);
+  const reason=document.getElementById('wReason').value;
+  if(!qty||qty<=0){toast('⚠️ הזן כמות');return;}
+  const it=S.inv.find(i=>i.id===pid);
+  S.waste.unshift({id:S.nid++,pname:it?.name||'—',qty,reason,who:S.user.name,t:new Date().toISOString(),cost:(it?it.cost*qty:0)});
+  document.getElementById('wQty').value='';
+  addAudit('פחת',`${it?.name}: ${qty} יח' — ${reason}`);
+  toast('📝 נרשם');renderWasteLog();
+  saveToCloud(); // שומר לענן פחת חדש
+}
+function renderWasteLog(){
+  const el=document.getElementById('wasteLog');
+  if(!S.waste.length){el.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px;font-size:13px">אין דיווחים</div>';return;}
+  el.innerHTML=S.waste.slice(0,10).map(w=>`
+    <div class="wrow">
+      <div><div style="font-weight:600">${w.pname}</div><div style="color:var(--muted);font-size:11px">${w.reason} | ${w.who}</div></div>
+      <div style="text-align:left"><div style="color:var(--red);font-weight:700">${w.qty} יח'</div><div style="color:var(--muted);font-size:11px">₪${w.cost.toFixed(0)}</div></div>
+    </div>`).join('');
+}
+
+function renderInvoices(){
+  const now=new Date();
+  let list=[...S.invoices];
+  if(S.invF==='today')list=list.filter(i=>new Date(i.t).toDateString()===now.toDateString());
+  if(S.invF==='week')list=list.filter(i=>new Date(i.t)>new Date(now-7*86400000));
+  const g=document.getElementById('invGrid');
+  if(!list.length){g.innerHTML='<div style="color:var(--muted);text-align:center;padding:28px;grid-column:span 2;font-size:13px">אין חשבוניות</div>';return;}
+  g.innerHTML=list.map(inv=>`<div class="ithumb"><div style="font-size:30px">${inv.prev||'📄'}</div><div style="font-weight:600;font-size:12px">${inv.name}</div><div style="font-size:11px">${fmt(inv.t)}</div></div>`).join('');
+}
+function setInvF(f){S.invF=f;renderInvoices();}
+function uploadInv(e){
+  const f=e.target.files[0];if(!f)return;
+  S.invoices.unshift({id:S.nid++,name:'חשבונית '+new Date().toLocaleDateString('he-IL'),t:new Date().toISOString(),prev:'🖼️'});
+  toast('📄 הועלתה!');renderInvoices();e.target.value='';
+  saveToCloud();
+}
+
+function renderTeam(){
+  document.getElementById('empList').innerHTML=S.emps.map(e=>`
+    <div class="emp-row">
+      <div class="emp-av">${e.role==='admin'?'⭐':'👤'}</div>
+      <div class="emp-info">
+        <div class="emp-name">${e.name} <span class="tag ${e.role==='admin'?'tag-a':'tag-s'}" style="margin-right:5px">${e.role==='admin'?'מנהל':'עובד'}</span></div>
+        <div class="emp-phone">📞 ${e.phone||'—'}</div>
+        <div style="margin-top:5px;display:flex;align-items:center;gap:5px">
+          <span style="font-size:10px;color:var(--muted)">PIN:</span>
+          <span class="emp-pin">${e.pin}</span>
+        </div>
+      </div>
+      <div class="emp-btns">
+        <button class="btn2" style="font-size:12px;padding:6px 10px" onclick="openEditEmp(${e.id})">✏️</button>
+        <button class="btnd" style="font-size:12px;padding:6px 10px" onclick="delEmp(${e.id})">🗑️</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('auditList').innerHTML=S.audit.slice(0,20).map(a=>`
+    <div class="aitem">
+      <div class="adot"></div>
+      <div><div><strong>${a.who}</strong> — ${a.act}</div><div style="color:var(--muted)">${a.det} · ${fmt(a.t)}</div></div>
+    </div>`).join('');
+}
+
+let _role='staff';
+function setRole(r){
+  _role=r;document.getElementById('eRole').value=r;
+  document.getElementById('rStaff').className='rtbtn'+(r==='staff'?' rs':'');
+  document.getElementById('rAdmin').className='rtbtn'+(r==='admin'?' ra':'');
+}
+function openEmpModal(){
+  S.editEmp=null;
+  document.getElementById('empMTitle').textContent='עובד חדש';
+  ['eName','ePhone','ePin'].forEach(id=>document.getElementById(id).value='');
+  setRole('staff');
+  document.getElementById('empOverlay').classList.add('on');
+}
+function openEditEmp(id){
+  const e=S.emps.find(x=>x.id===id);if(!e)return;
+  S.editEmp=id;
+  document.getElementById('empMTitle').textContent='עריכת עובד';
+  document.getElementById('eName').value=e.name;
+  document.getElementById('ePhone').value=e.phone||'';
+  document.getElementById('ePin').value=e.pin;
+  setRole(e.role);
+  document.getElementById('empOverlay').classList.add('on');
+}
+function saveEmp(){
+  const name=document.getElementById('eName').value.trim();
+  const phone=document.getElementById('ePhone').value.trim();
+  const pinv=String(document.getElementById('ePin').value).trim();
+  const role=document.getElementById('eRole').value;
+  if(!name){toast('⚠️ הזן שם');return;}
+  if(pinv.length!==4||isNaN(pinv)){toast('⚠️ PIN חייב להיות 4 ספרות');return;}
+  const dup=S.emps.find(e=>e.pin===pinv&&e.id!==S.editEmp);
+  if(dup){toast('⚠️ PIN תפוס ע"י '+dup.name);return;}
+  if(S.editEmp){
+    const e=S.emps.find(x=>x.id===S.editEmp);
+    if(e){e.name=name;e.phone=phone;e.pin=pinv;e.role=role;}
+    addAudit('עדכן עובד',`${name} (${role==='admin'?'מנהל':'עובד'})`);
+  }else{
+    S.emps.push({id:S.nid++,name,phone,pin:pinv,role});
+    addAudit('הוסיף עובד',`${name} (${role==='admin'?'מנהל':'עובד'})`);
+  }
+  closeModal('empOverlay');renderTeam();toast('✅ נשמר');
+  saveToCloud();
+}
+function delEmp(id){
+  if(id===S.user.id){toast('⚠️ לא ניתן למחוק את עצמך');return;}
+  const e=S.emps.find(x=>x.id===id);
+  if(!confirm(`למחוק את ${e?.name}?`))return;
+  S.emps=S.emps.filter(x=>x.id!==id);
+  addAudit('מחק עובד',e?.name||'');
+  renderTeam();toast('🗑️ נמחק');
+  saveToCloud();
+}
+
+function renderProfits(){
+  const totInv=S.inv.reduce((s,i)=>s+i.qty*i.cost,0);
+  const totW=S.waste.reduce((s,w)=>s+w.cost,0);
+  const wm=S.inv.filter(i=>i.price&&i.cost);
+  const avg=wm.length?wm.reduce((s,i)=>s+((i.price-i.cost)/i.price*100),0)/wm.length:0;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="scard"><div class="sval">₪${totInv.toLocaleString()}</div><div class="slbl">שווי מלאי</div></div>
+    <div class="scard"><div class="sval">${avg.toFixed(1)}%</div><div class="slbl">מרווח ממוצע</div></div>
+    <div class="scard"><div class="sval" style="color:var(--red)">₪${totW.toFixed(0)}</div><div class="slbl">הפסד פחת</div></div>
+    <div class="scard"><div class="sval">${S.inv.filter(i=>i.qty<5).length}</div><div class="slbl">מלאי נמוך</div></div>`;
+  document.getElementById('profitRows').innerHTML=S.inv.map(i=>{
+    if(!i.price||!i.cost)return'';
+    const m=((i.price-i.cost)/i.price*100).toFixed(1);
+    const c=m>40?'mg':m>25?'mo':'mb';
+    return`<div class="prow"><div>${emoji(i.name)}</div><div class="pname">${i.name}</div><div style="font-size:11px;color:var(--muted)">₪${i.cost}→₪${i.price}</div><div class="pmgn ${c}">${m}%</div></div>`;
+  }).join('');
+  document.getElementById('wasteSumm').innerHTML=`
+    <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--red)">🗑️ סיכום פחת</div>
+    <div style="font-size:26px;font-weight:900;color:var(--red)">₪${totW.toFixed(0)}</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:3px">${S.waste.length} דיווחים</div>`;
+}
+
+function renderMgmt(){
+  document.getElementById('mgmtList').innerHTML=S.inv.map(i=>`
+    <div class="icard" style="margin-bottom:11px">
+      <div class="icard-img">${emoji(i.name)}</div>
+      <div class="icard-body">
+        <div class="icard-name">${i.name}</div>
+        <div class="icard-sub">${i.unit} · עלות ₪${i.cost||'—'} · מחיר ₪${i.price||'—'}</div>
+        <div style="display:flex;gap:7px;margin-top:9px">
+          <button class="btn2" style="font-size:12px;padding:6px 11px" onclick="openEditProd(${i.id})">✏️ עריכה</button>
+          <button class="btnd" onclick="delProd(${i.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function openProdModal(){
+  S.editProd=null;
+  document.getElementById('prodMTitle').textContent='מוצר חדש';
+  ['pName','pQty','pCost','pPrice'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pUnit').value='קרטון';
+  document.getElementById('prodOverlay').classList.add('on');
+}
+function openEditProd(id){
+  const i=S.inv.find(x=>x.id===id);if(!i)return;
+  S.editProd=id;
+  document.getElementById('prodMTitle').textContent='עריכת מוצר';
+  document.getElementById('pName').value=i.name;
+  document.getElementById('pUnit').value=i.unit;
+  document.getElementById('pQty').value=i.qty;
+  document.getElementById('pCost').value=i.cost||'';
+  document.getElementById('pPrice').value=i.price||'';
+  document.getElementById('prodOverlay').classList.add('on');
+}
+function saveProd(){
+  const name=document.getElementById('pName').value.trim();
+  const unit=document.getElementById('pUnit').value;
+  const qty=parseInt(document.getElementById('pQty').value)||0;
+  const cost=parseFloat(document.getElementById('pCost').value)||0;
+  const price=parseFloat(document.getElementById('pPrice').value)||0;
+  if(!name){toast('⚠️ הזן שם');return;}
+  if(S.editProd){
+    const i=S.inv.find(x=>x.id===S.editProd);
+    if(i){i.name=name;i.unit=unit;i.qty=qty;i.cost=cost;i.price=price;}
+  }else{
+    S.inv.push({id:S.nid++,name,unit,qty,cost,price});
+  }
+  closeModal('prodOverlay');renderMgmt();toast('✅ מוצר נשמר');
+  saveToCloud();
+}
+function delProd(id){
+  if(!confirm('למחוק?'))return;
+  S.inv=S.inv.filter(i=>i.id!==id);renderMgmt();toast('🗑️ נמחק');
+  saveToCloud();
+}
+
+let recog=null;
+function toggleMic(){
+  const b=document.getElementById('micBtn');
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){toast('🎤 לא נתמך');return;}
+  if(S.micOn){recog?.stop();S.micOn=false;b.classList.remove('rec');b.textContent='🎤';return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR();recog.lang='he-IL';recog.interimResults=false;
+  recog.onresult=e=> {
+    const transcript = e.results[0][0].transcript;
+    document.getElementById('aiInput').value = transcript;
+    processAICommand(transcript);
+  };
+  recog.onend=()=>{S.micOn=false;b.classList.remove('rec');b.textContent='🎤';};
+  recog.start();S.micOn=true;b.classList.add('rec');b.textContent='🔴';toast('🎤 מקשיב...');
+}
+
+function runAIText() {
+  const val = document.getElementById('aiInput').value;
+  if(val.trim()) {
+    processAICommand(val);
+  }
+}
+
+async function processAICommand(txt) {
+  toast('🤖 חושב על זה...'); 
+  
+  // נא לשים מפתח API של OpenAI פעיל! (כרגע המפתח המבוטל)
+  const API_KEY = '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';
+  
+  const systemPrompt = `
+    אתה מנהל מלאי חכם של מאפייה.
+    המלאי הנוכחי: ${JSON.stringify(S.inv.map(i => ({id: i.id, name: i.name, qty: i.qty})))}
+    
+    המשתמש יבקש:
+    1. להוסיף/להוריד מהמלאי הקיים.
+    2. להוסיף מוצרים חדשים למערכת.
+
+    הוראות קריטיות:
+    - אם המשתמש מבקש משהו שכבר קיים במלאי, אסור ליצור פריט חדש! השתמש ב-ID הקיים ועדכן בעזרת qtyChange.
+    - qtyChange חייב להיות מספר: חיובי להוסיף, שלילי להחסיר.
+    - רק אם הפריט לא קיים בכלל, הוסף אותו ל-"newItems".
+
+    החזר *אך ורק* אובייקט JSON נקי בפורמט הזה:
+    {
+      "updates": [ {"id": 1, "qtyChange": 5} ],
+      "newItems": [ {"name": "עוגיות", "unit": "קרטון", "qty": 2, "cost": 0, "price": 0} ]
+    }
+  `;
+
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+      body: JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: txt }] })
+    });
+    
+    if (!res.ok) throw new Error('שגיאת התחברות לשרת AI');
+
+    const data = await res.json();
+    let responseText = data.choices[0].message.content.replace(/```json/g, '').replace(/```/g, '').trim();
+    const parsed = JSON.parse(responseText);
+
+    let changed = false;
+
+    if (parsed.updates && parsed.updates.length > 0) {
+      parsed.updates.forEach(u => {
+        const item = S.inv.find(i => i.id === u.id);
+        if (item && u.qtyChange !== 0) {
+          const old = item.qty;
+          item.qty = Math.max(0, item.qty + u.qtyChange);
+          addAudit('AI עדכון', `${item.name}: ${old}→${item.qty}`);
+          changed = true;
+        }
+      });
+    }
+
+    if (parsed.newItems && parsed.newItems.length > 0) {
+      parsed.newItems.forEach(n => {
+        S.inv.push({ id: S.nid++, name: n.name, unit: n.unit || 'יחידה', qty: n.qty || 0, cost: n.cost || 0, price: n.price || 0 });
+        addAudit('AI הוספה', `נוצר פריט חדש: ${n.name}`);
+        changed = true;
+      });
+    }
+
+    if (!changed) { toast('🤔 לא זיהיתי שינויים במלאי'); return; }
+    
+    document.getElementById('aiInput').value = '';
+    renderInv();
+    toast('✅ המלאי עודכן בהצלחה!');
+    saveToCloud(); // שומר לענן את ההוראות של ה-AI
+    
+  } catch (err) { toast('❌ שגיאה: ' + err.message); }
+}
+
+function addAudit(act,det){S.audit.unshift({who:S.user.name,act,det,t:new Date().toISOString()});}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+function toast(m){
+  const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2400);
+}
+function fmt(iso){
+  const d=new Date(iso),now=new Date(),diff=Math.floor((now-d)/60000);
+  if(diff<1)return'עכשיו';
+  if(diff<60)return`לפני ${diff} דק'`;
+  if(diff<1440)return`לפני ${Math.floor(diff/60)} שע'`;
   return d.toLocaleDateString('he-IL');
 }
-
-// Close modals on backdrop click
-document.querySelectorAll('.modal-overlay').forEach(el =>
-  el.addEventListener('click', e => { if (e.target===el) el.classList.remove('open'); })
-);
+document.querySelectorAll('.overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('on');}));
 </script>
 </body>
 </html>
