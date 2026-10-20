@@ -79,6 +79,15 @@ async function fetchImage(url: string | null | undefined): Promise<string | null
   }
 }
 
+/** The first candidate URL that loads as an image (e.g. logo candidates, best first). */
+async function firstLoading(urls: string[]): Promise<string | null> {
+  for (const url of urls) {
+    const data = await fetchImage(url);
+    if (data) return data;
+  }
+  return null;
+}
+
 function dataUriBytes(uri: string): Buffer {
   return Buffer.from(uri.split(",")[1], "base64");
 }
@@ -103,29 +112,57 @@ function toScript(plan: Plan) {
 
 // ------------------------------------------------------------------ steps
 
-async function makePlan(project: ProjectRow, uploads: string[], siteImage: string | null): Promise<Plan> {
-  if (project.plan) return project.plan as Plan;
+/** The photos offered to the planner, saved with the plan so a retry sees the same indexes. */
+interface PhotoSource {
+  url: string;
+  source: "upload" | "website";
+}
+interface SavedPlan {
+  plan: Plan;
+  photos: PhotoSource[];
+}
+
+const MIN_PHOTO_EDGE = 500;
+const MAX_WEBSITE_PHOTOS = 8;
+
+async function makePlan(project: ProjectRow, site: Partial<SiteData>): Promise<SavedPlan> {
+  if (project.plan) return project.plan as SavedPlan;
   await setStage(project.id, "planning");
+
+  // Customer uploads first, then the website's photos (skipping ones that fail to load or are small).
+  const websiteUrls = [...new Set(site.images ?? (site.ogImage ? [site.ogImage] : []))].slice(0, 12);
+  const candidates: PhotoSource[] = [
+    ...project.uploads.map((u) => ({ url: u.url, source: "upload" as const })),
+    ...websiteUrls.map((url) => ({ url, source: "website" as const })),
+  ];
+  const loaded = await inParallel(candidates, 4, (c) => fetchImage(c.url));
+  const usable = candidates.flatMap((c, i) => (loaded[i] ? [{ ...c, data: loaded[i] }] : []));
+  const thumbs = await thumbnails(usable.map((u) => u.data));
+  let websiteCount = 0;
+  const offered = usable
+    .map((u, i) => ({ ...u, thumb: thumbs[i] }))
+    .filter((u) => {
+      if (u.source === "upload") return true;
+      if (Math.min(u.thumb.width, u.thumb.height) < MIN_PHOTO_EDGE) return false;
+      return ++websiteCount <= MAX_WEBSITE_PHOTOS;
+    });
+
   const plan = await planVideo({
     analysis: { brief: project.brief, concepts: project.concepts } as Pick<Analysis, "brief" | "concepts">,
     style: getStyle(project.style!)!,
     durationS: project.duration_s!,
-    uploadThumbs: await thumbnails(uploads),
-    siteThumb: siteImage ? (await thumbnails([siteImage]))[0] : null,
+    photos: offered.map((o) => ({ thumb: o.thumb.uri, source: o.source, width: o.thumb.width, height: o.thumb.height })),
   });
   if (!plan.allowed) throw new RefusedContent(plan.refusal_reason_he || "התמונות אינן עומדות במדיניות התוכן");
-  await sql()`update projects set plan = ${sql().json(JSON.parse(JSON.stringify(plan)))} where id = ${project.id}`;
-  return plan;
+  const saved: SavedPlan = { plan, photos: offered.map((o) => ({ url: o.url, source: o.source })) };
+  await sql()`update projects set plan = ${sql().json(JSON.parse(JSON.stringify(saved)))} where id = ${project.id}`;
+  return saved;
 }
 
-async function makeMedia(
-  project: ProjectRow,
-  plan: Plan,
-  uploads: { url: string; data: string }[],
-  siteImage: string | null,
-): Promise<Media> {
+async function makeMedia(project: ProjectRow, saved: SavedPlan): Promise<Media> {
   if (project.media) return project.media as Media;
   await setStage(project.id, "media");
+  const { plan, photos } = saved;
   const durationS = project.duration_s!;
   const lang = ((project.brief as Analysis["brief"]).ad_language || "he").slice(0, 2);
   const voiceId = plan.voice === "male" ? env().ELEVENLABS_VOICE_MALE : env().ELEVENLABS_VOICE_FEMALE;
@@ -148,12 +185,16 @@ async function makeMedia(
   }
   if (fitRatio(voice.duration, durationS) > 1.1) throw new Error("narration does not fit the video length");
 
-  // One photo per scene: the customer's upload, the site's image, or a generated one.
+  // One photo per scene: an uploaded photo, a copy of a website photo, or a generated one.
   const imageUrls = await inParallel(script.scenes, IMAGE_PARALLELISM, async (scene) => {
-    if (scene.image_source === "upload" && uploads[scene.upload_index]) return uploads[scene.upload_index].url;
-    if (scene.image_source === "site" && siteImage) {
-      const type = siteImage.slice(5, siteImage.indexOf(";"));
-      return storeFile(`media/${project.id}/scene.${type.split("/")[1].replace("svg+xml", "svg")}`, dataUriBytes(siteImage), type);
+    const chosen = scene.image_source === "photo" ? photos[scene.photo_index] : undefined;
+    if (chosen?.source === "upload") return chosen.url;
+    if (chosen) {
+      const data = await fetchImage(chosen.url);
+      if (data) {
+        const type = data.slice(5, data.indexOf(";"));
+        return storeFile(`media/${project.id}/scene.${type.split("/")[1].replace("svg+xml", "svg")}`, dataUriBytes(data), type);
+      }
     }
     const bytes = await generateImage(scene.image_prompt, project.aspect!);
     return storeFile(`media/${project.id}/scene.jpg`, bytes, "image/jpeg");
@@ -210,16 +251,10 @@ async function download(url: string, file: string) {
 async function produce(project: ProjectRow) {
   if (!env().BLOB_READ_WRITE_TOKEN) throw new Error("BLOB_READ_WRITE_TOKEN is required to store videos");
   const site = (project.site_data ?? {}) as Partial<SiteData>;
-  const [logo, siteImage, ...uploadImages] = await Promise.all([
-    fetchImage(site.logo),
-    fetchImage(site.ogImage),
-    ...project.uploads.map((u) => fetchImage(u.url)),
-  ]);
-  // A photo that failed to load is simply not offered; indexes refer to this filtered list.
-  const uploads = project.uploads.flatMap((u, i) => (uploadImages[i] ? [{ url: u.url, data: uploadImages[i] }] : []));
+  const logo = await firstLoading(site.logos ?? (site.logo ? [site.logo] : []));
 
-  const plan = await makePlan(project, uploads.map((u) => u.data), siteImage);
-  const media = await makeMedia(project, plan, uploads, siteImage);
+  const saved = await makePlan(project, site);
+  const media = await makeMedia(project, saved);
   const images = await Promise.all(media.imageUrls.map(fetchImage));
   if (images.some((i) => !i)) throw new Error("could not load scene images");
   const assets: Assets = { logo, images: images as string[], timeline: media.timeline };

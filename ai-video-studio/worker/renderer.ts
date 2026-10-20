@@ -144,8 +144,16 @@ export async function inspect(html: string, assets: Assets, aspect: string, expe
   }
 }
 
-/** Downscale images inside the sandboxed browser (no image library needed). Returns JPEG data URIs. */
-export async function thumbnails(dataUris: string[], maxEdge = 768): Promise<string[]> {
+export interface Thumbnail {
+  /** Downscaled JPEG data URI. */
+  uri: string;
+  /** Size of the original image. */
+  width: number;
+  height: number;
+}
+
+/** Downscale images inside the sandboxed browser (no image library needed). */
+export async function thumbnails(dataUris: string[], maxEdge = 768): Promise<Thumbnail[]> {
   if (dataUris.length === 0) return [];
   const browser = await launch();
   try {
@@ -153,7 +161,7 @@ export async function thumbnails(dataUris: string[], maxEdge = 768): Promise<str
     await context.route("**/*", (route) => route.abort());
     const page = await context.newPage();
     await page.setContent("<!doctype html><html><body></body></html>");
-    const out: string[] = [];
+    const out: Thumbnail[] = [];
     for (const uri of dataUris) {
       out.push(
         await page.evaluate(
@@ -166,7 +174,7 @@ export async function thumbnails(dataUris: string[], maxEdge = 768): Promise<str
             c.width = Math.max(1, Math.round(img.naturalWidth * scale));
             c.height = Math.max(1, Math.round(img.naturalHeight * scale));
             c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
-            return c.toDataURL("image/jpeg", 0.85);
+            return { uri: c.toDataURL("image/jpeg", 0.85), width: img.naturalWidth, height: img.naturalHeight };
           },
           { uri, maxEdge },
         ),

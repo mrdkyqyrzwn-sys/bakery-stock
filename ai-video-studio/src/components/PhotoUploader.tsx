@@ -65,7 +65,7 @@ export function PhotoUploader({ projectId, token, initial }: { projectId: string
     <section aria-labelledby="pick-photos" className="mt-10">
       <h2 id="pick-photos" className="mb-1 text-xl font-bold">2. תמונות (מומלץ)</h2>
       <p className="mb-4 text-sm text-muted">
-        העלו תמונות של המוצרים, המקום או העבודות שלכם, עד {MAX_UPLOADS}. בלי תמונות? ניצור תמונות מקצועיות בבינה מלאכותית במקומן.
+        העלו תמונות של המוצרים, המקום או העבודות שלכם, עד {MAX_UPLOADS}. בלי תמונות? נשתמש בלוגו ובתמונות מהאתר שלכם, ונשלים בתמונות מקצועיות שניצור.
         העלו רק תמונות שהן שלכם, ושמי שמופיע בהן הסכים לכך.
       </p>
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
