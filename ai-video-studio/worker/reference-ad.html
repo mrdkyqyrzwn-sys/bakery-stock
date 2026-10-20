@@ -1,168 +1,236 @@
 <!doctype html>
-<html lang="he" dir="rtl">
+<html lang="he">
 <head>
 <meta charset="utf-8">
-<title>Reference ad: Pizza Roma (fictional)</title>
+<title>Reference edit: photo-based commercial</title>
 <style>
-  * { margin: 0; box-sizing: border-box; }
-  html, body { width: 1280px; height: 720px; overflow: hidden; background: #000; }
-  body { font-family: var(--brand-font); color: #fff; }
-  #stage { position: relative; width: 1280px; height: 720px; overflow: hidden; }
-  .layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-  .abs { position: absolute; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: var(--brand-font); }
+  .layer { position: absolute; inset: 0; overflow: hidden; }
+  #stage { isolation: isolate; z-index: 0; } /* scenes stack inside the stage, under text layers */
+  .scene { will-change: transform, opacity, clip-path; }
+  .scene img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; will-change: transform; }
+  .grade { position: absolute; inset: 0; mix-blend-mode: soft-light; }
+  .shade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.15) 45%, rgba(0,0,0,.35) 100%); }
+  #vignette { background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
+  #leak { mix-blend-mode: screen; }
+  #grain { mix-blend-mode: overlay; opacity: .22; }
+  #flash { background: #fff; }
+  .headline { position: absolute; color: #fff; font-weight: 900; line-height: 1.02; letter-spacing: -.01em; text-shadow: 0 6px 30px rgba(0,0,0,.45); }
+  .headline span { display: inline-block; }
+  .bar { position: absolute; height: 8px; border-radius: 4px; }
+  #captions { position: absolute; left: 0; right: 0; text-align: center; }
+  #captions .chip { display: inline-block; padding: .18em .5em; border-radius: .35em; background: rgba(0,0,0,.55); color: #fff; font-weight: 700; }
+  #captions .w { opacity: .78; }
+  #captions .w.on { opacity: 1; color: var(--accent); }
+  #end { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; }
+  #end img { object-fit: contain; }
+  #cta { margin-top: .6em; padding: .35em 1.1em; border-radius: 999px; font-weight: 800; color: #fff; }
+  #site { margin-top: .7em; font-weight: 600; opacity: .9; direction: ltr; }
 </style>
 </head>
 <body>
-<div id="stage">
-  <div id="bg" class="layer"></div>
-  <div id="rays" class="layer"></div>
-
-  <!-- Scene 1: logo -->
-  <div id="s1" class="layer">
-    <img id="logoImg" alt="" style="display:none;max-width:420px;max-height:220px;object-fit:contain;margin-bottom:24px">
-    <div id="logo" style="display:flex;gap:6px;direction:ltr;font-weight:900;font-size:150px;letter-spacing:-4px"></div>
-    <div id="s1sub" style="font-size:40px;font-weight:500;margin-top:10px;color:#ffe8c2">פיצה נפוליטנית אמיתית</div>
-  </div>
-
-  <!-- Scene 2: kinetic words + pizza -->
-  <div id="s2" class="layer">
-    <div id="pizza" class="abs" style="left:110px;top:150px;width:420px;height:420px"></div>
-    <div class="abs" style="right:110px;top:170px;text-align:right">
-      <div id="w1" style="font-size:110px;font-weight:900;color:#2b0a05;line-height:1">בצק</div>
-      <div id="w2" style="font-size:110px;font-weight:900;color:#2b0a05;line-height:1.05">שתופח</div>
-      <div id="w3" style="font-size:130px;font-weight:900;color:#d62d20;line-height:1.05">48 שעות</div>
-    </div>
-  </div>
-
-  <!-- Scene 3: selling points -->
-  <div id="s3" class="layer">
-    <div id="s3title" style="font-size:64px;font-weight:900;margin-bottom:50px">למה כולם חוזרים?</div>
-    <div style="display:flex;gap:36px">
-      <div class="card" id="c1"></div><div class="card" id="c2"></div><div class="card" id="c3"></div>
-    </div>
-  </div>
-
-  <!-- Scene 4: call to action -->
-  <div id="s4" class="layer">
-    <div id="cta" style="font-size:120px;font-weight:900">הזמינו עכשיו</div>
-    <div id="url" style="margin-top:30px;padding:18px 48px;border-radius:999px;background:#fff;color:#c0261b;font-size:48px;font-weight:800;direction:ltr">pizza-roma.co.il</div>
-  </div>
-
-  <div id="tag" class="abs" style="top:22px;right:26px;font-size:20px;padding:6px 16px;border-radius:999px;background:rgba(0,0,0,.45)">דמו: עסק בדיוני</div>
+<div id="stage" class="layer"></div>
+<div id="vignette" class="layer"></div>
+<canvas id="grain" class="layer"></canvas>
+<div id="leak" class="layer"></div>
+<div id="flash" class="layer" style="opacity:0"></div>
+<div id="heads" class="layer"></div>
+<div id="captions" dir="rtl"></div>
+<div id="end" class="layer" style="opacity:0" dir="rtl">
+  <img id="endLogo" alt="">
+  <div id="endBrand" style="font-weight:900"></div>
+  <div id="cta"></div>
+  <div id="site"></div>
 </div>
-
 <script>
-// ---- Ad data. In the real product Claude fills this in from the customer's site. ----
-const AD = {
-  brand: "PIZZA ROMA",
-  colors: { primary: "#c0261b", dark: "#2b0a05", cream: "#fff3df", accent: "#ffb347" },
-  points: [
-    { icon: "flame", title: "תנור עצים", text: "450 מעלות, 90 שניות" },
-    { icon: "leaf", title: "חומרי גלם מאיטליה", text: "עגבניות סן מרצאנו" },
-    { icon: "clock", title: "משלוח מהיר", text: "עד 30 דקות אליכם" },
-  ],
+// ------------------------------------------------------------------ brand (filled in per customer)
+const BRAND = {
+  name: "Pizza Roma",
+  cta: "הזמינו עכשיו",
+  website: "pizza-roma.co.il",
+  accent: "#ff5a36",
+  grade: "rgba(255,140,60,.35)", // warm grade for food; teal/cool for tech, etc.
 };
-const DURATION = 12;
+document.documentElement.style.setProperty("--accent", BRAND.accent);
 
-// ---- Tiny animation toolkit: everything is a pure function of time, so every frame is reproducible. ----
+// ------------------------------------------------------------------ data from the renderer
+const A = window.ASSETS;
+const SCENES = A.timeline.scenes;
+const WORDS = A.timeline.words;
+const DURATION = SCENES.length ? SCENES[SCENES.length - 1].end : 10;
+window.AD_DURATION = DURATION;
+
+// ------------------------------------------------------------------ toolkit (pure functions of t)
+const W = window.innerWidth, H = window.innerHeight, U = Math.min(W, H) / 100; // 1U = 1% of the short edge
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const prog = (t, start, len) => clamp((t - start) / len);
 const easeOut = (x) => 1 - Math.pow(1 - x, 3);
 const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-const backOut = (x) => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const backOut = (x) => { const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, x) => a + (b - a) * x;
 const $ = (id) => document.getElementById(id);
-// visibility window with fades
-const win = (t, a, b, fade = 0.35) => clamp(Math.min((t - a) / fade, (b - t) / fade));
+const TR = 0.7;          // transition length (s)
+const END_LEN = 2.6;     // end card length (s)
 
-// The customer's real logo, if the renderer found one (window.ASSETS is injected before this script).
-if (window.ASSETS && window.ASSETS.logo) {
-  $("logoImg").src = window.ASSETS.logo;
-  $("logoImg").style.display = "block";
-}
+// ------------------------------------------------------------------ build the scenes once
+const stage = $("stage"), heads = $("heads");
+const sceneEls = SCENES.map((s, i) => {
+  const el = document.createElement("div");
+  el.className = "layer scene";
+  const img = document.createElement("img");
+  img.src = A.images[s.image] || A.images[0];
+  const grade = document.createElement("div");
+  grade.className = "grade";
+  grade.style.background = BRAND.grade;
+  const shade = document.createElement("div");
+  shade.className = "shade";
+  el.append(img, grade, shade);
+  stage.append(el);
 
-// build static pieces once
-$("logo").innerHTML = [...AD.brand].map((ch, i) => `<span id="L${i}" style="display:inline-block">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
-const ICONS = {
-  flame: `<svg viewBox="0 0 64 64" width="90" height="90"><path d="M32 4c4 14 18 18 18 36a18 18 0 0 1-36 0c0-10 6-14 8-22 2 6 6 8 6 8 0-10 4-16 4-22z" fill="#ff7a1a"/><path d="M32 30c2 7 9 9 9 17a9 9 0 0 1-18 0c0-6 5-9 9-17z" fill="#ffd34d"/></svg>`,
-  leaf: `<svg viewBox="0 0 64 64" width="90" height="90"><path d="M10 54C10 24 30 8 56 8c0 28-16 46-46 46z" fill="#3fa34d"/><path d="M14 50L46 18" stroke="#1f6b2a" stroke-width="3"/></svg>`,
-  clock: `<svg viewBox="0 0 64 64" width="90" height="90"><circle cx="32" cy="32" r="26" fill="#fff" stroke="#c0261b" stroke-width="6"/><path d="M32 16v17l11 7" stroke="#2b0a05" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`,
-};
-AD.points.forEach((p, i) => {
-  $(`c${i + 1}`).innerHTML =
-    `<div style="width:330px;height:300px;border-radius:32px;background:#fff;color:${AD.colors.dark};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;box-shadow:0 24px 60px rgba(0,0,0,.35)">
-      ${ICONS[p.icon]}<div style="font-size:33px;font-weight:900;padding:0 16px;text-align:center">${p.title}</div><div style="font-size:26px;color:#7a4b3a">${p.text}</div></div>`;
+  const head = document.createElement("div");
+  head.className = "headline";
+  head.dir = "rtl";
+  const size = (W > H ? 8.2 : 9.5) * U;
+  head.style.fontSize = size + "px";
+  head.style.right = 7 * U + "px";
+  head.style.left = 7 * U + "px";
+  head.style.bottom = (W > H ? 24 : 30) * U + "px";
+  head.innerHTML = s.onScreenText.split(" ").map((w) => `<span>${w}&nbsp;</span>`).join("");
+  const bar = document.createElement("div");
+  bar.className = "bar";
+  bar.style.background = BRAND.accent;
+  bar.style.right = 7 * U + "px";
+  bar.style.bottom = (W > H ? 21.5 : 27.5) * U + "px";
+  heads.append(head, bar);
+
+  // deterministic per-scene motion: alternate push-in / pull-out and pan direction
+  const dir = i % 2 ? -1 : 1;
+  return { el, img, head, bar, words: [...head.children], motion: { from: i % 2 ? 1.16 : 1.02, to: i % 2 ? 1.04 : 1.14, pan: dir * 2.2 } };
 });
-// pizza drawn in SVG
-const toppings = Array.from({ length: 9 }, (_, i) => {
-  const a = i * 2.4, r = 70 + (i % 3) * 45;
-  return `<circle cx="${210 + Math.cos(a) * r}" cy="${210 + Math.sin(a) * r}" r="22" fill="#b3261e"/>`;
-}).join("");
-const basil = Array.from({ length: 5 }, (_, i) => {
-  const a = i * 1.3 + 0.5, r = 100 + (i % 2) * 40;
-  return `<ellipse cx="${210 + Math.cos(a) * r}" cy="${210 + Math.sin(a) * r}" rx="18" ry="9" fill="#2f8f3a" transform="rotate(${i * 50} ${210 + Math.cos(a) * r} ${210 + Math.sin(a) * r})"/>`;
-}).join("");
-$("pizza").innerHTML = `<svg viewBox="0 0 420 420" width="420" height="420">
-  <circle cx="210" cy="210" r="205" fill="#e7a64c"/><circle cx="210" cy="210" r="178" fill="#d9472b"/>
-  <circle cx="210" cy="210" r="168" fill="#f6d98b" opacity=".92"/>${toppings}${basil}</svg>`;
 
+// captions: phrases of up to 6 words that never cross a scene boundary
+const phrases = [];
+{
+  let cur = [];
+  WORDS.forEach((w, i) => {
+    const sceneOf = (x) => SCENES.findIndex((s) => x.start >= s.start && x.start < s.end);
+    if (cur.length && (cur.length >= 6 || sceneOf(w) !== sceneOf(cur[0]))) { phrases.push(cur); cur = []; }
+    cur.push(w);
+  });
+  if (cur.length) phrases.push(cur);
+}
+const cap = $("captions");
+cap.style.bottom = (W > H ? 7 : 11) * U + "px";
+cap.style.fontSize = (W > H ? 4.2 : 5) * U + "px";
+cap.style.padding = `0 ${7 * U}px`;
+
+// film grain: a few noise frames, picked by frame number
+const grain = $("grain");
+grain.width = Math.round(W / 3); grain.height = Math.round(H / 3);
+const gctx = grain.getContext("2d");
+const noise = Array.from({ length: 6 }, () => {
+  const d = gctx.createImageData(grain.width, grain.height);
+  for (let p = 0; p < d.data.length; p += 4) { const v = Math.random() * 255; d.data[p] = d.data[p + 1] = d.data[p + 2] = v; d.data[p + 3] = 255; }
+  return d;
+});
+
+// end card
+const endLogo = $("endLogo");
+if (A.logo) { endLogo.src = A.logo; endLogo.style.maxWidth = 40 * U + "px"; endLogo.style.maxHeight = 22 * U + "px"; endLogo.style.marginBottom = 3 * U + "px"; }
+else endLogo.style.display = "none";
+$("endBrand").textContent = BRAND.name;
+$("endBrand").style.fontSize = (A.logo ? 6 : 11) * U + "px";
+$("cta").textContent = BRAND.cta;
+$("cta").style.fontSize = 6 * U + "px";
+$("cta").style.background = BRAND.accent;
+$("site").textContent = BRAND.website;
+$("site").style.fontSize = 4 * U + "px";
+$("end").style.background = "radial-gradient(ellipse at center, rgba(20,10,5,.55), rgba(0,0,0,.88))";
+
+// ------------------------------------------------------------------ one frame
 function renderFrame(t) {
-  const C = AD.colors;
-  // background: red -> cream -> deep red -> red
-  const bgCream = win(t, 2.5, 5.7, 0.4);
-  const bgDark = win(t, 5.5, 9.2, 0.4);
-  $("bg").style.background =
-    bgCream > 0.5 ? C.cream : bgDark > 0.5 ? `radial-gradient(circle at 50% 40%, #5a1209, ${C.dark})` : `radial-gradient(circle at 50% 45%, #e0412f, ${C.primary} 60%, #7d140c)`;
-  $("rays").style.opacity = (t < 2.7 || t > 9) ? 0.35 : 0;
-  $("rays").style.background = `repeating-conic-gradient(from ${t * 25}deg at 50% 50%, rgba(255,255,255,.10) 0deg 8deg, transparent 8deg 24deg)`;
+  const endStart = DURATION - END_LEN;
 
-  // Scene 1: letters drop in with a stagger, subtitle fades up
-  const s1 = win(t, 0, 2.6);
-  $("s1").style.opacity = s1;
-  [...AD.brand].forEach((_, i) => {
-    const p = backOut(prog(t, 0.15 + i * 0.06, 0.5));
-    $(`L${i}`).style.transform = `translateY(${(1 - p) * -260}px) rotate(${(1 - p) * (i % 2 ? 20 : -20)}deg)`;
-    $(`L${i}`).style.opacity = prog(t, 0.15 + i * 0.06, 0.2);
+  SCENES.forEach((s, i) => {
+    const e = sceneEls[i];
+    const local = clamp((t - s.start) / (s.end - s.start));
+    // in/out windows around the cut points
+    const inP = i === 0 ? 1 : easeInOut(prog(t, s.start - TR / 2, TR));
+    const outP = i === SCENES.length - 1 ? 0 : easeInOut(prog(t, s.end - TR / 2, TR));
+    const visible = t >= s.start - TR / 2 && t <= s.end + TR / 2;
+    e.el.style.display = visible ? "block" : "none";
+    e.head.style.display = visible ? "block" : "none";
+    e.bar.style.display = visible ? "block" : "none";
+    if (!visible) return;
+
+    // Ken Burns on the photo
+    const k = easeInOut(local);
+    const scale = lerp(e.motion.from, e.motion.to, k);
+    e.img.style.transform = `scale(${scale}) translateX(${lerp(-e.motion.pan, e.motion.pan, k)}%)`;
+
+    // transition style rotates per cut: dissolve+zoom, push, circular reveal, flash
+    const kind = i % 4;
+    let opacity = 1, transform = "", clip = "none";
+    if (inP < 1) {
+      if (kind === 1) transform = `translateX(${(1 - inP) * -100}%)`;
+      else if (kind === 2) clip = `circle(${inP * 75}% at 50% 50%)`;
+      else opacity = inP;
+    }
+    if (outP > 0) {
+      const nextKind = (i + 1) % 4;
+      if (nextKind === 1) transform = `translateX(${outP * 35}%)`;
+      else if (nextKind === 0 || nextKind === 3) { transform = `scale(${1 + outP * 0.25})`; opacity = Math.min(opacity, 1 - outP * 0.6); }
+    }
+    e.el.style.opacity = opacity;
+    e.el.style.transform = transform;
+    e.el.style.clipPath = clip;
+    e.el.style.zIndex = String(i);
+
+    // headline: words rise in one by one, then hold, then leave before the cut
+    const hideAtEnd = t > endStart - 0.2 ? 0 : 1;
+    const headOut = 1 - prog(t, s.end - TR, TR * 0.6);
+    e.words.forEach((w, j) => {
+      const p = backOut(prog(t, s.start + 0.25 + j * 0.09, 0.55));
+      w.style.transform = `translateY(${(1 - p) * 60}%)`;
+      w.style.opacity = clamp(p * 1.4) * headOut * hideAtEnd;
+    });
+    const bp = easeOut(prog(t, s.start + 0.15, 0.6));
+    e.bar.style.width = bp * 14 * U + "px";
+    e.bar.style.opacity = headOut * hideAtEnd;
   });
-  const sub = easeOut(prog(t, 1.1, 0.6));
-  $("s1sub").style.opacity = sub;
-  $("s1sub").style.transform = `translateY(${(1 - sub) * 30}px)`;
-  $("logo").style.transform = `scale(${1 + Math.max(0, t - 1.6) * 0.06})`;
-  const lg = easeOut(prog(t, 0, 0.6));
-  $("logoImg").style.opacity = lg;
-  $("logoImg").style.transform = `scale(${0.8 + 0.2 * lg})`;
 
-  // Scene 2: pizza spins in, words slam one by one
-  $("s2").style.opacity = win(t, 2.6, 5.6);
-  const pz = easeOut(prog(t, 2.6, 0.8));
-  $("pizza").style.transform = `translateX(${(1 - pz) * -500}px) rotate(${t * 40}deg) scale(${0.6 + 0.4 * pz})`;
-  ["w1", "w2", "w3"].forEach((w, i) => {
-    const p = backOut(prog(t, 3.0 + i * 0.45, 0.45));
-    $(w).style.transform = `scale(${0.3 + 0.7 * p})`;
-    $(w).style.opacity = prog(t, 3.0 + i * 0.45, 0.15);
-  });
+  // flash on every 4th cut
+  let flash = 0;
+  SCENES.forEach((s, i) => { if (i > 0 && i % 4 === 3) flash = Math.max(flash, 1 - Math.abs(t - s.start) / 0.18); });
+  $("flash").style.opacity = clamp(flash) * 0.85;
 
-  // Scene 3: title, then cards rise in sequence
-  $("s3").style.opacity = win(t, 5.6, 9.1);
-  const tt = easeOut(prog(t, 5.7, 0.5));
-  $("s3title").style.opacity = tt;
-  $("s3title").style.transform = `translateY(${(1 - tt) * -40}px)`;
-  [1, 2, 3].forEach((n, i) => {
-    const p = backOut(prog(t, 6.1 + i * 0.35, 0.6));
-    $(`c${n}`).style.transform = `translateY(${(1 - p) * 420}px) rotate(${(1 - p) * 8}deg)`;
-    $(`c${n}`).style.opacity = prog(t, 6.1 + i * 0.35, 0.2);
-  });
+  // light leak sweeping across at each cut
+  let leak = 0, leakX = 50;
+  SCENES.forEach((s, i) => { if (i > 0) { const d = (t - s.start) / 0.9; if (d > -1 && d < 1) { leak = Math.max(leak, 1 - Math.abs(d)); leakX = 50 + d * 60; } } });
+  $("leak").style.background = `radial-gradient(ellipse 45% 70% at ${leakX}% 40%, rgba(255,170,90,${0.55 * leak}), transparent 70%)`;
 
-  // Scene 4: CTA punches in, URL pill pulses
-  $("s4").style.opacity = win(t, 9.1, DURATION + 1);
-  const c = backOut(prog(t, 9.2, 0.6));
-  $("cta").style.transform = `scale(${0.4 + 0.6 * c})`;
-  $("cta").style.opacity = prog(t, 9.2, 0.2);
-  const u = easeOut(prog(t, 9.8, 0.5));
-  $("url").style.opacity = u;
-  $("url").style.transform = `translateY(${(1 - u) * 40}px) scale(${1 + 0.04 * Math.sin(Math.max(0, t - 10.3) * 6)})`;
+  // grain
+  gctx.putImageData(noise[Math.floor(t * 24) % noise.length], 0, 0);
+
+  // captions synced to the narration
+  const ph = phrases.find((p) => t >= p[0].start - 0.05 && t <= p[p.length - 1].end + 0.35);
+  const showCaps = ph && t < endStart;
+  if (showCaps) {
+    const html = ph.map((w) => `<span class="w${t >= w.start && t <= w.end + 0.05 ? " on" : ""}">${w.text}</span>`).join(" ");
+    if (cap.dataset.html !== html) { cap.innerHTML = `<span class="chip">${html}</span>`; cap.dataset.html = html; }
+  }
+  cap.style.opacity = showCaps ? 1 : 0;
+
+  // end card
+  const ep = easeOut(prog(t, endStart, 0.6));
+  const end = $("end");
+  end.style.opacity = ep;
+  end.style.transform = `scale(${lerp(1.06, 1, ep)})`;
+  $("cta").style.transform = `scale(${backOut(prog(t, endStart + 0.35, 0.5))})`;
+  $("site").style.opacity = prog(t, endStart + 0.6, 0.4);
 }
 window.renderFrame = renderFrame;
-window.AD_DURATION = DURATION;
 renderFrame(0);
 </script>
 </body>

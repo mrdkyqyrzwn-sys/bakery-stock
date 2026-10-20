@@ -20,9 +20,24 @@ export const FPS = 30;
 const FRAME_TIMEOUT_MS = 5_000;
 const CONCURRENCY = Number(process.env.RENDER_CONCURRENCY ?? 4);
 
+export interface TimelineScene {
+  start: number;
+  end: number;
+  /** Index into ASSETS.images for this scene's photo. */
+  image: number;
+  onScreenText: string;
+  narration: string;
+  direction: string;
+}
+
+/** Everything the animation code receives as window.ASSETS. */
 export interface Assets {
+  /** Customer's logo as a data: URI, or null. */
   logo: string | null;
-  hero: string | null;
+  /** Photos (uploaded or generated) as data: URIs, at the video's resolution or larger. */
+  images: string[];
+  /** Scene timings and narration word timings, in seconds from the start of the video. */
+  timeline: { scenes: TimelineScene[]; words: { text: string; start: number; end: number }[] };
 }
 
 export function canvasSize(aspect: string): { width: number; height: number } {
@@ -129,13 +144,51 @@ export async function inspect(html: string, assets: Assets, aspect: string, expe
   }
 }
 
-/** Render every frame (in parallel pages) and encode an H.264 MP4. Optional music track is mixed in. */
+/** Downscale images inside the sandboxed browser (no image library needed). Returns JPEG data URIs. */
+export async function thumbnails(dataUris: string[], maxEdge = 768): Promise<string[]> {
+  if (dataUris.length === 0) return [];
+  const browser = await launch();
+  try {
+    const context = await browser.newContext({ offline: true });
+    await context.route("**/*", (route) => route.abort());
+    const page = await context.newPage();
+    await page.setContent("<!doctype html><html><body></body></html>");
+    const out: string[] = [];
+    for (const uri of dataUris) {
+      out.push(
+        await page.evaluate(
+          async ({ uri, maxEdge }) => {
+            const img = new Image();
+            img.src = uri;
+            await img.decode();
+            const scale = Math.min(1, maxEdge / Math.max(img.naturalWidth, img.naturalHeight));
+            const c = document.createElement("canvas");
+            c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+            c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+            c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+            return c.toDataURL("image/jpeg", 0.85);
+          },
+          { uri, maxEdge },
+        ),
+      );
+    }
+    await context.close();
+    return out;
+  } finally {
+    await browser.close();
+  }
+}
+
+/** Render every frame (in parallel pages), encode H.264, and mix narration + music. */
 export async function renderVideo(opts: {
   html: string;
   assets: Assets;
   aspect: string;
   durationS: number;
   outFile: string;
+  voiceFile?: string | null;
+  /** Seconds into the video where the narration starts. */
+  voiceOffset?: number;
   musicFile?: string | null;
   onProgress?: (pct: number) => Promise<void> | void;
 }): Promise<void> {
@@ -168,10 +221,7 @@ export async function renderVideo(opts: {
     await Promise.all(workers);
 
     const args = ["-y", "-loglevel", "error", "-framerate", String(FPS), "-i", path.join(dir, "f%06d.jpg")];
-    if (opts.musicFile) {
-      const fadeStart = Math.max(0, opts.durationS - 1.5);
-      args.push("-i", opts.musicFile, "-filter_complex", `[1:a]atrim=0:${opts.durationS},afade=t=out:st=${fadeStart}:d=1.5[a]`, "-map", "0:v", "-map", "[a]", "-c:a", "aac", "-b:a", "192k");
-    }
+    args.push(...audioArgs(opts.durationS, opts.voiceFile, opts.voiceOffset ?? 0, opts.musicFile));
     args.push("-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "medium", "-movflags", "+faststart", "-t", String(opts.durationS), opts.outFile);
     await run("ffmpeg", args);
     if ((await stat(opts.outFile)).size < 10_000) throw new Error("encoded video is unexpectedly small");
@@ -180,6 +230,35 @@ export async function renderVideo(opts: {
     await browser.close();
     await rm(dir, { recursive: true, force: true });
   }
+}
+
+/**
+ * The audio mix: narration on top, music underneath that automatically dips while the voice
+ * speaks (sidechain ducking), fades in and out, normalized to -14 LUFS like social platforms expect.
+ */
+export function audioArgs(duration: number, voice?: string | null, voiceOffset = 0, music?: string | null): string[] {
+  if (!voice && !music) return [];
+  const D = duration.toFixed(3);
+  const fadeOut = Math.max(0, duration - 2).toFixed(3);
+  const delayMs = Math.round(voiceOffset * 1000);
+  const master = `loudnorm=I=-14:TP=-1.5:LRA=11,atrim=0:${D},apad=whole_dur=${D}[a]`;
+  const inputs: string[] = [];
+  let graph: string;
+  if (voice && music) {
+    inputs.push("-i", voice, "-i", music);
+    graph =
+      `[1:a]adelay=${delayMs}|${delayMs},apad,asplit=2[v1][v2];` +
+      `[2:a]atrim=0:${D},volume=0.5,afade=t=in:d=0.6,afade=t=out:st=${fadeOut}:d=2[m];` +
+      `[m][v1]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=400[duck];` +
+      `[duck][v2]amix=inputs=2:duration=first:normalize=0,${master}`;
+  } else if (voice) {
+    inputs.push("-i", voice);
+    graph = `[1:a]adelay=${delayMs}|${delayMs},${master}`;
+  } else {
+    inputs.push("-i", music!);
+    graph = `[1:a]afade=t=in:d=0.6,afade=t=out:st=${fadeOut}:d=2,${master}`;
+  }
+  return [...inputs, "-filter_complex", graph, "-map", "0:v", "-map", "[a]", "-c:a", "aac", "-b:a", "192k", "-ar", "48000"];
 }
 
 function launch(): Promise<Browser> {

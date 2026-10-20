@@ -16,6 +16,11 @@ create table if not exists projects (
   paddle_txn_id   text unique,
   status          text not null default 'draft',
   error           text,
+  -- Photos the customer uploaded: [{ "url": "..." }]
+  uploads         jsonb not null default '[]'::jsonb,
+  -- Production plan and generated media (images, narration, music) so a retry can resume
+  plan            jsonb,
+  media           jsonb,
   -- Animation code written by Claude for this customer, and render progress (0-100)
   animation_html  text,
   stage           text,

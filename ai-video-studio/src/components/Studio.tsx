@@ -7,6 +7,7 @@ import type { Quote } from "@/lib/pricing-core";
 import { STYLES } from "@/lib/styles";
 import { DEMO, demoCheckout, demoProject } from "./demo";
 import { DemoPreview } from "./DemoPreview";
+import { PhotoUploader } from "./PhotoUploader";
 import { readToken } from "./token";
 
 interface Project {
@@ -17,7 +18,8 @@ interface Project {
   concepts: { style_id: string; title_he: string; pitch_he: string }[];
   quotes: Quote[];
   choice: { style: string; durationS: number; aspect: string; priceCents: number } | null;
-  stage: "writing" | "reviewing" | "rendering" | null;
+  uploads: string[];
+  stage: "planning" | "media" | "writing" | "reviewing" | "rendering" | null;
   renderProgress: number;
   videoUrl: string | null;
   /** Demo mode only: lines shown in the animated preview. */
@@ -43,8 +45,9 @@ async function fetchProject(id: string, token: string): Promise<Project | null> 
 }
 const usd = (n: number) => `$${n.toFixed(2)}`;
 const BREAKDOWN_LABELS: Record<keyof Quote["breakdown"], string> = {
-  aiUsd: "בינה מלאכותית: ניתוח, כתיבת האנימציה ובקרת איכות",
-  renderUsd: "רינדור לסרטון ואחסון",
+  aiUsd: "בינה מלאכותית: תסריט, בימוי, עריכה ובקרת איכות",
+  mediaUsd: "קריינות, מוזיקה מקורית ויצירת תמונות",
+  renderUsd: "ייצוא הסרטון ואחסון",
   serviceFeeUsd: "עמלת שירות",
   paymentProcessingUsd: "עמלת סליקה",
 };
@@ -197,9 +200,11 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
         </div>
       </section>
 
+      <PhotoUploader projectId={project.id} token={token} initial={project.uploads} />
+
       <section aria-labelledby="pick-length" className="mt-10 grid gap-8 lg:grid-cols-2">
         <div>
-          <h2 id="pick-length" className="mb-4 text-xl font-bold">2. אורך ופורמט</h2>
+          <h2 id="pick-length" className="mb-4 text-xl font-bold">3. אורך ופורמט</h2>
           <div role="radiogroup" aria-label="אורך הסרטון" className="flex flex-wrap gap-2">
             {project.quotes.map((x) => (
               <button
@@ -236,7 +241,7 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
         </div>
 
         <div className="rounded-3xl border border-line bg-card p-6">
-          <h2 className="mb-4 text-xl font-bold">3. מחיר שקוף</h2>
+          <h2 className="mb-4 text-xl font-bold">4. מחיר שקוף</h2>
           <dl className="space-y-2 text-sm">
             {(Object.keys(BREAKDOWN_LABELS) as (keyof Quote["breakdown"])[]).map((k) => (
               <div key={k} className="flex justify-between">
@@ -272,9 +277,11 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
 }
 
 const STAGES = [
-  { id: "writing", label: "Claude כותב את קוד האנימציה במיוחד בשבילך" },
-  { id: "reviewing", label: "בודק איך זה נראה ומתקן" },
-  { id: "rendering", label: "הופך את הקוד לסרטון" },
+  { id: "planning", label: "כותבים תסריט ובוחרים תמונות" },
+  { id: "media", label: "מקליטים קריינות, מלחינים מוזיקה ויוצרים תמונות" },
+  { id: "writing", label: "עורכים את הסרטון: תנועה, מעברים וטקסט" },
+  { id: "reviewing", label: "בקרת איכות ותיקונים" },
+  { id: "rendering", label: "ייצוא הסרטון הסופי" },
 ] as const;
 
 function Production({ project }: { project: Project }) {
@@ -286,10 +293,14 @@ function Production({ project }: { project: Project }) {
       : stage === "rendering"
         ? 50 + Math.round(renderProgress / 2)
         : stage === "reviewing"
-          ? 40
+          ? 42
           : stage === "writing"
-            ? 15
-            : 5;
+            ? 32
+            : stage === "media"
+              ? 18
+              : stage === "planning"
+                ? 8
+                : 3;
   const activeIndex = STAGES.findIndex((s) => s.id === stage);
 
   async function copyLink() {
@@ -319,6 +330,7 @@ function Production({ project }: { project: Project }) {
             aspect={project.choice?.aspect ?? "16:9"}
             brandName={project.brandName}
             lines={project.demoLines ?? []}
+            photos={project.uploads}
           />
         ) : status === "done" && project.videoUrl ? (
           <>

@@ -14,11 +14,13 @@ export function DemoPreview({
   aspect,
   brandName,
   lines,
+  photos,
 }: {
   styleId: string;
   aspect: string;
   brandName: string;
   lines: string[];
+  photos: string[];
 }) {
   const style = getStyle(styleId);
   const frames = [...lines, `END:${brandName}`];
@@ -44,8 +46,11 @@ export function DemoPreview({
       >
         <div
           key={index}
-          className="demo-kenburns absolute inset-0"
-          style={{ background: style?.gradient, filter: isEnd ? "brightness(0.55)" : undefined }}
+          className="demo-kenburns absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: photos.length ? `url("${photos[index % photos.length]}")` : style?.gradient,
+            filter: isEnd ? "brightness(0.55)" : undefined,
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
         <div key={`t${index}`} className="demo-fadein absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
@@ -73,7 +78,7 @@ export function DemoPreview({
           {playing ? "השהיה" : "הפעלה"}
         </button>
         <p className="text-sm text-muted">
-          זהו מצב דמו. בגרסה האמיתית Claude כותב קוד אנימציה מלא לעסק שלך, בודק אותו ומרנדר אותו לסרטון MP4.{" "}
+          זהו מצב דמו. בגרסה האמיתית מקבלים סרטון MP4 מלא: תסריט, קריין בעברית, מוזיקה מקורית ועריכה מקצועית של התמונות.{" "}
           <a href="/samples/pizza-roma.mp4" target="_blank" className="underline">צפו בסרטון אמיתי לדוגמה</a>.
         </p>
       </div>

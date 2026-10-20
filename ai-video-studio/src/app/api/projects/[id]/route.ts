@@ -25,6 +25,7 @@ export async function GET(req: Request, ctx: RouteContext<"/api/projects/[id]">)
     choice: project.style
       ? { style: project.style, durationS: project.duration_s, aspect: project.aspect, priceCents: project.price_cents }
       : null,
+    uploads: project.uploads.map((u) => u.url),
     stage: project.stage,
     renderProgress: project.render_progress,
     videoUrl: project.status === "done" ? project.video_url : null,

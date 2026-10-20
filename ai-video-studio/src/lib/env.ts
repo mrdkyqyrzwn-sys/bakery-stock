@@ -12,6 +12,14 @@ const schema = z.object({
   PRICE_MARGIN: z.coerce.number().min(0).max(5).default(1),
   PRICE_FIXED_FEE_USD: z.coerce.number().min(0).default(5),
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
+  // Render worker only (image generation, narration, music)
+  FAL_KEY: z.string().optional(),
+  FAL_IMAGE_MODEL: z.string().default("fal-ai/flux-2-pro"),
+  ELEVENLABS_API_KEY: z.string().optional(),
+  ELEVENLABS_TTS_MODEL: z.string().default("eleven_v4"),
+  ELEVENLABS_MUSIC_MODEL: z.string().default("music_v2_5"),
+  ELEVENLABS_VOICE_FEMALE: z.string().default("21m00Tcm4TlvDq8ikWAM"),
+  ELEVENLABS_VOICE_MALE: z.string().default("pNInz6obpgDQGcFmaJgB"),
   CRON_SECRET: z.string().min(32),
   IP_HASH_SALT: z.string().min(16),
 });

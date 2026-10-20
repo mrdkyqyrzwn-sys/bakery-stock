@@ -42,8 +42,11 @@ export interface ProjectRow {
   paddle_txn_id: string | null;
   status: ProjectStatus;
   error: string | null;
+  uploads: { url: string }[];
+  plan: unknown;
+  media: unknown;
   animation_html: string | null;
-  stage: "writing" | "reviewing" | "rendering" | null;
+  stage: "planning" | "media" | "writing" | "reviewing" | "rendering" | null;
   render_progress: number;
   error_count: number;
   video_url: string | null;

@@ -5,7 +5,7 @@ const csp = [
   // Next.js inlines small bootstrap scripts; Paddle.js loads from its CDN.
   "script-src 'self' 'unsafe-inline' https://cdn.paddle.com https://public.profitwell.com",
   "style-src 'self' 'unsafe-inline' https://cdn.paddle.com",
-  "img-src 'self' data: https:",
+  "img-src 'self' data: blob: https:",
   "media-src 'self' https:",
   "font-src 'self' data:",
   "connect-src 'self' https://*.paddle.com",

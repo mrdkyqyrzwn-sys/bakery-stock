@@ -11,11 +11,14 @@ import { DURATIONS, STYLES } from "@/lib/styles";
 export const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 const ANALYSIS_MS = 7000;
-const WRITING_MS = 5000;
-const REVIEWING_MS = 4000;
-const RENDERING_MS = 8000;
+const PLANNING_MS = 3000;
+const MEDIA_MS = 4000;
+const WRITING_MS = 4000;
+const REVIEWING_MS = 3000;
+const RENDERING_MS = 6000;
 
 interface DemoState {
+  photos?: string[];
   siteUrl: string;
   brandName: string;
   choice: { style: string; durationS: number; aspect: string; priceCents: number } | null;
@@ -74,6 +77,12 @@ export async function createDemoProject(url: string): Promise<{ id: string; toke
   return { id, token: "demo" };
 }
 
+/** Photos picked in the demo stay in this tab only (object URLs); nothing is uploaded. */
+export function demoSetPhotos(id: string, photos: string[]) {
+  const state = load(id);
+  if (state) save(id, { ...state, photos });
+}
+
 export function demoCheckout(id: string, choice: { style: string; durationS: number; aspect: string }) {
   const state = load(id);
   if (!state) return;
@@ -84,23 +93,23 @@ export function demoCheckout(id: string, choice: { style: string; durationS: num
 const CONCEPTS: Record<string, (brand: string) => { title_he: string; pitch_he: string }> = {
   cinematic: (b) => ({
     title_he: `${b}: הרגע שבו הכול מתחיל`,
-    pitch_he: "אור זהוב, תנועת מצלמה איטית ומוזיקה שנבנית לאט, עד שהמוצר נחשף כגיבור של הסיפור.",
+    pitch_he: "תנועת מצלמה איטית על התמונות שלכם, צבעים עשירים וקריינות בטוחה, עד שהמותג נחשף כגיבור של הסיפור.",
   }),
   kinetic: (b) => ({
     title_he: `אנרגיה של ${b}`,
-    pitch_he: "קאטים מהירים בקצב המוזיקה, צבעים חזקים ותקריבים שעוצרים את הגלילה כבר בשנייה הראשונה.",
+    pitch_he: "קאטים מהירים בקצב המוזיקה, זומים ומילים ענקיות שעוצרים את הגלילה כבר בשנייה הראשונה.",
   }),
   lifestyle: (b) => ({
     title_he: `החיים עם ${b}`,
-    pitch_he: "אנשים אמיתיים ברגעים טבעיים ומחויכים, באור חם, מרגישים כמה טוב לבחור בכם.",
+    pitch_he: "רגעים אמיתיים באור חם וקריינות אישית, שמרגישה כמו המלצה של חבר.",
   }),
   minimal: () => ({
     title_he: "פשוט. מדויק. שלכם.",
-    pitch_he: "רקע נקי בצבעי המותג, תנועה עדינה סביב המוצר והרבה אוויר. אלגנטי ובטוח בעצמו.",
+    pitch_he: "התמונות שלכם בקומפוזיציות נקיות עם הרבה אוויר וצבע אחד של המותג. אלגנטי ובטוח בעצמו.",
   }),
   playful3d: (b) => ({
     title_he: `העולם הקטן של ${b}`,
-    pitch_he: "עולם אנימציה צבעוני ומשחקי שנבנה סביב מה שאתם מוכרים, עם הומור שנשאר בראש.",
+    pitch_he: "התמונות קופצות למסך כמו מדבקות צבעוניות, עם קונפטי ומוזיקה שמחה שנשארת בראש.",
   }),
 };
 
@@ -111,18 +120,29 @@ export function demoProject(id: string) {
   const concepts = STYLES.map((s) => ({ style_id: s.id, ...CONCEPTS[s.id](state.brandName) }));
 
   let status: "draft" | "rendering" | "done" = "draft";
-  let stage: "writing" | "reviewing" | "rendering" | null = null;
+  let stage: "planning" | "media" | "writing" | "reviewing" | "rendering" | null = null;
   let renderProgress = 0;
   if (state.choice && state.paidAt) {
     const elapsed = Date.now() - state.paidAt;
     status = "rendering";
-    if (elapsed < WRITING_MS) stage = "writing";
-    else if (elapsed < WRITING_MS + REVIEWING_MS) stage = "reviewing";
-    else if (elapsed < WRITING_MS + REVIEWING_MS + RENDERING_MS) {
-      stage = "rendering";
-      renderProgress = Math.floor(((elapsed - WRITING_MS - REVIEWING_MS) / RENDERING_MS) * 100);
-    } else {
-      status = "done";
+    const marks = [PLANNING_MS, MEDIA_MS, WRITING_MS, REVIEWING_MS];
+    const names = ["planning", "media", "writing", "reviewing"] as const;
+    let at = 0;
+    stage = null;
+    for (const [i, len] of marks.entries()) {
+      if (elapsed < at + len) {
+        stage = names[i];
+        break;
+      }
+      at += len;
+    }
+    if (!stage) {
+      if (elapsed < at + RENDERING_MS) {
+        stage = "rendering";
+        renderProgress = Math.floor(((elapsed - at) / RENDERING_MS) * 100);
+      } else {
+        status = "done";
+      }
     }
   }
   const concept = concepts.find((c) => c.style_id === state.choice?.style) ?? concepts[0];
@@ -135,6 +155,7 @@ export function demoProject(id: string) {
     concepts,
     quotes,
     choice: state.choice,
+    uploads: state.photos ?? [],
     stage,
     renderProgress,
     videoUrl: status === "done" ? "demo" : null,
