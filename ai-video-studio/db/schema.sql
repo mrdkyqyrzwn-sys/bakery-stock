@@ -53,3 +53,19 @@ create table if not exists webhook_events (
   id          text primary key,
   received_at timestamptz not null default now()
 );
+
+-- Coupon codes. percent = 100 means free: the order skips Paddle and goes straight to production.
+-- max_uses limits how many orders can use a code (null = unlimited). Codes are stored upper-case.
+create table if not exists coupons (
+  code        text primary key,
+  percent     int not null check (percent between 1 and 100),
+  max_uses    int,
+  uses        int not null default 0,
+  expires_at  timestamptz,
+  active      boolean not null default true,
+  created_at  timestamptz not null default now()
+);
+alter table projects add column if not exists coupon_code text references coupons (code);
+
+-- The owner's free code. Change max_uses, or set active = false, to limit or turn it off.
+insert into coupons (code, percent, max_uses) values ('MORDECHAI10', 100, 50) on conflict (code) do nothing;

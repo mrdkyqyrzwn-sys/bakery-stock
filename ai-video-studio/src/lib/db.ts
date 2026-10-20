@@ -41,6 +41,7 @@ export interface ProjectRow {
   price_cents: number | null;
   currency: string | null;
   paddle_txn_id: string | null;
+  coupon_code: string | null;
   status: ProjectStatus;
   error: string | null;
   uploads: { url: string }[];

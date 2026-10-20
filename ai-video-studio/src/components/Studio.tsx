@@ -126,7 +126,38 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [paddleReady, setPaddleReady] = useState(DEMO);
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; percent: number } | null>(null);
+  const [couponMsg, setCouponMsg] = useState<string | null>(null);
   const q = project.quotes.find((x) => x.durationS === duration)!;
+  const discountUsd = coupon ? Math.round(q.totalUsd * coupon.percent) / 100 : 0;
+  const totalUsd = Math.max(0, Math.round((q.totalUsd - discountUsd) * 100) / 100);
+  const free = !!coupon && totalUsd === 0;
+
+  async function applyCoupon() {
+    setCouponMsg(null);
+    const code = couponInput.trim();
+    if (!code) return;
+    if (DEMO) {
+      // Demo only knows the owner's code. Real codes are checked on the server.
+      if (code.toUpperCase() === "MORDECHAI10") setCoupon({ code: "MORDECHAI10", percent: 100 });
+      else setCouponMsg("הקוד הזה לא קיים או שפג תוקפו.");
+      return;
+    }
+    try {
+      const res = await fetch("/api/coupons", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "שגיאה");
+      setCoupon(data);
+    } catch (e) {
+      setCoupon(null);
+      setCouponMsg(e instanceof Error ? e.message : "שגיאה");
+    }
+  }
 
   function initPaddle() {
     const p = window.Paddle;
@@ -157,10 +188,14 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
       const res = await fetch(`/api/projects/${project.id}/checkout`, {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-        body: JSON.stringify({ style, durationS: duration, aspect, acceptTerms: accept }),
+        body: JSON.stringify({ style, durationS: duration, aspect, acceptTerms: accept, coupon: coupon?.code }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "שגיאה");
+      if (data.free) {
+        onPaid();
+        return;
+      }
       window.Paddle?.Checkout.open({ transactionId: data.transactionId, settings: { displayMode: "overlay", theme: "dark" } });
     } catch (e) {
       setErr(e instanceof Error ? e.message : "שגיאה");
@@ -253,14 +288,48 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
                 <dd dir="ltr">{usd(q.breakdown[k])}</dd>
               </div>
             ))}
+            {coupon && (
+              <div className="flex justify-between text-emerald-400">
+                <dt>קופון {coupon.code} ({coupon.percent}%)</dt>
+                <dd dir="ltr">-{usd(discountUsd)}</dd>
+              </div>
+            )}
             <div className="flex justify-between border-t border-line pt-3 text-lg font-bold">
               <dt>סה״כ</dt>
-              <dd dir="ltr">{usd(q.totalUsd)}</dd>
+              <dd dir="ltr">{usd(totalUsd)}</dd>
             </div>
           </dl>
           <p className="mt-2 text-xs text-muted">
             סרטון של {q.durationS} שניות באיכות Full HD. מע״מ או מס מכירה מקומי, אם חלים, יתווספו בעמוד התשלום.
           </p>
+          <div className="mt-5">
+            <label htmlFor="coupon" className="text-sm font-bold">קוד קופון</label>
+            <div className="mt-1 flex gap-2">
+              <input
+                id="coupon"
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void applyCoupon();
+                  }
+                }}
+                maxLength={32}
+                autoComplete="off"
+                spellCheck={false}
+                dir="ltr"
+                className="min-w-0 flex-1 rounded-xl border border-line bg-transparent px-3 py-2 uppercase"
+              />
+              <button type="button" onClick={applyCoupon} className="rounded-xl border border-line px-4 py-2">
+                להפעיל
+              </button>
+            </div>
+            <div aria-live="polite">
+              {coupon && <p className="mt-1 text-sm text-emerald-400">הקופון הופעל: {coupon.percent}% הנחה.</p>}
+              {couponMsg && <p className="mt-1 text-sm text-danger">{couponMsg}</p>}
+            </div>
+          </div>
           <label className="mt-5 flex items-start gap-2 text-sm text-muted">
             <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} className="mt-1 h-4 w-4 accent-violet-500" />
             <span>
@@ -269,10 +338,14 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
               ושההפקה מתחילה מיד לאחר התשלום, ולכן לא ניתן לבטל אותה אחרי שהתחילה, למעט במקרים המפורטים במדיניות.
             </span>
           </label>
-          <button type="button" onClick={pay} disabled={busy || !accept || !paddleReady} className="btn-primary mt-5 w-full text-lg">
-            {busy ? (DEMO ? "מדמה תשלום…" : "פותח תשלום…") : DEMO ? `המשך (דמו, ללא חיוב): ${usd(q.totalUsd)}` : `לתשלום מאובטח: ${usd(q.totalUsd)}`}
+          <button type="button" onClick={pay} disabled={busy || !accept || (!paddleReady && !free)} className="btn-primary mt-5 w-full text-lg">
+            {busy
+              ? DEMO ? "מדמה תשלום…" : free ? "מתחילים…" : "פותח תשלום…"
+              : free
+                ? "להתחיל את ההפקה"
+                : DEMO ? `המשך (דמו, ללא חיוב): ${usd(totalUsd)}` : `לתשלום מאובטח: ${usd(totalUsd)}`}
           </button>
-          {!paddleReady && <p className="mt-2 text-xs text-muted">טוען את מערכת התשלום…</p>}
+          {!paddleReady && !free && <p className="mt-2 text-xs text-muted">טוען את מערכת התשלום…</p>}
           <div aria-live="polite">{err && <p role="alert" className="mt-3 text-danger">{err}</p>}</div>
         </div>
       </section>

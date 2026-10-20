@@ -29,9 +29,13 @@ export async function POST(req: Request) {
     if (isUuid(projectId)) {
       // The transaction id must be the one we created for this project, with our server-side price.
       // The render worker picks up 'paid' projects from the database.
-      await db`
+      const paid = await db<{ coupon_code: string | null }[]>`
         update projects set status = 'paid', paid_at = now(), updated_at = now()
-        where id = ${projectId} and paddle_txn_id = ${txn.id} and status = 'awaiting_payment'`;
+        where id = ${projectId} and paddle_txn_id = ${txn.id} and status = 'awaiting_payment'
+        returning coupon_code`;
+      // A partial-discount coupon counts as used once the payment goes through.
+      const code = paid[0]?.coupon_code;
+      if (code) await db`update coupons set uses = uses + 1 where code = ${code}`;
     }
   }
 

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Analysis } from "@/lib/ai";
+import { discounted, findCoupon, redeemCoupon } from "@/lib/coupons";
 import { type ProjectRow, sql } from "@/lib/db";
 import { bearer, error, isUuid, json } from "@/lib/http";
 import { createCheckout } from "@/lib/paddle";
@@ -14,9 +15,13 @@ const body = z.strictObject({
   durationS: z.number().int().refine((d) => (DURATIONS as readonly number[]).includes(d)),
   aspect: z.enum(ASPECTS),
   acceptTerms: z.literal(true),
+  coupon: z.string().max(40).optional(),
 });
 
-/** Step 2: lock in style + length, compute the price on the server, open a Paddle transaction. */
+/**
+ * Step 2: lock in style + length, compute the price on the server (minus a coupon, if any) and open a
+ * Paddle transaction. A 100% coupon skips Paddle: the order is marked paid and the worker starts on it.
+ */
 export async function POST(req: Request, ctx: RouteContext<"/api/projects/[id]/checkout">) {
   if (!isSameOrigin(req.headers)) return error("forbidden", 403);
   const { id } = await ctx.params;
@@ -39,16 +44,35 @@ export async function POST(req: Request, ctx: RouteContext<"/api/projects/[id]/c
   }
 
   const q = quote(parsed.data.durationS);
+  let coupon = null;
+  if (parsed.data.coupon) {
+    coupon = await findCoupon(parsed.data.coupon);
+    if (!coupon) return error("קוד הקופון לא קיים או שפג תוקפו.", 400);
+  }
+  const priceCents = coupon ? discounted(q.totalCents, coupon.percent) : q.totalCents;
+
+  if (coupon && priceCents === 0) {
+    if (!(await redeemCoupon(coupon.code))) return error("קוד הקופון כבר נוצל עד הסוף.", 400);
+    const updated = await db`
+      update projects set style = ${style.id}, duration_s = ${q.durationS}, aspect = ${parsed.data.aspect},
+        price_cents = 0, currency = 'USD', paddle_txn_id = null, coupon_code = ${coupon.code},
+        status = 'paid', paid_at = now(), updated_at = now()
+      where id = ${id} and status in ('draft', 'awaiting_payment')
+      returning id`;
+    if (updated.length === 0) return error("הפרויקט כבר שולם", 409);
+    return json({ free: true });
+  }
+
   const brand = (project.brief as Analysis["brief"]).brand_name.slice(0, 60);
   const transactionId = await createCheckout({
     projectId: id,
-    amountCents: q.totalCents,
+    amountCents: priceCents,
     description: `AI ad video for ${brand} - ${style.id}, ${q.durationS}s, ${parsed.data.aspect}`,
   });
 
   await db`
     update projects set style = ${style.id}, duration_s = ${q.durationS}, aspect = ${parsed.data.aspect},
-      price_cents = ${q.totalCents}, currency = 'USD', paddle_txn_id = ${transactionId},
+      price_cents = ${priceCents}, currency = 'USD', paddle_txn_id = ${transactionId}, coupon_code = ${coupon?.code ?? null},
       status = 'awaiting_payment', updated_at = now()
     where id = ${id} and status in ('draft', 'awaiting_payment')`;
 
