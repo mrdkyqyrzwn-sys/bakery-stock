@@ -4,6 +4,8 @@ import Link from "next/link";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
+const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
 const heebo = Heebo({ variable: "--font-heebo", subsets: ["hebrew", "latin"] });
 
 export const metadata: Metadata = {
@@ -22,6 +24,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         >
           דילוג לתוכן הראשי
         </a>
+        {DEMO && (
+          <div role="status" className="bg-amber-400 px-4 py-2 text-center text-sm font-bold text-black">
+            מצב דמו: אין תשלומים אמיתיים, הסריקה והסרטון הם להמחשה בלבד
+          </div>
+        )}
         <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
           <Link href="/" className="text-xl font-extrabold tracking-tight">
             <span className="gradient-text">{SITE.brand}</span>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { DEMO, createDemoProject } from "./demo";
 import { saveToken } from "./token";
 
 const STEPS = ["קוראים את האתר שלך…", "מזהים את המותג, הקהל והמסרים…", "כותבים קונספטים לכל סגנון…"];
@@ -20,8 +21,13 @@ export function UrlForm() {
     setErr(null);
     setBusy(true);
     setStep(0);
-    const timer = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 9000);
+    const timer = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), DEMO ? 2400 : 9000);
     try {
+      if (DEMO) {
+        const demo = await createDemoProject(url);
+        router.push(`/create/${demo.id}#t=${demo.token}`);
+        return;
+      }
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -61,7 +67,9 @@ export function UrlForm() {
         </button>
       </div>
       <p id="url-help" className="mt-3 text-center text-sm text-muted">
-        הסריקה והקונספטים חינם. משלמים רק כשבוחרים סגנון ואורך.
+        {DEMO
+          ? "מצב דמו: האתר לא באמת נסרק, והקונספטים הם דוגמה."
+          : "הסריקה והקונספטים חינם. משלמים רק כשבוחרים סגנון ואורך."}
       </p>
       <label className="mt-4 flex items-start justify-center gap-2 text-sm text-muted">
         <input

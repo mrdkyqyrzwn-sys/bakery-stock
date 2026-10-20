@@ -4,6 +4,8 @@ import Link from "next/link";
 import Script from "next/script";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { STYLES } from "@/lib/styles";
+import { DEMO, demoCheckout, demoProject } from "./demo";
+import { DemoPreview } from "./DemoPreview";
 import { readToken } from "./token";
 
 interface Quote {
@@ -43,6 +45,7 @@ declare global {
 const noopSubscribe = () => () => {};
 
 async function fetchProject(id: string, token: string): Promise<Project | null> {
+  if (DEMO) return demoProject(id);
   const res = await fetch(`/api/projects/${id}`, { headers: { authorization: `Bearer ${token}` }, cache: "no-store" });
   return res.ok ? res.json() : null;
 }
@@ -82,10 +85,11 @@ export function Studio({ id }: { id: string }) {
 
   // Poll while the video is being produced.
   const producing = project && ["awaiting_payment", "paid", "rendering", "merging"].includes(project.status);
-  const polling = !!token && !!producing && (project?.status !== "awaiting_payment" || justPaid);
+  // After checkout the row may still read draft/awaiting_payment until the payment webhook lands.
+  const polling = !!token && (justPaid || (!!producing && project?.status !== "awaiting_payment"));
   useEffect(() => {
     if (!polling || !token) return;
-    const t = setInterval(() => void fetchProject(id, token).then(apply), 8000);
+    const t = setInterval(() => void fetchProject(id, token).then(apply), DEMO ? 1000 : 8000);
     return () => clearInterval(t);
   }, [polling, id, token, apply]);
 
@@ -123,7 +127,7 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
   const [accept, setAccept] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [paddleReady, setPaddleReady] = useState(false);
+  const [paddleReady, setPaddleReady] = useState(DEMO);
   const q = project.quotes.find((x) => x.durationS === duration)!;
 
   function initPaddle() {
@@ -143,6 +147,14 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
   async function pay() {
     setErr(null);
     setBusy(true);
+    if (DEMO) {
+      // Demo: no checkout, no charge. Just start the simulated production.
+      await new Promise((r) => setTimeout(r, 1200));
+      demoCheckout(project.id, { style, durationS: duration, aspect });
+      setBusy(false);
+      onPaid();
+      return;
+    }
     try {
       const res = await fetch(`/api/projects/${project.id}/checkout`, {
         method: "POST",
@@ -161,7 +173,9 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
 
   return (
     <>
-      <Script src="https://cdn.paddle.com/paddle/v2/paddle.js" strategy="afterInteractive" onReady={initPaddle} />
+      {!DEMO && (
+        <Script src="https://cdn.paddle.com/paddle/v2/paddle.js" strategy="afterInteractive" onReady={initPaddle} />
+      )}
 
       <section aria-labelledby="pick-style" className="mt-10">
         <h2 id="pick-style" className="mb-4 text-xl font-bold">1. בחרו סגנון</h2>
@@ -256,7 +270,7 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
             </span>
           </label>
           <button type="button" onClick={pay} disabled={busy || !accept || !paddleReady} className="btn-primary mt-5 w-full text-lg">
-            {busy ? "פותח תשלום…" : `לתשלום מאובטח: ${usd(q.totalUsd)}`}
+            {busy ? (DEMO ? "מדמה תשלום…" : "פותח תשלום…") : DEMO ? `המשך (דמו, ללא חיוב): ${usd(q.totalUsd)}` : `לתשלום מאובטח: ${usd(q.totalUsd)}`}
           </button>
           {!paddleReady && <p className="mt-2 text-xs text-muted">טוען את מערכת התשלום…</p>}
           <div aria-live="polite">{err && <p role="alert" className="mt-3 text-danger">{err}</p>}</div>
@@ -293,7 +307,14 @@ function Production({ project }: { project: Project }) {
   return (
     <div className="mt-10 grid gap-8 lg:grid-cols-[2fr_1fr]">
       <div className="rounded-3xl border border-line bg-card p-6">
-        {status === "done" && project.videoUrl ? (
+        {status === "done" && project.videoUrl === "demo" ? (
+          <DemoPreview
+            styleId={project.choice?.style ?? STYLES[0].id}
+            aspect={project.choice?.aspect ?? "16:9"}
+            brandName={project.brandName}
+            shots={project.shots}
+          />
+        ) : status === "done" && project.videoUrl ? (
           <>
             <video
               src={project.videoUrl}
