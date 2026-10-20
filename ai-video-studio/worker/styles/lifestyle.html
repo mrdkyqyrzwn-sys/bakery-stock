@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>Style reference: lifestyle (fictional neighborhood café)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: #f3e6d6; font-family: var(--brand-font); color: #3b2414; }
+  .abs { position: absolute; inset: 0; overflow: hidden; }
+  .card { position: absolute; overflow: hidden; border-radius: 3.2vmin; box-shadow: 0 3vmin 6vmin rgba(80,40,10,.25); background: #fff; }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(1.05) sepia(.08); }
+  .head { position: absolute; font-weight: 800; line-height: 1.05; }
+  .small { position: absolute; font-weight: 500; }
+  svg.doodle { position: absolute; overflow: visible; }
+</style>
+</head>
+<body>
+<div id="bgBlob" class="abs"></div>
+<div id="cards" class="abs"></div>
+<div id="text" class="abs"></div>
+<script>
+const DURATION = 15;
+window.AD_DURATION = DURATION;
+const A = window.ASSETS;
+const W = innerWidth, H = innerHeight, U = Math.min(W, H) / 100;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, s, l) => clamp((t - s) / l);
+const ease = (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const easeOut = (x) => 1 - Math.pow(1 - x, 3);
+const soft = (x) => { const c = 1.2; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, x) => a + (b - a) * x;
+const $ = (id) => document.getElementById(id);
+const BROWN = "#3b2414", ORANGE = "#e07a3f";
+
+// Scenes: a big photo card on one side, friendly headline on the other, small doodle accents.
+const SCENES = [
+  { s: 0, e: 4.0, img: 0, side: "left", head: "הבוקר שלך\nמתחיל כאן.", note: "כל יום מ־7:00" },
+  { s: 4.0, e: 7.8, img: 1, side: "right", head: "פולים שנקלים\nכאן, בשכונה.", note: "קלייה טרייה כל שבוע" },
+  { s: 7.8, e: 11.4, img: 2, side: "left", head: "הפינה הקבועה\nשלך.", note: "וואי־פיי, שקעים ופינה שקטה" },
+];
+const cardEls = SCENES.map((sc) => {
+  const d = document.createElement("div"); d.className = "card";
+  d.style.width = 46 * W / 100 + "px"; d.style.height = 76 * H / 100 + "px"; d.style.top = 12 * H / 100 + "px";
+  d.style[sc.side === "left" ? "left" : "right"] = 6 * W / 100 + "px";
+  d.innerHTML = `<img src="${A.images[sc.img % A.images.length]}">`;
+  $("cards").append(d); return d;
+});
+// small second photo that floats in (polaroid style) in scene 2
+const pol = document.createElement("div"); pol.className = "card";
+pol.style.width = 22 * U + "px"; pol.style.height = 26 * U + "px"; pol.style.padding = 1.2 * U + "px"; pol.style.paddingBottom = 4 * U + "px";
+pol.style.left = 44 * W / 100 + "px"; pol.style.top = 54 * H / 100 + "px";
+pol.innerHTML = `<img src="${A.images[3 % A.images.length]}" style="border-radius:${1.4 * U}px">`;
+$("cards").append(pol);
+
+const headEls = SCENES.map((sc) => {
+  const d = document.createElement("div"); d.className = "head"; d.dir = "rtl";
+  d.style.fontSize = 7.4 * U + "px"; d.style.width = 40 * W / 100 + "px"; d.style.top = 30 * H / 100 + "px";
+  d.style[sc.side === "left" ? "right" : "left"] = 6 * W / 100 + "px";
+  d.innerHTML = sc.head.split("\n").map((l) => `<div>${l}</div>`).join("") +
+    `<svg class="doodle" viewBox="0 0 300 30" style="width:${26 * U}px;height:${3 * U}px;right:0;bottom:${-4 * U}px"><path d="M5 20 C 60 5, 120 28, 180 12 S 270 10, 295 18" fill="none" stroke="${ORANGE}" stroke-width="7" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>` +
+    `<div class="small" style="position:static;font-size:${3.2 * U}px;margin-top:${6 * U}px;color:${ORANGE}">${sc.note}</div>`;
+  $("text").append(d); return d;
+});
+// steam/heart doodles
+const heart = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+heart.setAttribute("viewBox", "0 0 100 100"); heart.classList.add("doodle");
+heart.style.width = heart.style.height = 9 * U + "px";
+heart.innerHTML = `<path d="M50 85 C 10 55, 15 20, 40 22 C 48 23, 50 32, 50 34 C 50 32, 52 23, 60 22 C 85 20, 90 55, 50 85 Z" fill="none" stroke="${ORANGE}" stroke-width="6" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>`;
+$("text").append(heart);
+
+// End card: round logo badge
+const end = document.createElement("div"); end.className = "abs"; end.dir = "rtl";
+end.style.display = "flex"; end.style.flexDirection = "column"; end.style.alignItems = "center"; end.style.justifyContent = "center";
+end.innerHTML = `<div id="badge" style="width:${42 * U}px;height:${42 * U}px;white-space:nowrap;border-radius:50%;background:${BROWN};color:#f3e6d6;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3vmin 6vmin rgba(80,40,10,.3)">
+    <div style="font-size:${3 * U}px;letter-spacing:.3em;opacity:.8">EST. 2019</div>
+    <div style="font-size:${6.6 * U}px;font-weight:900;line-height:1.1">קפה בוקר</div>
+    <div style="font-size:${3 * U}px;margin-top:${1 * U}px;opacity:.8">קפה · מאפים · שכנים</div></div>
+  <div id="addr" style="font-size:${4.2 * U}px;font-weight:700;margin-top:${5 * U}px">רחוב הרימון 12 · נתראה מחר בבוקר</div>`;
+$("text").append(end);
+
+window.renderFrame = function (t) {
+  // warm background blob slowly drifting
+  $("bgBlob").style.background = `radial-gradient(circle at ${50 + 20 * Math.sin(t * .4)}% ${40 + 10 * Math.cos(t * .3)}%, #f9d9b5 0%, transparent 55%), #f3e6d6`;
+
+  SCENES.forEach((sc, i) => {
+    const vis = t >= sc.s - 0.1 && t < sc.e + 0.6;
+    cardEls[i].style.display = headEls[i].style.display = vis ? "block" : "none";
+    if (!vis) return;
+    const inP = soft(prog(t, sc.s, 0.9)), outP = ease(prog(t, sc.e - 0.1, 0.6));
+    const dir = sc.side === "left" ? -1 : 1;
+    const float = Math.sin((t - sc.s) * 1.3) * 0.6 * U;
+    cardEls[i].style.transform = `translateX(${(1 - inP) * dir * 60 + outP * dir * 70}%) translateY(${float}px) rotate(${(1 - inP) * dir * 6 + dir * 1.2}deg)`;
+    cardEls[i].style.opacity = clamp(inP * 1.5) * (1 - outP);
+    cardEls[i].querySelector("img").style.transform = `scale(${lerp(1.12, 1.0, ease(prog(t, sc.s, sc.e - sc.s)))})`;
+    const h = headEls[i];
+    const lines = h.querySelectorAll(":scope > div:not(.small)");
+    lines.forEach((l, k) => { const p = easeOut(prog(t, sc.s + 0.35 + k * 0.18, 0.6)); l.style.opacity = p * (1 - outP); l.style.transform = `translateY(${(1 - p) * 40}px)`; });
+    h.querySelector("path").style.strokeDashoffset = 1 - easeOut(prog(t, sc.s + 1.0, 0.8));
+    h.querySelector("svg").style.opacity = 1 - outP;
+    const note = h.querySelector(".small"); note.style.opacity = prog(t, sc.s + 1.3, 0.5) * (1 - outP);
+  });
+
+  // polaroid floats in during scene 2
+  const pv = t >= 4.6 && t < 8.3;
+  pol.style.display = pv ? "block" : "none";
+  if (pv) { const p = soft(prog(t, 4.8, 0.8)), o = ease(prog(t, 7.7, 0.6)); pol.style.transform = `translate(${(1 - p) * -40 * U}px, ${(1 - p) * 20 * U + o * 40 * U}px) rotate(${-8 + (1 - p) * -10}deg)`; pol.style.opacity = clamp(p * 1.4) * (1 - o); }
+
+  // heart doodle draws next to scene 3 headline
+  const hv = t >= 8.6 && t < 11.8;
+  heart.style.display = hv ? "block" : "none";
+  if (hv) { heart.style.right = 8 * W / 100 + "px"; heart.style.top = 18 * H / 100 + "px"; heart.querySelector("path").style.strokeDashoffset = 1 - easeOut(prog(t, 8.8, 1.0)); heart.style.opacity = 1 - ease(prog(t, 11.1, 0.6)); }
+
+  // end card
+  const ev = t >= 11.5;
+  end.style.display = ev ? "flex" : "none";
+  if (ev) {
+    const b = soft(prog(t, 11.6, 0.9));
+    $("badge").style.transform = `scale(${0.4 + 0.6 * b}) rotate(${(1 - b) * -20}deg)`;
+    $("badge").style.opacity = clamp(b * 1.5);
+    $("addr").style.opacity = prog(t, 12.4, 0.6);
+    $("addr").style.transform = `translateY(${(1 - easeOut(prog(t, 12.4, 0.7))) * 30}px)`;
+  }
+};
+renderFrame(0);
+</script>
+</body>
+</html>

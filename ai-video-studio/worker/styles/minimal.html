@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>Style reference: minimal (fictional skincare brand)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: #f4f1ec; font-family: var(--brand-font); color: #1d1b19; }
+  .abs { position: absolute; inset: 0; overflow: hidden; }
+  .frame { position: absolute; overflow: hidden; background: #e9e4dc; }
+  .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .rule { position: absolute; background: #1d1b19; }
+  .txt { position: absolute; }
+</style>
+</head>
+<body>
+<div id="frames" class="abs"></div>
+<div id="lines" class="abs"></div>
+<div id="text" class="abs"></div>
+<script>
+const DURATION = 15;
+window.AD_DURATION = DURATION;
+const A = window.ASSETS;
+const W = innerWidth, H = innerHeight, U = Math.min(W, H) / 100;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, s, l) => clamp((t - s) / l);
+const ease = (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const lerp = (a, b, x) => a + (b - a) * x;
+const $ = (id) => document.getElementById(id);
+const ROSE = "#c8796f";
+const px = (x) => (x * W) / 100, py = (y) => (y * H) / 100;
+
+// A strict 12-column grid; everything slides along one axis, nothing bounces.
+function frame(img, x, y, w, h) {
+  const d = document.createElement("div"); d.className = "frame";
+  Object.assign(d.style, { left: px(x) + "px", top: py(y) + "px", width: px(w) + "px", height: py(h) + "px" });
+  d.innerHTML = `<img src="${A.images[img % A.images.length]}">`;
+  $("frames").append(d); return d;
+}
+function rule(x, y, w, h) { const d = document.createElement("div"); d.className = "rule"; Object.assign(d.style, { left: px(x) + "px", top: py(y) + "px", width: w ? px(w) + "px" : "1px", height: h ? py(h) + "px" : "1px" }); $("lines").append(d); return d; }
+function txt(html, x, y, size, weight = 400, extra = "") { const d = document.createElement("div"); d.className = "txt"; d.dir = "rtl"; d.innerHTML = html; d.style.cssText += `right:${100 - x}%;top:${y}%;font-size:${size * U}px;font-weight:${weight};${extra}`; $("text").append(d); return d; }
+
+// Scene 1 (0-4.5): wordmark, then a tall photo slides up into the right column
+const f1 = frame(0, 56, 10, 36, 80);
+const t1a = txt(`<span style="letter-spacing:.5em;direction:ltr;display:inline-block">LUMI</span>`, 44, 40, 7, 300);
+const t1b = txt("טיפוח, בפשטות.", 44, 52, 3.4, 400, `color:${ROSE}`);
+const r1 = rule(8, 50, 34, 0);
+// Scene 2 (4.5-9): two photos in a grid + "3 מוצרים. 0 מיותר."
+const f2a = frame(1, 8, 12, 40, 76);
+const f2b = frame(2, 52, 12, 22, 36);
+const t2 = txt("3 מוצרים.<br>0 מיותר.", 92, 56, 5.6, 300, "line-height:1.15");
+const r2 = rule(52, 52, 0, 36);
+// Scene 3 (9-12): one product, full height, with spec list
+const f3 = frame(0, 8, 0, 44, 100);
+const specs = ["סרום ורדים טבעי", "ללא בישום", "נבדק דרמטולוגית"].map((s, i) => txt(`<span style="color:${ROSE}">0${i + 1}</span>&nbsp;&nbsp;${s}`, 92, 34 + i * 11, 3.4, 400));
+const r3 = rule(60, 30, 32, 0);
+// End (12-15)
+const e1 = txt(`<span style="letter-spacing:.5em;direction:ltr;display:inline-block">LUMI</span>`, 50, 38, 11, 200, "transform:translateX(50%);text-align:center;right:50%");
+const e2 = txt("lumi.co.il", 50, 56, 2.8, 400, "transform:translateX(50%);right:50%;letter-spacing:.25em;direction:ltr");
+const r4 = rule(40, 53, 20, 0);
+r4.style.background = ROSE;
+
+const show = (els, on) => els.forEach((e) => (e.style.display = on ? "block" : "none"));
+// slide helper: clip-reveal along one axis
+const reveal = (el, p, axis = "y", from = 1) => { el.style.clipPath = axis === "y" ? `inset(${(1 - p) * 100 * (from > 0 ? 1 : 0)}% 0 ${(1 - p) * 100 * (from > 0 ? 0 : 1)}% 0)` : `inset(0 ${(1 - p) * 100}% 0 0)`; };
+
+window.renderFrame = function (t) {
+  const s1 = t < 4.6, s2 = t >= 4.4 && t < 9.1, s3 = t >= 8.9 && t < 12.2, s4 = t >= 12.0;
+  show([f1, t1a, t1b, r1], s1); show([f2a, f2b, t2, r2], s2); show([f3, r3, ...specs], s3); show([e1, e2, r4], s4);
+
+  if (s1) {
+    reveal(f1, ease(prog(t, 0.8, 1.2)), "y", 1);
+    f1.querySelector("img").style.transform = `translateY(${lerp(4, -2, ease(prog(t, 0.8, 3.8)))}%) scale(1.08)`;
+    t1a.style.opacity = ease(prog(t, 0.2, 1)); t1a.style.transform = `translateX(${(1 - ease(prog(t, 0.2, 1.2))) * -4 * U}px)`;
+    t1b.style.opacity = ease(prog(t, 1.4, .8));
+    r1.style.transform = `scaleX(${ease(prog(t, 0.9, 1.1))})`; r1.style.transformOrigin = "right";
+    const out = ease(prog(t, 4.0, 0.6));
+    f1.style.opacity = r1.style.opacity = 1 - out;
+    t1a.style.opacity = ease(prog(t, 0.2, 1)) * (1 - out);
+    t1b.style.opacity = ease(prog(t, 1.4, .8)) * (1 - out);
+  }
+  if (s2) {
+    reveal(f2a, ease(prog(t, 4.5, 1.0)), "x");
+    reveal(f2b, ease(prog(t, 5.0, 0.9)), "y", 1);
+    f2a.querySelector("img").style.transform = `scale(${lerp(1.1, 1.0, ease(prog(t, 4.5, 4.5)))})`;
+    t2.style.opacity = ease(prog(t, 5.6, 0.8)); t2.style.transform = `translateY(${(1 - ease(prog(t, 5.6, 0.9))) * 3 * U}px)`;
+    r2.style.transform = `scaleY(${ease(prog(t, 5.2, 1))})`; r2.style.transformOrigin = "top";
+    const out = ease(prog(t, 8.5, 0.6));
+    f2a.style.opacity = f2b.style.opacity = r2.style.opacity = 1 - out;
+    t2.style.opacity = ease(prog(t, 5.6, 0.8)) * (1 - out);
+  }
+  if (s3) {
+    reveal(f3, ease(prog(t, 9.0, 1.0)), "y", -1);
+    f3.querySelector("img").style.transform = `translateX(${lerp(3, -3, ease(prog(t, 9.0, 3.2)))}%) scale(1.12)`;
+    r3.style.transform = `scaleX(${ease(prog(t, 9.4, .9))})`; r3.style.transformOrigin = "right";
+    specs.forEach((s, i) => { const p = ease(prog(t, 9.8 + i * 0.35, .7)); s.style.opacity = p; s.style.transform = `translateX(${(1 - p) * -3 * U}px)`; });
+    const out = ease(prog(t, 11.6, 0.6));
+    f3.style.opacity = r3.style.opacity = 1 - out;
+    specs.forEach((s, i) => (s.style.opacity = ease(prog(t, 9.8 + i * 0.35, .7)) * (1 - out)));
+  }
+  if (s4) {
+    e1.style.opacity = ease(prog(t, 12.2, 1)); e1.style.letterSpacing = "0";
+    e1.firstChild.style.letterSpacing = lerp(.9, .5, ease(prog(t, 12.2, 1.6))) + "em";
+    r4.style.transform = `scaleX(${ease(prog(t, 12.8, 1))})`;
+    e2.style.opacity = ease(prog(t, 13.4, .8));
+  }
+};
+renderFrame(0);
+</script>
+</body>
+</html>

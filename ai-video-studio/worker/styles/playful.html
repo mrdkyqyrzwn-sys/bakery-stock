@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>Style reference: playful (fictional ice-cream shop)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: #ffd6e7; font-family: var(--brand-font); color: #2a1240; }
+  .abs { position: absolute; inset: 0; overflow: hidden; }
+  .sticker { position: absolute; background: #fff; padding: 1.4vmin; border-radius: 3vmin; box-shadow: 0 2.4vmin 0 rgba(42,18,64,.18); }
+  .sticker img { width: 100%; height: 100%; object-fit: cover; border-radius: 2vmin; display: block; }
+  .word { position: absolute; font-weight: 900; line-height: 1; -webkit-text-stroke: .5vmin #2a1240; paint-order: stroke fill; }
+  #confetti { z-index: 20; }
+</style>
+</head>
+<body>
+<div id="bg" class="abs"></div>
+<div id="blobs" class="abs"></div>
+<div id="stickers" class="abs"></div>
+<div id="words" class="abs"></div>
+<canvas id="confetti" class="abs"></canvas>
+<script>
+const DURATION = 15;
+window.AD_DURATION = DURATION;
+const A = window.ASSETS;
+const W = innerWidth, H = innerHeight, U = Math.min(W, H) / 100;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, s, l) => clamp((t - s) / l);
+// springy overshoot with a little wobble: the whole style lives in this curve
+const spring = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : 1 - Math.exp(-6 * x) * Math.cos(10 * x));
+const easeOut = (x) => 1 - Math.pow(1 - x, 3);
+const $ = (id) => document.getElementById(id);
+const PINK = "#ff5fa2", YELLOW = "#ffd23f", MINT = "#3ee6c1", PURPLE = "#7b4dff";
+const BG = ["#ffd6e7", "#fff1b8", "#c9fff1", "#e6dcff", "#ffd6e7"];
+
+// candy blobs floating in the background
+const blobs = Array.from({ length: 7 }, (_, i) => {
+  const d = document.createElement("div"); const s = (10 + (i * 7) % 14) * U;
+  Object.assign(d.style, { position: "absolute", width: s + "px", height: s + "px", borderRadius: "50%", background: [PINK, YELLOW, MINT, PURPLE][i % 4], opacity: .35 });
+  $("blobs").append(d); return { d, x: (i * 37) % 100, y: (i * 53) % 100, sp: .3 + (i % 3) * .2 };
+});
+
+// stickers: [image, x%, y%, w (U), h (U), rotation, appear time, leave time]
+const ST = [
+  [0, 8, 14, 52, 62, -6, 0.3, 4.2],
+  [1, 6, 18, 46, 40, 5, 4.0, 8.4], [2, 30, 46, 34, 40, -8, 4.5, 8.4],
+  [3, 34, 10, 40, 48, 7, 8.0, 12.0], [0, 6, 44, 30, 34, -5, 8.6, 12.0],
+];
+const stEls = ST.map(([img, x, y, w, h]) => {
+  const d = document.createElement("div"); d.className = "sticker";
+  Object.assign(d.style, { left: x + "%", top: y + "%", width: w * U + "px", height: h * U + "px" });
+  d.innerHTML = `<img src="${A.images[img % A.images.length]}">`;
+  $("stickers").append(d); return d;
+});
+
+// words: [html, x% (right), y%, size U, color, start, end]
+const WD = [
+  ["מתוק?", 8, 34, 18, YELLOW, 0.6, 4.2],
+  ["24 טעמים", 6, 38, 12, PINK, 4.6, 8.4],
+  ["כל יום<br>טעם חדש!", 5, 30, 11, MINT, 8.4, 12.0],
+];
+const wdEls = WD.map(([html, x, y, size, color]) => {
+  const d = document.createElement("div"); d.className = "word"; d.dir = "rtl"; d.innerHTML = html;
+  Object.assign(d.style, { right: x + "%", top: y + "%", fontSize: size * U + "px", color });
+  $("words").append(d); return d;
+});
+const endEl = document.createElement("div"); endEl.className = "abs"; endEl.dir = "rtl";
+Object.assign(endEl.style, { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" });
+endEl.innerHTML = `<div id="logo" class="word" style="position:static;font-size:${17 * U}px;color:${PINK}">גלידה פופ</div>
+  <div id="pill" style="margin-top:${3 * U}px;background:${PURPLE};color:#fff;font-weight:900;font-size:${5 * U}px;padding:${1.2 * U}px ${4 * U}px;border-radius:999px">בואו לטעום!</div>
+  <div id="site" style="margin-top:${2.4 * U}px;font-weight:800;font-size:${3.4 * U}px;direction:ltr">gelato-pop.co.il</div>`;
+$("words").append(endEl);
+
+// confetti: particles are a pure function of t (precomputed velocities)
+const cv = $("confetti"); cv.width = W; cv.height = H; const cx = cv.getContext("2d");
+const BURSTS = [0.35, 4.05, 8.05, 12.1];
+const parts = BURSTS.map(() => Array.from({ length: 70 }, () => ({ a: Math.random() * Math.PI * 2, v: 0.6 + Math.random() * 1.2, c: [PINK, YELLOW, MINT, PURPLE, "#fff"][Math.random() * 5 | 0], s: 0.8 + Math.random() * 1.4, r: Math.random() * 6 })));
+
+window.renderFrame = function (t) {
+  const sceneIdx = t < 4.2 ? 0 : t < 8.4 ? 1 : t < 12 ? 2 : 3;
+  $("bg").style.background = BG[sceneIdx];
+  blobs.forEach((b, i) => { b.d.style.left = (b.x + Math.sin(t * b.sp + i) * 4) + "%"; b.d.style.top = (b.y + Math.cos(t * b.sp * 1.3 + i) * 5) + "%"; });
+
+  ST.forEach(([, , , , , rot, s, e], i) => {
+    const el = stEls[i]; const vis = t >= s && t < e + 0.4;
+    el.style.display = vis ? "block" : "none"; if (!vis) return;
+    const p = spring(prog(t, s, 0.9)), o = easeOut(prog(t, e - 0.1, 0.4));
+    const wob = Math.sin((t - s) * 2.4) * 1.5;
+    el.style.transform = `scale(${p * (1 - o)}) rotate(${rot + wob + (1 - p) * 30}deg)`;
+  });
+  WD.forEach(([, , , , , s, e], i) => {
+    const el = wdEls[i]; const vis = t >= s && t < e + 0.3;
+    el.style.display = vis ? "block" : "none"; if (!vis) return;
+    const p = spring(prog(t, s, 0.8)), o = easeOut(prog(t, e - 0.15, 0.35));
+    el.style.transform = `scale(${p * (1 - o)}) rotate(${Math.sin((t - s) * 3) * 3}deg)`;
+  });
+  const ev = t >= 12;
+  endEl.style.display = ev ? "flex" : "none";
+  if (ev) {
+    $("logo").style.transform = `scale(${spring(prog(t, 12.05, 1))}) rotate(${Math.sin((t - 12) * 3) * 2}deg)`;
+    $("pill").style.transform = `scale(${spring(prog(t, 12.5, .9))})`;
+    $("site").style.opacity = prog(t, 13, .5);
+  }
+
+  cx.clearRect(0, 0, W, H);
+  BURSTS.forEach((b0, bi) => {
+    const dt = t - b0; if (dt < 0 || dt > 2.2) return;
+    parts[bi].forEach((p) => {
+      const x = W / 2 + Math.cos(p.a) * p.v * dt * W * 0.45;
+      const y = H / 2 + Math.sin(p.a) * p.v * dt * H * 0.6 + 0.5 * 1.1 * dt * dt * H * 0.5;
+      cx.save(); cx.globalAlpha = clamp(1 - dt / 2.2); cx.translate(x, y); cx.rotate(p.r + dt * 6);
+      cx.fillStyle = p.c; cx.fillRect(-p.s * U / 2, -p.s * U / 4, p.s * U, p.s * U / 2); cx.restore();
+    });
+  });
+};
+renderFrame(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>Style reference: cinematic (fictional luxury real estate)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: #000; font-family: var(--brand-font); color: #fff; }
+  .abs { position: absolute; inset: 0; overflow: hidden; }
+  #stage { isolation: isolate; }
+  .shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .grade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,30,45,.35), rgba(60,35,10,.25)); mix-blend-mode: soft-light; }
+  .shade { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 55%, transparent 40%, rgba(0,0,0,.65) 100%), linear-gradient(to top, rgba(0,0,0,.55), transparent 45%); }
+  .bars { position: absolute; left: 0; right: 0; background: #000; z-index: 5; }
+  .line { position: absolute; text-align: center; left: 0; right: 0; font-weight: 400; letter-spacing: .04em; text-shadow: 0 4px 30px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.4); z-index: 6; }
+  .gold { color: #e6c27a; }
+  #grain { mix-blend-mode: overlay; opacity: .25; z-index: 7; }
+  #leak { mix-blend-mode: screen; z-index: 4; }
+</style>
+</head>
+<body>
+<div id="stage" class="abs"></div>
+<div id="leak" class="abs"></div>
+<div class="bars" id="barTop" style="top:0"></div>
+<div class="bars" id="barBot" style="bottom:0"></div>
+<div id="lines"></div>
+<canvas id="grain" class="abs"></canvas>
+<script>
+const DURATION = 15;
+window.AD_DURATION = DURATION;
+const A = window.ASSETS;
+const W = innerWidth, H = innerHeight, U = Math.min(W, H) / 100;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, s, l) => clamp((t - s) / l);
+const ease = (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const easeOut = (x) => 1 - Math.pow(1 - x, 3);
+const lerp = (a, b, x) => a + (b - a) * x;
+const $ = (id) => document.getElementById(id);
+
+// Slow, overlapping shots. Each: photo, time window, move (scale from/to, pan from/to in %).
+const SHOTS = [
+  { img: 0, s: 0, e: 4.2, from: 1.18, to: 1.05, px: [2, -2], py: [1, 0] },
+  { img: 1, s: 3.4, e: 7.8, from: 1.04, to: 1.16, px: [-3, 3], py: [0, -1] },
+  { img: 2, s: 7.0, e: 11.4, from: 1.12, to: 1.02, px: [3, -1], py: [0, 0] },
+  { img: 3, s: 10.6, e: 15.5, from: 1.02, to: 1.12, px: [0, 0], py: [1, -1] },
+];
+const LINES = [
+  { s: 0.6, e: 3.4, text: "יש בתים.", size: 10, y: 40 },
+  { s: 4.2, e: 7.1, text: "ויש בית שמחכה לך.", size: 9, y: 40 },
+  { s: 7.7, e: 10.5, text: "אור. שקט. מרחב.", size: 9, y: 40, gold: true },
+];
+const shotEls = SHOTS.map((s) => {
+  const d = document.createElement("div"); d.className = "abs shot";
+  d.innerHTML = `<img src="${A.images[s.img % A.images.length]}"><div class="grade"></div><div class="shade"></div>`;
+  $("stage").append(d); return d;
+});
+const lineEls = LINES.map((l) => {
+  const d = document.createElement("div"); d.className = "line" + (l.gold ? " gold" : ""); d.dir = "rtl";
+  d.style.fontSize = l.size * U + "px"; d.style.top = l.y + "%";
+  d.innerHTML = [...l.text].map((c) => `<span style="display:inline-block;white-space:pre">${c}</span>`).join("");
+  $("lines").append(d); return d;
+});
+// End card
+const end = document.createElement("div");
+end.className = "line"; end.style.top = "34%"; end.dir = "rtl";
+end.innerHTML = `
+  <div id="mark" style="font-size:${9 * U}px;font-weight:200;letter-spacing:.32em;direction:ltr" class="gold">AURUM</div>
+  <div id="rule" style="height:2px;width:${30 * U}px;margin:${2.2 * U}px auto;background:#e6c27a"></div>
+  <div id="tagline" style="font-size:${3.6 * U}px;font-weight:300;letter-spacing:.12em">נכסי יוקרה · תל אביב והשרון</div>
+  <div id="site" style="font-size:${2.6 * U}px;margin-top:${3 * U}px;opacity:.8;direction:ltr;letter-spacing:.2em">AURUM-ESTATES.CO.IL</div>`;
+$("lines").append(end);
+
+const grain = $("grain"); grain.width = W / 3 | 0; grain.height = H / 3 | 0;
+const g = grain.getContext("2d");
+const noise = Array.from({ length: 6 }, () => { const d = g.createImageData(grain.width, grain.height); for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } return d; });
+
+window.renderFrame = function (t) {
+  // letterbox opens slightly at the start and closes for the end card
+  const bar = lerp(12, 9, ease(prog(t, 0, 2))) + ease(prog(t, 12.2, 1.2)) * 4;
+  $("barTop").style.height = $("barBot").style.height = bar + "%";
+
+  SHOTS.forEach((s, i) => {
+    const el = shotEls[i];
+    const vis = t >= s.s && t <= s.e;
+    el.style.display = vis ? "block" : "none";
+    if (!vis) return;
+    const k = ease(prog(t, s.s, s.e - s.s));
+    const fadeIn = i === 0 ? ease(prog(t, 0, 1.2)) : ease(prog(t, s.s, 0.9));
+    const fadeOut = i === SHOTS.length - 1 ? 1 - ease(prog(t, 12.4, 1.4)) * 0.55 : 1;
+    el.style.opacity = fadeIn * fadeOut;
+    el.style.zIndex = i;
+    el.querySelector("img").style.transform = `scale(${lerp(s.from, s.to, k)}) translate(${lerp(s.px[0], s.px[1], k)}%, ${lerp(s.py[0], s.py[1], k)}%)`;
+  });
+
+  // golden light leak drifting across on each dissolve
+  let leak = 0, lx = 50;
+  [3.4, 7.0, 10.6].forEach((c) => { const d = (t - c) / 1.2; if (d > -1 && d < 1) { leak = Math.max(leak, 1 - Math.abs(d)); lx = 30 + (d + 1) * 30; } });
+  $("leak").style.background = `radial-gradient(ellipse 40% 80% at ${lx}% 30%, rgba(255,190,110,${.5 * leak}), transparent 70%)`;
+
+  // lines: letters resolve from blur + wide tracking, then dissolve
+  LINES.forEach((l, i) => {
+    const el = lineEls[i];
+    const inP = easeOut(prog(t, l.s, 1.1)), outP = ease(prog(t, l.e - .6, .6));
+    el.style.opacity = inP * (1 - outP);
+    el.style.letterSpacing = lerp(.35, .04, inP) + "em";
+    el.style.filter = `blur(${(1 - inP) * 10}px)`;
+    el.style.transform = `translateY(${outP * -12}px)`;
+  });
+
+  const e = easeOut(prog(t, 12.0, 1.4));
+  end.style.opacity = e;
+  $("mark").style.letterSpacing = lerp(.6, .32, e) + "em";
+  $("rule").style.transform = `scaleX(${easeOut(prog(t, 12.6, 1))})`;
+  $("tagline").style.opacity = prog(t, 13.0, .8);
+  $("site").style.opacity = prog(t, 13.5, .8) * .8;
+
+  g.putImageData(noise[Math.floor(t * 24) % noise.length], 0, 0);
+};
+renderFrame(0);
+</script>
+</body>
+</html>
