@@ -1,6 +1,7 @@
 "use client";
 
 import { DEFAULT_PRICING, quoteWith } from "@/lib/pricing-core";
+import { FREE_REVISIONS } from "@/lib/limits";
 import { DURATIONS, STYLES } from "@/lib/styles";
 
 /**
@@ -16,6 +17,7 @@ const MEDIA_MS = 4000;
 const WRITING_MS = 4000;
 const REVIEWING_MS = 3000;
 const RENDERING_MS = 6000;
+const REVISION_MS = 9000;
 
 interface DemoState {
   photos?: string[];
@@ -23,6 +25,10 @@ interface DemoState {
   brandName: string;
   choice: { style: string; durationS: number; aspect: string; priceCents: number } | null;
   paidAt: number | null;
+  /** Headline texts after demo revisions (replaces the generated ones). */
+  lines?: string[];
+  revisionsUsed?: number;
+  revisingAt?: number | null;
 }
 
 // In-memory copy so the demo still works when storage is blocked.
@@ -83,6 +89,19 @@ export function demoSetPhotos(id: string, photos: string[]) {
   if (state) save(id, { ...state, photos });
 }
 
+/** Demo revision: only headline edits can be shown without real AI; free text is simulated. */
+export function demoRevise(id: string, request: { text: string; headlines: (string | null)[] }) {
+  const state = load(id);
+  if (!state) return;
+  const current = demoProject(id)?.headlines ?? [];
+  save(id, {
+    ...state,
+    lines: current.map((l, i) => request.headlines[i] ?? l),
+    revisionsUsed: (state.revisionsUsed ?? 0) + 1,
+    revisingAt: Date.now(),
+  });
+}
+
 export function demoCheckout(id: string, choice: { style: string; durationS: number; aspect: string }) {
   const state = load(id);
   if (!state) return;
@@ -119,7 +138,7 @@ export function demoProject(id: string) {
   const quotes = DURATIONS.map((d) => quoteWith(d, DEFAULT_PRICING));
   const concepts = STYLES.map((s) => ({ style_id: s.id, ...CONCEPTS[s.id](state.brandName) }));
 
-  let status: "draft" | "rendering" | "done" = "draft";
+  let status: "draft" | "rendering" | "revising" | "done" = "draft";
   let stage: "planning" | "media" | "writing" | "reviewing" | "rendering" | null = null;
   let renderProgress = 0;
   if (state.choice && state.paidAt) {
@@ -146,6 +165,17 @@ export function demoProject(id: string) {
     }
   }
   const concept = concepts.find((c) => c.style_id === state.choice?.style) ?? concepts[0];
+  const lines = state.lines ?? [concept.title_he, ...concept.pitch_he.split(/(?<=[.!?])\s+/).filter(Boolean)];
+
+  // A demo revision: a short simulated re-edit, then the new headlines show in the preview.
+  if (status === "done" && state.revisingAt) {
+    const since = Date.now() - state.revisingAt;
+    if (since < REVISION_MS) {
+      status = "revising";
+      stage = since < 3000 ? "writing" : since < 5000 ? "reviewing" : "rendering";
+      renderProgress = stage === "rendering" ? Math.floor(((since - 5000) / (REVISION_MS - 5000)) * 100) : 0;
+    }
+  }
 
   return {
     id,
@@ -159,6 +189,9 @@ export function demoProject(id: string) {
     stage,
     renderProgress,
     videoUrl: status === "done" ? "demo" : null,
-    demoLines: [concept.title_he, ...concept.pitch_he.split(/(?<=[.!?])\s+/).filter(Boolean)],
+    demoLines: lines,
+    headlines: lines,
+    revisionsLeft: Math.max(0, FREE_REVISIONS - (state.revisionsUsed ?? 0)),
+    lastRevisionFailed: false,
   };
 }

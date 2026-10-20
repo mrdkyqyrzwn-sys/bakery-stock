@@ -21,6 +21,10 @@ export async function GET(req: Request) {
   const stuck = await db<ProjectRow[]>`
     select * from projects where status in ('paid', 'rendering') and paid_at < now() - interval '3 hours' limit 20`;
   for (const p of stuck) await failAndRefund(p, "not delivered within 3 hours");
+  // A revision stuck for 2 hours goes back to the delivered video (nothing is charged for revisions).
+  await db`
+    update projects set status = 'done', stage = null, revision_request = null, lease_until = null, updated_at = now()
+    where status = 'revising' and updated_at < now() - interval '2 hours'`;
 
   // Retention: unpaid drafts 7 days; scraped site content 30 days; everything else 90 days.
   const expired = await db<Pick<ProjectRow, "id" | "uploads" | "media" | "video_url">[]>`

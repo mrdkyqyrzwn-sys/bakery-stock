@@ -8,11 +8,12 @@ import { STYLES } from "@/lib/styles";
 import { DEMO, demoCheckout, demoProject } from "./demo";
 import { DemoPreview } from "./DemoPreview";
 import { PhotoUploader } from "./PhotoUploader";
+import { RevisionPanel } from "./RevisionPanel";
 import { readToken } from "./token";
 
 interface Project {
   id: string;
-  status: "draft" | "awaiting_payment" | "paid" | "rendering" | "done" | "failed" | "refunded";
+  status: "draft" | "awaiting_payment" | "paid" | "rendering" | "revising" | "done" | "failed" | "refunded";
   siteUrl: string;
   brandName: string;
   concepts: { style_id: string; title_he: string; pitch_he: string }[];
@@ -22,6 +23,9 @@ interface Project {
   stage: "planning" | "media" | "writing" | "reviewing" | "rendering" | null;
   renderProgress: number;
   videoUrl: string | null;
+  headlines: string[];
+  revisionsLeft: number;
+  lastRevisionFailed: boolean;
   /** Demo mode only: lines shown in the animated preview. */
   demoLines?: string[];
 }
@@ -78,7 +82,7 @@ export function Studio({ id }: { id: string }) {
   }, [id, token, apply]);
 
   // Poll while the video is being produced.
-  const producing = project && ["awaiting_payment", "paid", "rendering"].includes(project.status);
+  const producing = project && ["awaiting_payment", "paid", "rendering", "revising"].includes(project.status);
   // After checkout the row may still read draft/awaiting_payment until the payment webhook lands.
   const polling = !!token && (justPaid || (!!producing && project?.status !== "awaiting_payment"));
   useEffect(() => {
@@ -108,7 +112,7 @@ export function Studio({ id }: { id: string }) {
       {!justPaid && (project.status === "draft" || project.status === "awaiting_payment") ? (
         <Chooser project={project} token={token} onPaid={() => setJustPaid(true)} />
       ) : (
-        <Production project={project} />
+        <Production project={project} token={token} onChanged={() => void fetchProject(id, token).then(apply)} />
       )}
     </div>
   );
@@ -284,7 +288,7 @@ const STAGES = [
   { id: "rendering", label: "ייצוא הסרטון הסופי" },
 ] as const;
 
-function Production({ project }: { project: Project }) {
+function Production({ project, token, onChanged }: { project: Project; token: string; onChanged: () => void }) {
   const [copied, setCopied] = useState(false);
   const { status, stage, renderProgress } = project;
   const pct =
@@ -332,7 +336,19 @@ function Production({ project }: { project: Project }) {
             lines={project.demoLines ?? []}
             photos={project.uploads}
           />
-        ) : status === "done" && project.videoUrl ? (
+        ) : null}
+        {status === "done" && project.videoUrl === "demo" && (
+          <RevisionPanel
+            key={`r${project.revisionsLeft}`}
+            projectId={project.id}
+            token={token}
+            headlines={project.headlines}
+            revisionsLeft={project.revisionsLeft}
+            lastFailed={project.lastRevisionFailed}
+            onSent={onChanged}
+          />
+        )}
+        {status === "done" && project.videoUrl === "demo" ? null : status === "done" && project.videoUrl ? (
           <>
             <video
               src={project.videoUrl}
@@ -350,11 +366,24 @@ function Production({ project }: { project: Project }) {
               הסרטון נוצר בבינה מלאכותית. כשמפרסמים אותו מומלץ לציין זאת, ובחלק מהפלטפורמות ומהמדינות זו חובה.
               הסרטון נשמר אצלנו 90 יום. הורידו עותק.
             </p>
+            <RevisionPanel
+              key={`r${project.revisionsLeft}`}
+              projectId={project.id}
+              token={token}
+              headlines={project.headlines}
+              revisionsLeft={project.revisionsLeft}
+              lastFailed={project.lastRevisionFailed}
+              onSent={onChanged}
+            />
           </>
         ) : (
           <div aria-live="polite">
             <h2 className="text-2xl font-bold">
-              {status === "awaiting_payment" ? "מאשרים את התשלום…" : "מפיקים את הסרטון שלך…"}
+              {status === "awaiting_payment"
+                ? "מאשרים את התשלום…"
+                : status === "revising"
+                  ? "מתקנים את הסרטון לפי הבקשה שלך…"
+                  : "מפיקים את הסרטון שלך…"}
             </h2>
             <div className="mt-6 h-3 w-full overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
               <div className="h-full rounded-full bg-gradient-to-l from-violet-500 to-cyan-400 transition-all" style={{ width: `${pct}%` }} />

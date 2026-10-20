@@ -23,6 +23,10 @@ create table if not exists projects (
   media           jsonb,
   -- Animation code written by Claude for this customer, and render progress (0-100)
   animation_html  text,
+  -- Customer revisions after delivery: pending request, how many were used, and history
+  revision_request jsonb,
+  revision_count  int not null default 0,
+  revisions       jsonb not null default '[]'::jsonb,
   stage           text,
   render_progress int not null default 0,
   video_url       text,
