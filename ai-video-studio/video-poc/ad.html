@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Code-rendered ad (proof of concept)</title>
+<style>
+  @font-face { font-family: H1; src: url(fonts/heebo-1.woff2); font-weight: 100 900; }
+  @font-face { font-family: H2; src: url(fonts/heebo-2.woff2); font-weight: 100 900; }
+  @font-face { font-family: H3; src: url(fonts/heebo-3.woff2); font-weight: 100 900; }
+  @font-face { font-family: H4; src: url(fonts/heebo-4.woff2); font-weight: 100 900; }
+  @font-face { font-family: H5; src: url(fonts/heebo-5.woff2); font-weight: 100 900; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: #000; }
+  body { font-family: H1, H2, H3, H4, H5, sans-serif; color: #fff; }
+  #stage { position: relative; width: 1280px; height: 720px; overflow: hidden; }
+  .layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+  .abs { position: absolute; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg" class="layer"></div>
+  <div id="rays" class="layer"></div>
+
+  <!-- Scene 1: logo -->
+  <div id="s1" class="layer">
+    <div id="logo" style="display:flex;gap:6px;direction:ltr;font-weight:900;font-size:150px;letter-spacing:-4px"></div>
+    <div id="s1sub" style="font-size:40px;font-weight:500;margin-top:10px;color:#ffe8c2">פיצה נפוליטנית אמיתית</div>
+  </div>
+
+  <!-- Scene 2: kinetic words + pizza -->
+  <div id="s2" class="layer">
+    <div id="pizza" class="abs" style="left:110px;top:150px;width:420px;height:420px"></div>
+    <div class="abs" style="right:110px;top:170px;text-align:right">
+      <div id="w1" style="font-size:110px;font-weight:900;color:#2b0a05;line-height:1">בצק</div>
+      <div id="w2" style="font-size:110px;font-weight:900;color:#2b0a05;line-height:1.05">שתופח</div>
+      <div id="w3" style="font-size:130px;font-weight:900;color:#d62d20;line-height:1.05">48 שעות</div>
+    </div>
+  </div>
+
+  <!-- Scene 3: selling points -->
+  <div id="s3" class="layer">
+    <div id="s3title" style="font-size:64px;font-weight:900;margin-bottom:50px">למה כולם חוזרים?</div>
+    <div style="display:flex;gap:36px">
+      <div class="card" id="c1"></div><div class="card" id="c2"></div><div class="card" id="c3"></div>
+    </div>
+  </div>
+
+  <!-- Scene 4: call to action -->
+  <div id="s4" class="layer">
+    <div id="cta" style="font-size:120px;font-weight:900">הזמינו עכשיו</div>
+    <div id="url" style="margin-top:30px;padding:18px 48px;border-radius:999px;background:#fff;color:#c0261b;font-size:48px;font-weight:800;direction:ltr">pizza-roma.co.il</div>
+  </div>
+
+  <div id="tag" class="abs" style="top:22px;right:26px;font-size:20px;padding:6px 16px;border-radius:999px;background:rgba(0,0,0,.45)">דמו: עסק בדיוני</div>
+</div>
+
+<script>
+// ---- Ad data. In the real product Claude fills this in from the customer's site. ----
+const AD = {
+  brand: "PIZZA ROMA",
+  colors: { primary: "#c0261b", dark: "#2b0a05", cream: "#fff3df", accent: "#ffb347" },
+  points: [
+    { icon: "flame", title: "תנור עצים", text: "450 מעלות, 90 שניות" },
+    { icon: "leaf", title: "חומרי גלם מאיטליה", text: "עגבניות סן מרצאנו" },
+    { icon: "clock", title: "משלוח מהיר", text: "עד 30 דקות אליכם" },
+  ],
+};
+const DURATION = 12;
+
+// ---- Tiny animation toolkit: everything is a pure function of time, so every frame is reproducible. ----
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, start, len) => clamp((t - start) / len);
+const easeOut = (x) => 1 - Math.pow(1 - x, 3);
+const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const backOut = (x) => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const $ = (id) => document.getElementById(id);
+// visibility window with fades
+const win = (t, a, b, fade = 0.35) => clamp(Math.min((t - a) / fade, (b - t) / fade));
+
+// build static pieces once
+$("logo").innerHTML = [...AD.brand].map((ch, i) => `<span id="L${i}" style="display:inline-block">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
+const ICONS = {
+  flame: `<svg viewBox="0 0 64 64" width="90" height="90"><path d="M32 4c4 14 18 18 18 36a18 18 0 0 1-36 0c0-10 6-14 8-22 2 6 6 8 6 8 0-10 4-16 4-22z" fill="#ff7a1a"/><path d="M32 30c2 7 9 9 9 17a9 9 0 0 1-18 0c0-6 5-9 9-17z" fill="#ffd34d"/></svg>`,
+  leaf: `<svg viewBox="0 0 64 64" width="90" height="90"><path d="M10 54C10 24 30 8 56 8c0 28-16 46-46 46z" fill="#3fa34d"/><path d="M14 50L46 18" stroke="#1f6b2a" stroke-width="3"/></svg>`,
+  clock: `<svg viewBox="0 0 64 64" width="90" height="90"><circle cx="32" cy="32" r="26" fill="#fff" stroke="#c0261b" stroke-width="6"/><path d="M32 16v17l11 7" stroke="#2b0a05" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`,
+};
+AD.points.forEach((p, i) => {
+  $(`c${i + 1}`).innerHTML =
+    `<div style="width:330px;height:300px;border-radius:32px;background:#fff;color:${AD.colors.dark};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;box-shadow:0 24px 60px rgba(0,0,0,.35)">
+      ${ICONS[p.icon]}<div style="font-size:33px;font-weight:900;padding:0 16px;text-align:center">${p.title}</div><div style="font-size:26px;color:#7a4b3a">${p.text}</div></div>`;
+});
+// pizza drawn in SVG
+const toppings = Array.from({ length: 9 }, (_, i) => {
+  const a = i * 2.4, r = 70 + (i % 3) * 45;
+  return `<circle cx="${210 + Math.cos(a) * r}" cy="${210 + Math.sin(a) * r}" r="22" fill="#b3261e"/>`;
+}).join("");
+const basil = Array.from({ length: 5 }, (_, i) => {
+  const a = i * 1.3 + 0.5, r = 100 + (i % 2) * 40;
+  return `<ellipse cx="${210 + Math.cos(a) * r}" cy="${210 + Math.sin(a) * r}" rx="18" ry="9" fill="#2f8f3a" transform="rotate(${i * 50} ${210 + Math.cos(a) * r} ${210 + Math.sin(a) * r})"/>`;
+}).join("");
+$("pizza").innerHTML = `<svg viewBox="0 0 420 420" width="420" height="420">
+  <circle cx="210" cy="210" r="205" fill="#e7a64c"/><circle cx="210" cy="210" r="178" fill="#d9472b"/>
+  <circle cx="210" cy="210" r="168" fill="#f6d98b" opacity=".92"/>${toppings}${basil}</svg>`;
+
+function renderFrame(t) {
+  const C = AD.colors;
+  // background: red -> cream -> deep red -> red
+  const bgCream = win(t, 2.5, 5.7, 0.4);
+  const bgDark = win(t, 5.5, 9.2, 0.4);
+  $("bg").style.background =
+    bgCream > 0.5 ? C.cream : bgDark > 0.5 ? `radial-gradient(circle at 50% 40%, #5a1209, ${C.dark})` : `radial-gradient(circle at 50% 45%, #e0412f, ${C.primary} 60%, #7d140c)`;
+  $("rays").style.opacity = (t < 2.7 || t > 9) ? 0.35 : 0;
+  $("rays").style.background = `repeating-conic-gradient(from ${t * 25}deg at 50% 50%, rgba(255,255,255,.10) 0deg 8deg, transparent 8deg 24deg)`;
+
+  // Scene 1: letters drop in with a stagger, subtitle fades up
+  const s1 = win(t, 0, 2.6);
+  $("s1").style.opacity = s1;
+  [...AD.brand].forEach((_, i) => {
+    const p = backOut(prog(t, 0.15 + i * 0.06, 0.5));
+    $(`L${i}`).style.transform = `translateY(${(1 - p) * -260}px) rotate(${(1 - p) * (i % 2 ? 20 : -20)}deg)`;
+    $(`L${i}`).style.opacity = prog(t, 0.15 + i * 0.06, 0.2);
+  });
+  const sub = easeOut(prog(t, 1.1, 0.6));
+  $("s1sub").style.opacity = sub;
+  $("s1sub").style.transform = `translateY(${(1 - sub) * 30}px)`;
+  $("logo").style.transform = `scale(${1 + Math.max(0, t - 1.6) * 0.06})`;
+
+  // Scene 2: pizza spins in, words slam one by one
+  $("s2").style.opacity = win(t, 2.6, 5.6);
+  const pz = easeOut(prog(t, 2.6, 0.8));
+  $("pizza").style.transform = `translateX(${(1 - pz) * -500}px) rotate(${t * 40}deg) scale(${0.6 + 0.4 * pz})`;
+  ["w1", "w2", "w3"].forEach((w, i) => {
+    const p = backOut(prog(t, 3.0 + i * 0.45, 0.45));
+    $(w).style.transform = `scale(${0.3 + 0.7 * p})`;
+    $(w).style.opacity = prog(t, 3.0 + i * 0.45, 0.15);
+  });
+
+  // Scene 3: title, then cards rise in sequence
+  $("s3").style.opacity = win(t, 5.6, 9.1);
+  const tt = easeOut(prog(t, 5.7, 0.5));
+  $("s3title").style.opacity = tt;
+  $("s3title").style.transform = `translateY(${(1 - tt) * -40}px)`;
+  [1, 2, 3].forEach((n, i) => {
+    const p = backOut(prog(t, 6.1 + i * 0.35, 0.6));
+    $(`c${n}`).style.transform = `translateY(${(1 - p) * 420}px) rotate(${(1 - p) * 8}deg)`;
+    $(`c${n}`).style.opacity = prog(t, 6.1 + i * 0.35, 0.2);
+  });
+
+  // Scene 4: CTA punches in, URL pill pulses
+  $("s4").style.opacity = win(t, 9.1, DURATION + 1);
+  const c = backOut(prog(t, 9.2, 0.6));
+  $("cta").style.transform = `scale(${0.4 + 0.6 * c})`;
+  $("cta").style.opacity = prog(t, 9.2, 0.2);
+  const u = easeOut(prog(t, 9.8, 0.5));
+  $("url").style.opacity = u;
+  $("url").style.transform = `translateY(${(1 - u) * 40}px) scale(${1 + 0.04 * Math.sin(Math.max(0, t - 10.3) * 6)})`;
+}
+window.renderFrame = renderFrame;
+window.AD_DURATION = DURATION;
+renderFrame(0);
+</script>
+</body>
+</html>
