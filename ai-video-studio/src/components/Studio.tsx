@@ -3,33 +3,25 @@
 import Link from "next/link";
 import Script from "next/script";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import type { Quote } from "@/lib/pricing-core";
 import { STYLES } from "@/lib/styles";
 import { DEMO, demoCheckout, demoProject } from "./demo";
 import { DemoPreview } from "./DemoPreview";
 import { readToken } from "./token";
 
-interface Quote {
-  durationS: number;
-  generatedSeconds: number;
-  clips: number;
-  breakdown: Record<
-    "videoGenerationUsd" | "aiWritingUsd" | "postProductionUsd" | "serviceFeeUsd" | "paymentProcessingUsd",
-    number
-  >;
-  totalUsd: number;
-}
-
 interface Project {
   id: string;
-  status: "draft" | "awaiting_payment" | "paid" | "rendering" | "merging" | "done" | "failed" | "refunded";
+  status: "draft" | "awaiting_payment" | "paid" | "rendering" | "done" | "failed" | "refunded";
   siteUrl: string;
   brandName: string;
   concepts: { style_id: string; title_he: string; pitch_he: string }[];
   quotes: Quote[];
   choice: { style: string; durationS: number; aspect: string; priceCents: number } | null;
-  shots: string[];
-  progress: { total: number; done: number };
+  stage: "writing" | "reviewing" | "rendering" | null;
+  renderProgress: number;
   videoUrl: string | null;
+  /** Demo mode only: lines shown in the animated preview. */
+  demoLines?: string[];
 }
 
 declare global {
@@ -51,9 +43,8 @@ async function fetchProject(id: string, token: string): Promise<Project | null> 
 }
 const usd = (n: number) => `$${n.toFixed(2)}`;
 const BREAKDOWN_LABELS: Record<keyof Quote["breakdown"], string> = {
-  videoGenerationUsd: "יצירת וידאו (בינה מלאכותית)",
-  aiWritingUsd: "ניתוח האתר וכתיבת התסריט",
-  postProductionUsd: "עריכה ואחסון",
+  aiUsd: "בינה מלאכותית: ניתוח, כתיבת האנימציה ובקרת איכות",
+  renderUsd: "רינדור לסרטון ואחסון",
   serviceFeeUsd: "עמלת שירות",
   paymentProcessingUsd: "עמלת סליקה",
 };
@@ -84,7 +75,7 @@ export function Studio({ id }: { id: string }) {
   }, [id, token, apply]);
 
   // Poll while the video is being produced.
-  const producing = project && ["awaiting_payment", "paid", "rendering", "merging"].includes(project.status);
+  const producing = project && ["awaiting_payment", "paid", "rendering"].includes(project.status);
   // After checkout the row may still read draft/awaiting_payment until the payment webhook lands.
   const polling = !!token && (justPaid || (!!producing && project?.status !== "awaiting_payment"));
   useEffect(() => {
@@ -259,7 +250,7 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
             </div>
           </dl>
           <p className="mt-2 text-xs text-muted">
-            {q.clips} סצנות, {q.generatedSeconds} שניות של וידאו. מע״מ או מס מכירה מקומי, אם חלים, יתווספו בעמוד התשלום.
+            סרטון של {q.durationS} שניות באיכות Full HD. מע״מ או מס מכירה מקומי, אם חלים, יתווספו בעמוד התשלום.
           </p>
           <label className="mt-5 flex items-start gap-2 text-sm text-muted">
             <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} className="mt-1 h-4 w-4 accent-violet-500" />
@@ -280,11 +271,26 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
   );
 }
 
+const STAGES = [
+  { id: "writing", label: "Claude כותב את קוד האנימציה במיוחד בשבילך" },
+  { id: "reviewing", label: "בודק איך זה נראה ומתקן" },
+  { id: "rendering", label: "הופך את הקוד לסרטון" },
+] as const;
+
 function Production({ project }: { project: Project }) {
   const [copied, setCopied] = useState(false);
-  const { status, progress } = project;
+  const { status, stage, renderProgress } = project;
   const pct =
-    status === "done" ? 100 : status === "merging" ? 92 : progress.total ? 10 + Math.round((progress.done / progress.total) * 80) : 5;
+    status === "done"
+      ? 100
+      : stage === "rendering"
+        ? 50 + Math.round(renderProgress / 2)
+        : stage === "reviewing"
+          ? 40
+          : stage === "writing"
+            ? 15
+            : 5;
+  const activeIndex = STAGES.findIndex((s) => s.id === stage);
 
   async function copyLink() {
     await navigator.clipboard.writeText(window.location.href);
@@ -312,7 +318,7 @@ function Production({ project }: { project: Project }) {
             styleId={project.choice?.style ?? STYLES[0].id}
             aspect={project.choice?.aspect ?? "16:9"}
             brandName={project.brandName}
-            shots={project.shots}
+            lines={project.demoLines ?? []}
           />
         ) : status === "done" && project.videoUrl ? (
           <>
@@ -336,13 +342,13 @@ function Production({ project }: { project: Project }) {
         ) : (
           <div aria-live="polite">
             <h2 className="text-2xl font-bold">
-              {status === "awaiting_payment" ? "מאשרים את התשלום…" : status === "merging" ? "עורכים את הסרטון הסופי…" : "מפיקים את הסרטון שלך…"}
+              {status === "awaiting_payment" ? "מאשרים את התשלום…" : "מפיקים את הסרטון שלך…"}
             </h2>
             <div className="mt-6 h-3 w-full overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
               <div className="h-full rounded-full bg-gradient-to-l from-violet-500 to-cyan-400 transition-all" style={{ width: `${pct}%` }} />
             </div>
             <p className="mt-3 text-sm text-muted">
-              {progress.total ? `${progress.done} מתוך ${progress.total} סצנות מוכנות` : "כותבים את התסריט…"} · בדרך כלל 5 עד 20 דקות
+              {stage === "rendering" ? `מרנדרים: ${renderProgress}%` : "בדרך כלל 5 עד 15 דקות"}
             </p>
             <div className="mt-6 rounded-2xl border border-line p-4 text-sm">
               <p className="font-bold">שמרו את הקישור הפרטי כדי לחזור לסרטון:</p>
@@ -354,14 +360,30 @@ function Production({ project }: { project: Project }) {
           </div>
         )}
       </div>
-      {project.shots.length > 0 && (
-        <aside className="rounded-3xl border border-line bg-card p-6" aria-labelledby="storyboard">
-          <h2 id="storyboard" className="mb-3 font-bold">התסריט</h2>
-          <ol className="list-decimal space-y-2 ps-5 text-sm text-muted">
-            {project.shots.map((s, i) => <li key={i}>{s}</li>)}
-          </ol>
-        </aside>
-      )}
+      <aside className="rounded-3xl border border-line bg-card p-6" aria-labelledby="steps">
+        <h2 id="steps" className="mb-4 font-bold">שלבי ההפקה</h2>
+        <ol className="space-y-3 text-sm">
+          {STAGES.map((s, i) => {
+            const state = status === "done" || i < activeIndex ? "done" : i === activeIndex ? "active" : "todo";
+            return (
+              <li key={s.id} className={`flex items-center gap-3 ${state === "todo" ? "text-muted" : ""}`}>
+                <span
+                  aria-hidden
+                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-xs ${
+                    state === "done" ? "border-ok bg-ok/20 text-ok" : state === "active" ? "animate-pulse border-accent2 text-accent2" : "border-line"
+                  }`}
+                >
+                  {state === "done" ? "✓" : i + 1}
+                </span>
+                <span>
+                  {s.label}
+                  <span className="sr-only">{state === "done" ? " (הושלם)" : state === "active" ? " (בתהליך)" : ""}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </aside>
     </div>
   );
 }

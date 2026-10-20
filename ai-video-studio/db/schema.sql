@@ -16,8 +16,10 @@ create table if not exists projects (
   paddle_txn_id   text unique,
   status          text not null default 'draft',
   error           text,
-  storyboard      jsonb,
-  merge_request_id text,
+  -- Animation code written by Claude for this customer, and render progress (0-100)
+  animation_html  text,
+  stage           text,
+  render_progress int not null default 0,
   video_url       text,
   lease_until     timestamptz,
   error_count     int not null default 0,
@@ -30,18 +32,6 @@ create table if not exists projects (
 create index if not exists projects_status_idx on projects (status);
 create index if not exists projects_created_idx on projects (created_at);
 
-create table if not exists clips (
-  id              bigserial primary key,
-  project_id      uuid not null references projects(id) on delete cascade,
-  idx             int not null,
-  duration_s      int not null,
-  prompt          text not null,
-  status          text not null default 'pending',
-  fal_request_id  text,
-  url             text,
-  attempts        int not null default 0,
-  unique (project_id, idx)
-);
 
 create table if not exists rate_limits (
   key          text not null,

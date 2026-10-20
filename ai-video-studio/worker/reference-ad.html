@@ -2,16 +2,11 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<title>Code-rendered ad (proof of concept)</title>
+<title>Reference ad: Pizza Roma (fictional)</title>
 <style>
-  @font-face { font-family: H1; src: url(fonts/heebo-1.woff2); font-weight: 100 900; }
-  @font-face { font-family: H2; src: url(fonts/heebo-2.woff2); font-weight: 100 900; }
-  @font-face { font-family: H3; src: url(fonts/heebo-3.woff2); font-weight: 100 900; }
-  @font-face { font-family: H4; src: url(fonts/heebo-4.woff2); font-weight: 100 900; }
-  @font-face { font-family: H5; src: url(fonts/heebo-5.woff2); font-weight: 100 900; }
   * { margin: 0; box-sizing: border-box; }
   html, body { width: 1280px; height: 720px; overflow: hidden; background: #000; }
-  body { font-family: H1, H2, H3, H4, H5, sans-serif; color: #fff; }
+  body { font-family: var(--brand-font); color: #fff; }
   #stage { position: relative; width: 1280px; height: 720px; overflow: hidden; }
   .layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
   .abs { position: absolute; }
@@ -24,6 +19,7 @@
 
   <!-- Scene 1: logo -->
   <div id="s1" class="layer">
+    <img id="logoImg" alt="" style="display:none;max-width:420px;max-height:220px;object-fit:contain;margin-bottom:24px">
     <div id="logo" style="display:flex;gap:6px;direction:ltr;font-weight:900;font-size:150px;letter-spacing:-4px"></div>
     <div id="s1sub" style="font-size:40px;font-weight:500;margin-top:10px;color:#ffe8c2">פיצה נפוליטנית אמיתית</div>
   </div>
@@ -78,6 +74,12 @@ const $ = (id) => document.getElementById(id);
 // visibility window with fades
 const win = (t, a, b, fade = 0.35) => clamp(Math.min((t - a) / fade, (b - t) / fade));
 
+// The customer's real logo, if the renderer found one (window.ASSETS is injected before this script).
+if (window.ASSETS && window.ASSETS.logo) {
+  $("logoImg").src = window.ASSETS.logo;
+  $("logoImg").style.display = "block";
+}
+
 // build static pieces once
 $("logo").innerHTML = [...AD.brand].map((ch, i) => `<span id="L${i}" style="display:inline-block">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
 const ICONS = {
@@ -125,6 +127,9 @@ function renderFrame(t) {
   $("s1sub").style.opacity = sub;
   $("s1sub").style.transform = `translateY(${(1 - sub) * 30}px)`;
   $("logo").style.transform = `scale(${1 + Math.max(0, t - 1.6) * 0.06})`;
+  const lg = easeOut(prog(t, 0, 0.6));
+  $("logoImg").style.opacity = lg;
+  $("logoImg").style.transform = `scale(${0.8 + 0.2 * lg})`;
 
   // Scene 2: pizza spins in, words slam one by one
   $("s2").style.opacity = win(t, 2.6, 5.6);

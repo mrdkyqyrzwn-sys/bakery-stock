@@ -1,23 +1,23 @@
-import { planClips } from "./styles";
-
-/** Claude usage per video (site analysis + storyboard), estimated generously. */
-const AI_WRITING_COST_USD = 0.5;
-/** Merge step + storage. */
-const POST_PRODUCTION_COST_USD = 0.1;
-/** Budget for regenerating clips that fail or get filtered. */
-const RETRY_BUFFER = 0.15;
+/**
+ * Costs per video. The video is animation code that Claude writes and we render ourselves,
+ * so there is no per-second video-model fee: the costs are Claude's tokens and render time.
+ */
+/** Claude: site analysis, writing the animation, visual review and fixes. Longer videos need more code. */
+const AI_BASE_USD = 0.6;
+const AI_PER_SECOND_USD = 0.02;
+/** Render server time (headless browser + encoding) and storage. */
+const RENDER_PER_SECOND_USD = 0.004;
+/** Budget for re-writing code that fails validation. */
+const RETRY_BUFFER = 0.3;
 /** Paddle's fee is ~5% + $0.50 per transaction; we price it in so the margin stays real. */
 const PAYMENT_FEE_RATE = 0.05;
 const PAYMENT_FEE_FIXED_USD = 0.5;
 
 export interface Quote {
   durationS: number;
-  generatedSeconds: number;
-  clips: number;
   breakdown: {
-    videoGenerationUsd: number;
-    aiWritingUsd: number;
-    postProductionUsd: number;
+    aiUsd: number;
+    renderUsd: number;
     serviceFeeUsd: number;
     paymentProcessingUsd: number;
   };
@@ -25,27 +25,24 @@ export interface Quote {
   totalCents: number;
 }
 
-const round2 = (n: number) => Math.round(n * 100) / 100;
-
 export interface PricingParams {
-  VIDEO_COST_PER_SECOND_USD: number;
   PRICE_MARGIN: number;
   PRICE_FIXED_FEE_USD: number;
 }
 
 /** Defaults from .env.example, used by the demo. */
 export const DEFAULT_PRICING: PricingParams = {
-  VIDEO_COST_PER_SECOND_USD: 0.4,
-  PRICE_MARGIN: 0.5,
-  PRICE_FIXED_FEE_USD: 3,
+  PRICE_MARGIN: 1,
+  PRICE_FIXED_FEE_USD: 5,
 };
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /** Pure price calculation. Real orders call quote() in pricing.ts, which reads the server's settings. */
 export function quoteWith(durationS: number, e: PricingParams): Quote {
-  const clips = planClips(durationS);
-  const generatedSeconds = clips.reduce((a, b) => a + b, 0);
-  const video = generatedSeconds * e.VIDEO_COST_PER_SECOND_USD * (1 + RETRY_BUFFER);
-  const cost = video + AI_WRITING_COST_USD + POST_PRODUCTION_COST_USD;
+  const ai = (AI_BASE_USD + AI_PER_SECOND_USD * durationS) * (1 + RETRY_BUFFER);
+  const render = RENDER_PER_SECOND_USD * durationS;
+  const cost = ai + render;
   const serviceFee = cost * e.PRICE_MARGIN + e.PRICE_FIXED_FEE_USD;
   const beforeFees = cost + serviceFee;
   // Solve total so that total - fee(total) = beforeFees, then round up to a .99 price.
@@ -53,12 +50,9 @@ export function quoteWith(durationS: number, e: PricingParams): Quote {
   const totalUsd = Math.ceil(gross) - 0.01;
   return {
     durationS,
-    generatedSeconds,
-    clips: clips.length,
     breakdown: {
-      videoGenerationUsd: round2(video),
-      aiWritingUsd: AI_WRITING_COST_USD,
-      postProductionUsd: POST_PRODUCTION_COST_USD,
+      aiUsd: round2(ai),
+      renderUsd: round2(render),
       serviceFeeUsd: round2(serviceFee),
       paymentProcessingUsd: round2(totalUsd - beforeFees),
     },

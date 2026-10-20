@@ -72,8 +72,15 @@ export interface FetchedPage {
   body: string;
 }
 
-/** GET a public HTML page with size, time, redirect and address limits. */
-export async function safeFetchPage(input: string): Promise<FetchedPage> {
+interface FetchedBytes {
+  finalUrl: string;
+  contentType: string;
+  bytes: Buffer;
+  truncated: boolean;
+}
+
+/** GET a public URL with size, time, redirect and address limits. */
+async function safeFetchBytes(input: string, accept: string, maxBytes: number): Promise<FetchedBytes> {
   let url = normalizePublicUrl(input);
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     const controller = new AbortController();
@@ -83,10 +90,7 @@ export async function safeFetchPage(input: string): Promise<FetchedPage> {
         dispatcher: agent,
         redirect: "manual",
         signal: controller.signal,
-        headers: {
-          "user-agent": "Mozilla/5.0 (compatible; AdVideoBot/1.0; +site-preview)",
-          accept: "text/html,application/xhtml+xml",
-        },
+        headers: { "user-agent": "Mozilla/5.0 (compatible; AdVideoBot/1.0; +site-preview)", accept },
       });
       if (res.status >= 300 && res.status < 400) {
         const location = res.headers.get("location");
@@ -97,26 +101,46 @@ export async function safeFetchPage(input: string): Promise<FetchedPage> {
       }
       if (!res.ok) throw new UnsafeUrlError(`האתר החזיר שגיאה ${res.status}`);
       const contentType = res.headers.get("content-type") ?? "";
-      if (!contentType.includes("html")) throw new UnsafeUrlError("הכתובת אינה דף אינטרנט");
 
       const reader = res.body!.getReader();
       const chunks: Uint8Array[] = [];
       let total = 0;
+      let truncated = false;
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         total += value.byteLength;
-        if (total > MAX_BYTES) {
+        if (total > maxBytes) {
+          truncated = true;
           await reader.cancel();
           break;
         }
         chunks.push(value);
       }
-      const body = new TextDecoder("utf-8", { fatal: false }).decode(Buffer.concat(chunks));
-      return { finalUrl: url.toString(), contentType, body };
+      return { finalUrl: url.toString(), contentType, bytes: Buffer.concat(chunks), truncated };
     } finally {
       clearTimeout(timer);
     }
   }
   throw new UnsafeUrlError("יותר מדי הפניות");
+}
+
+/** GET a public HTML page (first 2 MB). */
+export async function safeFetchPage(input: string): Promise<FetchedPage> {
+  const res = await safeFetchBytes(input, "text/html,application/xhtml+xml", MAX_BYTES);
+  if (!res.contentType.includes("html")) throw new UnsafeUrlError("הכתובת אינה דף אינטרנט");
+  const body = new TextDecoder("utf-8", { fatal: false }).decode(res.bytes);
+  return { finalUrl: res.finalUrl, contentType: res.contentType, body };
+}
+
+// SVG is fine here: it is only ever shown via <img> inside the offline, CSP-locked render page.
+const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"];
+const MAX_IMAGE_BYTES = 5_000_000;
+
+/** GET a public raster image (max 5 MB) as a data: URI, or null if it is not a usable image. */
+export async function safeFetchImageDataUri(input: string): Promise<string | null> {
+  const res = await safeFetchBytes(input, IMAGE_TYPES.join(","), MAX_IMAGE_BYTES);
+  const type = res.contentType.split(";")[0].trim().toLowerCase();
+  if (res.truncated || !IMAGE_TYPES.includes(type) || res.bytes.length < 200) return null;
+  return `data:${type};base64,${res.bytes.toString("base64")}`;
 }

@@ -1,13 +1,10 @@
 import { EventName } from "@paddle/paddle-node-sdk";
-import { after } from "next/server";
 import { sql } from "@/lib/db";
 import { env } from "@/lib/env";
 import { error, isUuid, json } from "@/lib/http";
 import { paddle } from "@/lib/paddle";
-import { advance } from "@/lib/pipeline";
 
 export const runtime = "nodejs";
-export const maxDuration = 300;
 
 /** Paddle tells us a payment went through. The signature proves the call really came from Paddle. */
 export async function POST(req: Request) {
@@ -31,11 +28,10 @@ export async function POST(req: Request) {
     const projectId = (txn.customData as { projectId?: string } | null)?.projectId;
     if (isUuid(projectId)) {
       // The transaction id must be the one we created for this project, with our server-side price.
-      const updated = await db`
+      // The render worker picks up 'paid' projects from the database.
+      await db`
         update projects set status = 'paid', paid_at = now(), updated_at = now()
-        where id = ${projectId} and paddle_txn_id = ${txn.id} and status = 'awaiting_payment'
-        returning id`;
-      if (updated.length > 0) after(() => advance(projectId));
+        where id = ${projectId} and paddle_txn_id = ${txn.id} and status = 'awaiting_payment'`;
     }
   }
 

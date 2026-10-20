@@ -23,7 +23,6 @@ export type ProjectStatus =
   | "awaiting_payment"
   | "paid"
   | "rendering"
-  | "merging"
   | "done"
   | "failed"
   | "refunded";
@@ -43,21 +42,11 @@ export interface ProjectRow {
   paddle_txn_id: string | null;
   status: ProjectStatus;
   error: string | null;
-  storyboard: unknown;
-  merge_request_id: string | null;
+  animation_html: string | null;
+  stage: "writing" | "reviewing" | "rendering" | null;
+  render_progress: number;
+  error_count: number;
   video_url: string | null;
   created_at: Date;
   paid_at: Date | null;
-}
-
-export interface ClipRow {
-  id: string;
-  project_id: string;
-  idx: number;
-  duration_s: number;
-  prompt: string;
-  status: "pending" | "submitted" | "done" | "failed";
-  fal_request_id: string | null;
-  url: string | null;
-  attempts: number;
 }

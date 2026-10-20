@@ -13,15 +13,15 @@ export function DemoPreview({
   styleId,
   aspect,
   brandName,
-  shots,
+  lines,
 }: {
   styleId: string;
   aspect: string;
   brandName: string;
-  shots: string[];
+  lines: string[];
 }) {
   const style = getStyle(styleId);
-  const frames = [...shots, `END:${brandName}`];
+  const frames = [...lines, `END:${brandName}`];
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
 
@@ -56,7 +56,7 @@ export function DemoPreview({
             </>
           ) : (
             <>
-              <p className="text-sm text-white/70">סצנה {index + 1} מתוך {shots.length}</p>
+              <p className="text-sm text-white/70">סצנה {index + 1} מתוך {lines.length}</p>
               <p className="mt-2 max-w-md text-xl font-bold sm:text-2xl">{frame}</p>
             </>
           )}
@@ -73,7 +73,8 @@ export function DemoPreview({
           {playing ? "השהיה" : "הפעלה"}
         </button>
         <p className="text-sm text-muted">
-          זהו מצב דמו. בגרסה האמיתית יופיע כאן סרטון שנוצר בבינה מלאכותית לפי התסריט, עם מוזיקה וסאונד, וכפתור הורדה.
+          זהו מצב דמו. בגרסה האמיתית Claude כותב קוד אנימציה מלא לעסק שלך, בודק אותו ומרנדר אותו לסרטון MP4.{" "}
+          <a href="/samples/pizza-roma.mp4" target="_blank" className="underline">צפו בסרטון אמיתי לדוגמה</a>.
         </p>
       </div>
     </div>

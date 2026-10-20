@@ -1,14 +1,14 @@
 /**
- * Original visual styles. These are our own creative directions written from scratch -
- * they describe genres and techniques, never a specific brand, creator, film or campaign,
- * so no generated video copies anyone's protected work.
+ * Original motion-design styles. These are our own creative directions written from scratch:
+ * they describe techniques, never a specific brand, creator, film or campaign, so no
+ * generated video copies anyone's protected work.
  */
 export interface VideoStyle {
   id: string;
   nameHe: string;
   taglineHe: string;
   bestForHe: string;
-  /** Visual direction handed to the storyboard writer. */
+  /** Visual direction handed to Claude when it writes the animation code. */
   direction: string;
   /** CSS gradient for the style card preview. */
   gradient: string;
@@ -18,46 +18,46 @@ export const STYLES: VideoStyle[] = [
   {
     id: "cinematic",
     nameHe: "קולנועי פרימיום",
-    taglineHe: "תאורה דרמטית, תנועות מצלמה איטיות, תחושת סרט",
+    taglineHe: "רקע עשיר, תנועה איטית ואלגנטית, חשיפה דרמטית",
     bestForHe: "מותגי יוקרה, נדל״ן, מסעדות, תיירות",
     direction:
-      "Premium cinematic commercial. Anamorphic look, shallow depth of field, slow dolly and crane moves, golden-hour or moody low-key lighting, rich color grade, elegant pacing that builds to a hero reveal. Orchestral or ambient score, minimal sound design accents.",
+      "Premium cinematic motion design. Dark rich backgrounds with soft light leaks and vignettes, slow elegant easing, large serif-feeling or thin-weight headlines revealed with masks and letter-spacing animation, slow parallax drift and scale on images, gold or brand-color accents, generous pauses, builds to a hero reveal of the brand.",
     gradient: "linear-gradient(135deg,#1a1a2e 0%,#b8860b 100%)",
   },
   {
     id: "kinetic",
     nameHe: "אנרגטי ודינמי",
-    taglineHe: "קצב מהיר, מעברים חדים, אנרגיה של רשתות",
+    taglineHe: "מילים ענקיות שקופצות, קצב מהיר, אנרגיה של רשתות",
     bestForHe: "אפליקציות, ספורט, אופנה, מבצעים",
     direction:
-      "High-energy social ad. Fast cuts on the beat, whip pans, speed ramps, bold saturated colors, punchy macro shots of the product, dynamic handheld energy. Driving electronic beat, whooshes and impact hits.",
+      "High-energy kinetic typography for social media. Hard cuts every 0.5-1.2s, huge heavy-weight words that slam, scale and shake in, bold saturated color blocks that wipe across the frame, diagonal shapes, quick zooms, strobing accents, punchy overshoot (back-out) easing.",
     gradient: "linear-gradient(135deg,#ff0080 0%,#7928ca 50%,#00d4ff 100%)",
   },
   {
     id: "lifestyle",
     nameHe: "לייפסטייל אותנטי",
-    taglineHe: "אנשים אמיתיים, רגעים טבעיים, תחושה חמה",
+    taglineHe: "צבעים חמים, צורות רכות, איורים קטנים ומחייכים",
     bestForHe: "עסקים מקומיים, שירותים, בריאות, משפחה",
     direction:
-      "Warm authentic lifestyle film. Natural window light, candid moments of fictional everyday people enjoying the product or service, soft handheld camera, warm pastel grade, genuine smiles. Gentle acoustic music with light room tone.",
+      "Warm friendly lifestyle motion design. Soft warm pastel palette, rounded cards and pill shapes, gentle floating motion, hand-drawn-feeling SVG doodles and icons (hearts, sparkles, underlines that draw on), friendly rounded headlines, the site's real images in soft rounded frames with slow zoom.",
     gradient: "linear-gradient(135deg,#f6d365 0%,#fda085 100%)",
   },
   {
     id: "minimal",
     nameHe: "מינימליסטי נקי",
-    taglineHe: "רקעים נקיים, הרבה אוויר, המוצר במרכז",
+    taglineHe: "רקע נקי, קווים מדויקים, הרבה אוויר",
     bestForHe: "טכנולוגיה, SaaS, קוסמטיקה, עיצוב",
     direction:
-      "Clean minimalist product film. Seamless studio backgrounds in the brand palette, precise motorized camera moves, soft diffused light, objects floating or rotating, generous negative space, calm confident pacing. Minimal piano or soft synth, crisp foley.",
+      "Clean minimalist Swiss-style motion design. Light or off-white background, one accent color from the brand, precise grid layouts, thin lines that draw on, small confident type with lots of negative space, smooth ease-in-out moves, elements sliding along strict axes, calm Apple-keynote pacing.",
     gradient: "linear-gradient(135deg,#e0e0e0 0%,#ffffff 50%,#c9d6ff 100%)",
   },
   {
     id: "playful3d",
-    nameHe: "תלת־ממד צבעוני",
-    taglineHe: "עולם אנימציה משחקי, צורות רכות, הומור",
+    nameHe: "מצויר וצבעוני",
+    taglineHe: "דמויות וצורות קופצניות, קונפטי, הומור",
     bestForHe: "מותגים צעירים, מזון, ילדים, צעצועים",
     direction:
-      "Playful stylized 3D animation. Soft clay-like or glossy toy shapes, bright candy palette, bouncy squash-and-stretch motion, whimsical miniature worlds built around the product idea, light humor. Upbeat quirky music with cartoon sound effects.",
+      "Playful cartoon motion graphics. Bright candy palette, bouncy squash-and-stretch on shapes and words, simple SVG characters or objects drawn in code that relate to the business, confetti and bursts, wobbly fun shapes, light humor, everything moves with springy overshoot.",
     gradient: "linear-gradient(135deg,#43e97b 0%,#38f9d7 50%,#fa709a 100%)",
   },
 ];
@@ -71,15 +71,3 @@ export type Duration = (typeof DURATIONS)[number];
 
 export const ASPECTS = ["16:9", "9:16"] as const;
 export type Aspect = (typeof ASPECTS)[number];
-
-/** Split a target length into model-sized clips (8s, with a final 4/6/8s clip). */
-export function planClips(targetSeconds: number): number[] {
-  const clips: number[] = [];
-  let remaining = targetSeconds;
-  while (remaining > 8) {
-    clips.push(8);
-    remaining -= 8;
-  }
-  clips.push(remaining <= 4 ? 4 : remaining <= 6 ? 6 : 8);
-  return clips;
-}

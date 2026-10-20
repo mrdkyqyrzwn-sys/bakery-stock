@@ -35,6 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </Link>
           <nav aria-label="ניווט ראשי" className="flex gap-5 text-sm text-muted">
             <Link href="/#how" className="hover:text-fg">איך זה עובד</Link>
+            <Link href="/#sample" className="hover:text-fg">דוגמה</Link>
             <Link href="/#styles" className="hover:text-fg">סגנונות</Link>
             <Link href="/#faq" className="hover:text-fg">שאלות</Link>
           </nav>
@@ -50,7 +51,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 פניות: <a className="underline" href={`mailto:${SITE.email}`}>{SITE.email}</a>
               </p>
               <p className="mt-3 text-xs">
-                הסרטונים נוצרים באמצעות בינה מלאכותית. התשלום מעובד על ידי Paddle.com, המשמשת כמוכר הרשמי (Merchant of Record).
+                הסרטונים נוצרים באמצעות בינה מלאכותית (Claude של Anthropic). התשלום מעובד על ידי Paddle.com, המשמשת כמוכר הרשמי (Merchant of Record).
               </p>
             </div>
             <nav aria-label="מסמכים משפטיים" className="flex flex-col gap-2 sm:items-end">

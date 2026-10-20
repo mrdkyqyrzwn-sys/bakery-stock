@@ -1,65 +1,84 @@
-# AI Ad Video Studio
+# סטודיו סרטוני פרסומת שנכתבים בקוד
 
-A site where a business pastes its website address, picks a style and length, pays, and automatically gets an AI-generated video ad. Payment, production, refunds, and data deletion all run automatically, without manual involvement.
+אתר שבו בעל עסק מדביק כתובת אתר, בוחר סגנון ואורך, משלם, ומקבל סרטון פרסומת מונפש. **בלי מצלמה ובלי מודל וידאו:** Claude כותב קוד אנימציה במיוחד לכל לקוח, מסתכל על התוצאה ומתקן אותה, והקוד מרונדר לקובץ MP4 ב־Full HD.
 
-## How it works
+סרטון לדוגמה: `public/samples/pizza-roma.mp4`
 
-1. **Site scan** (`/api/projects`): the system reads the public home page (with SSRF protection) and sends it to Claude. Claude checks it against the content policy, writes a brand brief, and writes a concept in each of the 5 styles.
-2. **Choice and price** (`/api/projects/[id]/checkout`): the customer picks a style, a length (20 seconds to 2 minutes), and a format (landscape or portrait). The price is calculated **on the server** from real costs plus your margin, and a Paddle transaction is created.
-3. **Payment**: Paddle (Merchant of Record) charges the customer, handles VAT and taxes worldwide, and issues the invoice.
-4. **Production** (`src/lib/pipeline.ts`): after a signed payment webhook, Claude writes a storyboard of scenes. Each scene goes to a video model (Veo 3.1 via fal.ai), and the scenes are then merged into one video. The process runs as a state machine that survives restarts.
-5. **Delivery**: the video is saved to Vercel Blob and appears on the customer's private page. **If production fails, the customer gets a full automatic refund.**
+## איך זה עובד
 
-## Setup (about an hour)
+1. **סריקת האתר** (`/api/projects`): קריאת דף הבית הציבורי (עם הגנת SSRF). Claude בודק את התוכן מול מדיניות התוכן, כותב תקציר מותג, וכותב קונספט בכל אחד מחמשת הסגנונות.
+2. **בחירה ומחיר** (`/api/projects/[id]/checkout`): הלקוח בוחר סגנון, אורך (20 שניות עד 2 דקות) ופורמט (לרוחב או לאורך). המחיר מחושב **בשרת**, ונפתחת עסקה ב־Paddle.
+3. **תשלום**: Paddle (המוכר הרשמי, Merchant of Record) גובה את התשלום, מטפלת במע״מ ובמיסים בכל העולם ומנפיקה חשבונית.
+4. **הפקה** (`worker/`): שרת רינדור נפרד אוסף הזמנות ששולמו, ואז:
+   - מוריד את הלוגו והתמונה הראשית מהאתר של הלקוח.
+   - **Claude כותב קוד אנימציה** (HTML/CSS/SVG/JS) לפי הסגנון והתקציר (`worker/director.ts`).
+   - **בדיקה טכנית**: הקוד נטען בדפדפן מבודד. אם יש שגיאות, הן נשלחות ל־Claude לתיקון.
+   - **בקרת איכות ויזואלית**: Claude מקבל צילומים מהסרטון, בודק טקסט חתוך, חפיפות ועיצוב חלש, ומתקן.
+   - **רינדור** (`worker/renderer.ts`): צילום של 30 פריימים לשנייה וקידוד ל־MP4 עם ffmpeg. אם הוגדרה, מתווספת מוזיקה.
+   - העלאה ל־Vercel Blob. הסרטון מופיע בעמוד הפרטי של הלקוח.
+5. **אם ההפקה נכשלת, הלקוח מקבל החזר כספי מלא באופן אוטומטי.** גם הזמנה שלא הסתיימה תוך 3 שעות מוחזרת אוטומטית (cron).
 
-1. **Database**: open a free Postgres on [Neon](https://neon.tech) or Supabase and run:
+## המבנה: שני חלקים
+
+| חלק | מה הוא עושה | איפה הוא רץ |
+|---|---|---|
+| **האתר** (Next.js) | עמודים, סריקה, תשלום, webhooks, מחיקת נתונים | Vercel |
+| **שרת הרינדור** (`worker/`) | כתיבת האנימציה, בדיקות ורינדור | שרת שרץ כל הזמן עם Chromium ו־ffmpeg, לפי `worker/Dockerfile` (למשל Railway, Fly.io, Render, בערך 5 עד 20 דולר לחודש) |
+
+## הקמה
+
+1. **מסד נתונים**: פותחים Postgres חינמי ב־[Neon](https://neon.tech) ומריצים:
    `psql "$DATABASE_URL" -f db/schema.sql`
-2. **Claude**: create an API key at [console.anthropic.com](https://console.anthropic.com).
-3. **fal.ai**: create a key at [fal.ai](https://fal.ai). Check on [the pricing page](https://fal.ai/pricing) what one second of the model costs, and put the number in `VIDEO_COST_PER_SECOND_USD`. **Note:** the endpoint `fal-ai/veo3.1/fast` is scheduled for deprecation on November 17, 2026. Before launch, switch `FAL_VIDEO_MODEL` to the current model.
-4. **Paddle**:
-   - Open a [Paddle](https://paddle.com) account and complete identity and business verification. Start in Sandbox.
-   - Create a product ("AI ad video"). Its ID (`pro_...`) goes in `PADDLE_PRODUCT_ID`.
-   - Create an API key and a Client-side token.
-   - Under Notifications, create a webhook to `https://YOUR-DOMAIN/api/webhooks/paddle` with the events `transaction.completed`, `transaction.paid`, `adjustment.created`, `adjustment.updated`. Its secret key goes in `PADDLE_WEBHOOK_SECRET`.
-   - Paddle reviews the site before approving live payments. The legal pages they require are already built in.
-5. **Deploy to Vercel**: import the repo, set the *Root Directory* to `ai-video-studio`, fill in all the variables from `.env.example`, and enable Vercel Blob.
-6. Set `CRON_SECRET` to a long random string (`openssl rand -hex 32`). Vercel sends it automatically to the cron.
+2. **Claude**: מפתח API ב־[console.anthropic.com](https://console.anthropic.com).
+3. **Paddle**:
+   - פותחים חשבון ומשלימים אימות זהות ועסק. מתחילים ב־Sandbox.
+   - יוצרים מוצר ("AI ad video"). המזהה שלו (`pro_...`) נכנס ל־`PADDLE_PRODUCT_ID`.
+   - יוצרים API key ו־Client-side token.
+   - ב־Notifications יוצרים webhook לכתובת `https://הדומיין/api/webhooks/paddle` עם האירועים `transaction.completed`, `transaction.paid`, `adjustment.created`, `adjustment.updated`.
+4. **האתר ב־Vercel**: Root Directory = `ai-video-studio`, ממלאים את המשתנים מ־`.env.example` ומפעילים Vercel Blob.
+5. **שרת הרינדור**: בונים ומריצים את `worker/Dockerfile` (מתוך התיקייה `ai-video-studio`) **עם אותם משתנים** (כולל `BLOB_READ_WRITE_TOKEN`). להרצה מקומית: `npm run worker` (דורש Chromium ו־ffmpeg).
+6. **מוזיקה (לא חובה)**: מגדירים `MUSIC_DIR` לתיקייה עם קבצים בשמות הסגנונות (`cinematic.mp3`, `kinetic.mp3`, `lifestyle.mp3`, `minimal.mp3`, `playful3d.mp3`). **משתמשים רק במוזיקה שיש לך רישיון מסחרי עליה**, למשל מספרייה בתשלום.
 
-> Cron every 5 minutes requires Vercel Pro. On the free plan production still works, because webhooks and page polling move it forward. The cron is only a safety net.
+## מצב דמו (בלי שום חשבון)
 
-## Pricing
+```bash
+cd ai-video-studio
+npm install
+echo "NEXT_PUBLIC_DEMO_MODE=true" > .env.local
+npm run dev
+```
+ופותחים את http://localhost:3000. כל המסלול עובד, מהסריקה ועד הסרטון, עם נתונים לדוגמה ובלי תשלום אמיתי.
 
-`src/lib/pricing.ts`. Example with the defaults (cost of $0.40 per second, 50% margin, $3 fixed fee):
+## מחירים
 
-| Length | Price to the customer |
-|---|---|
-| 20 seconds | $19.99 |
-| 30 seconds | $26.99 |
-| 60 seconds | $48.99 |
-| 2 minutes | $91.99 |
+`src/lib/pricing-core.ts`. עם ברירות המחדל (100% רווח על העלויות ועוד 5 דולר לסרטון):
 
-The price includes a 15% buffer for regenerating failed scenes and Paddle's fee. The customer sees a full breakdown before paying.
+| אורך | מחיר ללקוח | מה נשאר לך |
+|---|---|---|
+| 20 שניות | $8.99 | ~$6.40 |
+| 30 שניות | $9.99 | ~$6.70 |
+| 60 שניות | $11.99 | ~$7.60 |
+| 2 דקות | $15.99 | ~$9.40 |
 
-## Security
+העלויות הן טוקנים של Claude (כולל מרווח לתיקונים) וזמן רינדור. כדאי לבדוק את העלות האמיתית בקונסולה של Anthropic אחרי כמה סרטונים ולעדכן את המספרים.
 
-- SSRF protection: only public addresses, checked again on every redirect and at connect time (protects against DNS rebinding).
-- Prices are calculated only on the server. The Paddle transaction is created on the server with the price locked in.
-- Every Paddle webhook is verified by signature and is idempotent (handled only once).
-- fal webhooks are not trusted: the result is read through the authenticated API.
-- Access to a project is only through a random 256-bit token kept in the URL fragment (`#t=`). Only its hash is stored.
-- Rate limiting per IP and globally (stored in the DB, works across serverless instances).
-- Origin check on POST requests, plus strict CSP, HSTS, and X-Frame-Options.
-- Site content is passed to Claude as data, with a prompt-injection warning, and the output is enforced by a JSON schema.
-- No IP addresses are stored (salted hash only), and nothing is kept from the credit card.
-- Automatic deletion: drafts after 7 days, site content after 30, videos after 90.
+## אבטחה
 
-## Legal: what still needs doing before launch
+- **הקוד ש־Claude כותב לא רץ על השרת.** הוא רץ רק בתוך ה־sandbox של Chromium, בלי אינטרנט (offline, כל הבקשות נחסמות, ו־CSP נעול). בדקתי קוד זדוני שניסה 9 דרכים שונות לצאת לאינטרנט או לשרת פנימי, ואף בקשה לא עברה.
+- הגנת SSRF בסריקה ובהורדת תמונות: רק כתובות ציבוריות, ונבדקות שוב בכל הפניה ובזמן ההתחברות.
+- המחיר מחושב רק בשרת. כל webhook של Paddle נבדק בחתימה ומטופל פעם אחת בלבד.
+- גישה לפרויקט רק דרך קוד אקראי של 256 ביט, וכל המידע שנשמר עליו הוא hash.
+- הגבלת קצב, בדיקת Origin, CSP, HSTS. לא נשמרות כתובות IP ולא שום דבר מכרטיס האשראי.
+- מחיקה אוטומטית: טיוטות אחרי 7 ימים, תוכן האתר אחרי 30, סרטונים אחרי 90.
+- תוכן האתר מועבר ל־Claude כנתונים, עם אזהרה מפני הזרקת פרומפט.
 
-The legal pages in `src/app/legal/` are a careful template that covers Israeli law (Privacy Protection Law including Amendment 13, Consumer Protection Law, Accessibility Regulations) as well as GDPR and the EU AI Act. **They are not a substitute for a lawyer.** Before going live:
+## משפטי: מה עוד צריך לפני השקה
 
-- [ ] A lawyer specializing in privacy, consumer law, and tech reviews the documents.
-- [ ] Fill in the business details in `.env` (name, business ID number, address, accessibility coordinator).
-- [ ] Register a business (licensed dealer / company) and report the income from Paddle to the tax authorities.
-- [ ] Accessibility: commission a review from an accessibility consultant (accessibility lawsuits are the most common lawsuits against websites in Israel).
-- [ ] Choose the jurisdiction district in the terms of use (`[Tel Aviv-Yafo]`).
-- [ ] Check that the video model's terms of use allow commercial resale of its output.
+התבניות ב־`src/app/legal/` מכסות את החוק הישראלי (חוק הגנת הפרטיות כולל תיקון 13, חוק הגנת הצרכן, תקנות הנגישות), את ה־GDPR ואת חוק ה־AI האירופי. **הן לא מחליפות עורך דין.**
+
+- [ ] **מתחת לגיל 18: הורה צריך להיות בעל החשבונות** (Anthropic, Paddle, Vercel, שרת הרינדור) או שותף רשמי.
+- [ ] פגישה עם רואה חשבון לגבי פתיחת עוסק ודיווח על הכנסות מ־Paddle.
+- [ ] עורך דין עובר על המסמכים המשפטיים.
+- [ ] ממלאים את פרטי העסק ב־`.env` (שם, מספר עוסק, כתובת, רכז נגישות).
+- [ ] בדיקת נגישות של יועץ נגישות.
+- [ ] בוחרים מחוז שיפוט בתנאי השימוש (`[תל אביב-יפו]`).

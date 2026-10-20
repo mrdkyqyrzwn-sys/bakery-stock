@@ -1,7 +1,7 @@
 "use client";
 
 import { DEFAULT_PRICING, quoteWith } from "@/lib/pricing-core";
-import { DURATIONS, STYLES, planClips } from "@/lib/styles";
+import { DURATIONS, STYLES } from "@/lib/styles";
 
 /**
  * Demo mode (NEXT_PUBLIC_DEMO_MODE=true): the whole customer journey runs in the browser with
@@ -11,9 +11,9 @@ import { DURATIONS, STYLES, planClips } from "@/lib/styles";
 export const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 const ANALYSIS_MS = 7000;
-const SCRIPT_MS = 4000;
-const PER_CLIP_MS = 2500;
-const MERGE_MS = 3000;
+const WRITING_MS = 5000;
+const REVIEWING_MS = 4000;
+const RENDERING_MS = 8000;
 
 interface DemoState {
   siteUrl: string;
@@ -104,34 +104,28 @@ const CONCEPTS: Record<string, (brand: string) => { title_he: string; pitch_he: 
   }),
 };
 
-const SHOTS: Record<string, string[]> = {
-  cinematic: ["פתיחה באור זהוב ואדים עולים", "תנועת מנוף איטית מעל המקום", "תקריב רדוד על הפרטים הקטנים", "לקוחה מחייכת בצללית רכה", "חשיפת הגיבור באור דרמטי"],
-  kinetic: ["פתיחה בקאט חד על הביט", "ספיד־ראמפ על המוצר בפעולה", "וויפ־פאן בין שלוש זוויות", "תקריב מאקרו בצבעים רוויים", "סיום אנרגטי בהילוך איטי"],
-  lifestyle: ["בוקר רגוע ליד החלון", "חברים נפגשים וצוחקים", "רגע של הנאה אמיתית מהמוצר", "חיבוק קטן ומבט למצלמה", "שקיעה חמה וסגירה מחויכת"],
-  minimal: ["משטח נקי בצבעי המותג", "המוצר מסתובב באוויר", "צל רך נע לאט על הרקע", "פרטים מדויקים בתאורה רכה", "קומפוזיציה סימטרית לסיום"],
-  playful3d: ["עולם מיניאטורי מתעורר", "דמויות קטנות קופצות לפריים", "המוצר הופך לבניין ענק", "מסיבה צבעונית סביבו", "קפיצה אחרונה והכול נעצר"],
-};
-
 export function demoProject(id: string) {
   const state = load(id);
   if (!state) return null;
   const quotes = DURATIONS.map((d) => quoteWith(d, DEFAULT_PRICING));
   const concepts = STYLES.map((s) => ({ style_id: s.id, ...CONCEPTS[s.id](state.brandName) }));
 
-  let status: "draft" | "rendering" | "merging" | "done" = "draft";
-  let shots: string[] = [];
-  let progress = { total: 0, done: 0 };
+  let status: "draft" | "rendering" | "done" = "draft";
+  let stage: "writing" | "reviewing" | "rendering" | null = null;
+  let renderProgress = 0;
   if (state.choice && state.paidAt) {
-    const clips = planClips(state.choice.durationS).length;
-    const pool = SHOTS[state.choice.style] ?? SHOTS.cinematic;
     const elapsed = Date.now() - state.paidAt;
-    const renderEnd = SCRIPT_MS + clips * PER_CLIP_MS;
-    if (elapsed >= SCRIPT_MS) {
-      shots = Array.from({ length: clips }, (_, i) => pool[i % pool.length]);
-      progress = { total: clips, done: Math.min(clips, Math.floor((elapsed - SCRIPT_MS) / PER_CLIP_MS)) };
+    status = "rendering";
+    if (elapsed < WRITING_MS) stage = "writing";
+    else if (elapsed < WRITING_MS + REVIEWING_MS) stage = "reviewing";
+    else if (elapsed < WRITING_MS + REVIEWING_MS + RENDERING_MS) {
+      stage = "rendering";
+      renderProgress = Math.floor(((elapsed - WRITING_MS - REVIEWING_MS) / RENDERING_MS) * 100);
+    } else {
+      status = "done";
     }
-    status = elapsed < renderEnd ? "rendering" : elapsed < renderEnd + MERGE_MS ? "merging" : "done";
   }
+  const concept = concepts.find((c) => c.style_id === state.choice?.style) ?? concepts[0];
 
   return {
     id,
@@ -141,8 +135,9 @@ export function demoProject(id: string) {
     concepts,
     quotes,
     choice: state.choice,
-    shots,
-    progress,
+    stage,
+    renderProgress,
     videoUrl: status === "done" ? "demo" : null,
+    demoLines: [concept.title_he, ...concept.pitch_he.split(/(?<=[.!?])\s+/).filter(Boolean)],
   };
 }
