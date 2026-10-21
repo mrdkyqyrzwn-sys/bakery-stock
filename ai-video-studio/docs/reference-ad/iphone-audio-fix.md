@@ -9,7 +9,13 @@ Likely cause: WebKit's WebCodecs support. VideoEncoder exists, but AudioEncoder 
 
 Fix:
 1. Feature-detect with AudioEncoder.isConfigSupported for 'mp4a.40.2' and then 'opus'. Pick the first that works.
-2. If neither is supported: render the music offline (OfflineAudioContext, the same deterministic seed) to PCM and encode it in JS/WASM with a permissively licensed encoder: libopus compiled to WASM (BSD), or an AAC encoder with a license that allows commercial use (NOT fdk-aac). Mux it with the video via mp4-muxer (it supports Opus-in-MP4, which iOS 17+ plays) or AAC.
+2. If neither is supported (or as the robust default on iOS):
+   - Render the music offline (OfflineAudioContext, the same deterministic seed) to PCM/WAV.
+   - Encode the video with VideoEncoder (H.264; WebKit supports it) and mux it into a video-only MP4.
+   - Then use ffmpeg.wasm, the single-thread core with no SharedArrayBuffer needed; @ffmpeg/core is LGPL, so load it as a separate WASM file, only on demand. Run its built-in AAC encoder to add the audio: `-i video.mp4 -i audio.wav -c:v copy -c:a aac -b:a 160k -shortest -movflags +faststart out.mp4`.
+   - AAC-in-MP4 is the safest for iPhone playback AND for uploading to Instagram/WhatsApp/TikTok. Prefer it over Opus.
+   - Use Opus-in-MP4 (libopus WASM, BSD) only as a last resort.
+   - Never use fdk-aac (non-free license).
 3. Make sure any AudioContext is created or resumed inside the click handler of "להוריד את הסרטון". The iPhone silent switch must not silence the export.
 4. Never tell iPhone users "try another browser". If the export truly can't include audio, offer the video without sound plus a separate music file (.m4a/.wav) with clear instructions, and log the device and browser for the admin.
 5. Also fix the black last frame: the player and the export should end on the end card (hold the final frame), not on black.
@@ -49,7 +55,11 @@ C. ALL SAMPLE VIDEOS ON THE SITE MUST BE REMADE, much more attractive and polish
      - cutouts where relevant;
      - the gold-quality end card;
      - loud, clean music.
-     Render at 1080×1920 / 1920×1080, 30 fps, H.264 + AAC where possible, with web-optimized file sizes (posters as WebP), hosted on the site's own domain.
+     Render at 1080×1920 / 1920×1080, 30 fps, with web-optimized file sizes (posters as WebP), hosted on the site's own domain.
+   - The sample files MUST be H.264 (High profile, yuv420p) + AAC in MP4 with +faststart, because iPhone Safari may not play VP9/Opus files, and most site visitors are on iPhone.
+     If your headless browser can only export VP9/Opus, transcode the samples afterwards (ffmpeg-static from npm, or ffmpeg.wasm):
+     `-c:v libx264 -profile:v high -pix_fmt yuv420p -crf 20 -c:a aac -b:a 160k -movflags +faststart`.
+     Verify every sample with ffprobe (codec_name h264 and aac), and that it autoplays muted inline (muted playsinline) on a WebKit test if available.
    - Show me a contact sheet of every new sample in your report.
 D. LOWER THE AI COST PER ORDER, without making customers wait or lowering quality:
    - Use Anthropic prompt caching (cache_control) for the fixed parts of every prompt: the system/instructions, the admin skills block and the reference notes. These are identical across orders.

@@ -21,7 +21,7 @@ Real sample videos are the hero material. Put the boldness in one place per scre
 - Asymmetric grid with equal outer margins and 120–160px between sections. Neighboring sections never share a layout.
 
 ## Hero
-Start side: the H1, one sentence of true facts, and one button named for its action ("ליצירת סרטון"). End side: a real sample ad playing in a 9:16 frame that takes up at least 40% of the screen and overlaps the next band. Add one live element, a style switcher that swaps between real samples. The only proof is real samples. On mobile the order is text, then button (above the fold), then the video.
+Start side: the H1, one sentence of true facts, and TWO equal, obvious entry options (the owner insists): "יש לי אתר" = URL field + primary button "ליצור פרסומת", and "אין לי אתר" = a secondary button of the same height and weight, "ליצור מתמונות" (ImagePlus icon). End side: a real sample ad playing in a 9:16 frame that takes up at least 40% of the screen and overlaps the next band. Add one live element, a style switcher that swaps between real samples. The only proof is real samples. On mobile the order is text, then both entry options (above the fold), then the video.
 
 ## Depth, grain, glow
 On light areas, separate surfaces with tone steps (#FFFFFF raised, #F2F0EB sunken), not borders. Shadows go only on floating things: `0 24px 48px -16px rgb(22 22 29/.25)`. The cinema band gets static grain and a glow taken from the video itself (set `--poster` inline), never a neon halo:
@@ -45,11 +45,11 @@ On light areas, separate surfaces with tone steps (#FFFFFF raised, #F2F0EB sunke
 
 ## Video cards
 - `aspect-[9/16]`, a sized poster, `muted playsInline loop preload="metadata"`. Play only while visible, pause offscreen and lazy-load below the fold.
-- Media radius 24px, buttons fully rounded. Caption: the style name and <bdi>30</bdi> שניות.
+- Media radius 24px (phone frames 40px), buttons and inputs radius 12px, chips fully rounded. Caption: the style name and <bdi>30</bdi> שניות.
 - Hover only inside `@media (hover:hover)`: the media scales to 1.03 within its frame. Play and mute sit in a solid 48px circle with a Hebrew `aria-label`; mute uses `aria-pressed`.
 
 ## Controls and states
-- Button: `h-12 px-6 rounded-full bg-primary hover:bg-black active:scale-[.97] focus-visible:ring-2 ring-ring ring-offset-2 ring-offset-background`. Targets at least 44px. No arrows.
+- Button: `h-12 px-6 rounded-xl bg-primary hover:bg-black active:scale-[.97] focus-visible:ring-2 ring-ring ring-offset-2 ring-offset-background`. Targets at least 44px. No arrows.
 - Loading: the button keeps its width and shows Loader2 with "יוצר…". Generation shows its real steps in `aria-live="polite"`, never fake percentages. Skeletons take the final shape.
 - Empty: one sentence, the action and a sample poster. Error: what happened, how to fix it and a retry, placed next to the field, with the input kept and no apology. A success message repeats the button's verb.
 
@@ -61,7 +61,7 @@ On light areas, separate surfaces with tone steps (#FFFFFF raised, #F2F0EB sunke
 - Sparkles icons used to mean "AI".
 - Middle-dot strings, monospace labels, 01/02/03 that isn't a real sequence.
 - Fake stats, logos, stars or testimonials.
-- Lorem ipsum, stock photos.
+- Lorem ipsum; stock photos as decoration. (Sample ads rendered from stock photos are fine only when labelled "דוגמה שהופקה מתמונות סטוק".)
 - Fade-up on every section; the same grey shadow and radius on everything.
 - Hype words ("קסם", "מהפכני") and empty calls to action ("גלו עוד").
 
