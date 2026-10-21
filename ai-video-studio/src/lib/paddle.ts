@@ -4,7 +4,9 @@ import { env } from "./env";
 
 let client: Paddle | undefined;
 export function paddle(): Paddle {
-  client ??= new Paddle(env().PADDLE_API_KEY, {
+  const key = env().PADDLE_API_KEY;
+  if (!key) throw new Error("Paddle is not configured");
+  client ??= new Paddle(key, {
     environment: env().PADDLE_ENV === "production" ? Environment.production : Environment.sandbox,
   });
   return client;
@@ -26,7 +28,7 @@ export async function createCheckout(opts: {
       {
         quantity: 1,
         price: {
-          productId: env().PADDLE_PRODUCT_ID,
+          productId: env().PADDLE_PRODUCT_ID!,
           description: opts.description,
           name: opts.description,
           unitPrice: { amount: String(opts.amountAgorot), currencyCode: "ILS" },

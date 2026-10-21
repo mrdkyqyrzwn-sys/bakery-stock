@@ -48,6 +48,8 @@ async function fetchProject(id: string, token: string): Promise<Project | null> 
   const res = await fetch(`/api/projects/${id}`, { headers: { authorization: `Bearer ${token}` }, cache: "no-store" });
   return res.ok ? res.json() : null;
 }
+/** Card payments switch; until then only coupon orders go through. */
+const PAYMENTS = process.env.NEXT_PUBLIC_PAYMENTS_ENABLED === "true";
 const ils = (n: number) => `₪${n.toLocaleString("he-IL", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
 const BREAKDOWN_LABELS: Record<keyof Quote["breakdown"], string> = {
   aiIls: "בינה מלאכותית: תסריט, בימוי, עריכה ובקרת איכות",
@@ -127,7 +129,7 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
   const [accept, setAccept] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [paddleReady, setPaddleReady] = useState(DEMO);
+  const [paddleReady, setPaddleReady] = useState(DEMO || !PAYMENTS);
   const [couponInput, setCouponInput] = useState("");
   const [coupon, setCoupon] = useState<{ code: string; percent: number } | null>(null);
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
@@ -198,6 +200,7 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
         onPaid();
         return;
       }
+      if (!PAYMENTS) throw new Error("התשלום בכרטיס אשראי ייפתח בקרוב. בינתיים אפשר להזמין עם קוד קופון.");
       window.Paddle?.Checkout.open({ transactionId: data.transactionId, settings: { displayMode: "overlay", theme: "dark" } });
     } catch (e) {
       setErr(e instanceof Error ? e.message : "שגיאה");
@@ -208,7 +211,7 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
 
   return (
     <>
-      {!DEMO && (
+      {!DEMO && PAYMENTS && (
         <Script src="https://cdn.paddle.com/paddle/v2/paddle.js" strategy="afterInteractive" onReady={initPaddle} />
       )}
 
@@ -340,14 +343,23 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
               ושההפקה מתחילה מיד לאחר התשלום, ולכן לא ניתן לבטל אותה אחרי שהתחילה, למעט במקרים המפורטים במדיניות.
             </span>
           </label>
-          <button type="button" onClick={pay} disabled={busy || !accept || (!paddleReady && !free)} className="btn-primary mt-5 w-full text-lg">
+          <button type="button" onClick={pay} disabled={busy || !accept || (!paddleReady && !free) || (!PAYMENTS && !DEMO && !free)} className="btn-primary mt-5 w-full text-lg">
             {busy
               ? DEMO ? "מדמה תשלום…" : free ? "מתחילים…" : "פותח תשלום…"
               : free
                 ? "להתחיל את ההפקה"
                 : DEMO ? `המשך (דמו, ללא חיוב): ${ils(totalIls)}` : `לתשלום מאובטח: ${ils(totalIls)}`}
           </button>
-          {!paddleReady && !free && <p className="mt-2 text-xs text-muted">טוען את מערכת התשלום…</p>}
+          {!PAYMENTS && !DEMO && (
+            <div className="mt-5 rounded-2xl border border-line p-4 text-sm" aria-disabled="true">
+              <p className="flex items-center justify-between gap-3 font-bold text-muted">
+                <span>תשלום בכרטיס אשראי</span>
+                <span className="rounded-full bg-white/10 px-3 py-1 text-xs">בקרוב</span>
+              </p>
+              <p className="mt-1 text-muted">התשלום באשראי ייפתח בקרוב. בינתיים אפשר להזמין עם קוד קופון.</p>
+            </div>
+          )}
+          {PAYMENTS && !paddleReady && !free && <p className="mt-2 text-xs text-muted">טוען את מערכת התשלום…</p>}
           <div aria-live="polite">{err && <p role="alert" className="mt-3 text-danger">{err}</p>}</div>
         </div>
       </section>

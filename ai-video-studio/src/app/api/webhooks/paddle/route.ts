@@ -8,13 +8,15 @@ export const runtime = "nodejs";
 
 /** Paddle tells us a payment went through. The signature proves the call really came from Paddle. */
 export async function POST(req: Request) {
+  const secret = env().PADDLE_WEBHOOK_SECRET;
+  if (!secret) return error("not found", 404);
   const signature = req.headers.get("paddle-signature");
   const raw = await req.text();
   if (!signature || raw.length > 1_000_000) return error("bad request", 400);
 
   let event;
   try {
-    event = await paddle().webhooks.unmarshal(raw, env().PADDLE_WEBHOOK_SECRET, signature);
+    event = await paddle().webhooks.unmarshal(raw, secret, signature);
   } catch {
     return error("invalid signature", 401);
   }

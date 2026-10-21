@@ -68,6 +68,10 @@ export async function POST(req: Request, ctx: RouteContext<"/api/projects/[id]/c
     return json({ free: true });
   }
 
+  if (!env().PAYMENTS_ENABLED) {
+    return error("התשלום בכרטיס אשראי ייפתח בקרוב. בינתיים אפשר להזמין עם קוד קופון.", 503);
+  }
+
   const brand = (project.brief as Analysis["brief"]).brand_name.slice(0, 60);
   const transactionId = await createCheckout({
     projectId: id,

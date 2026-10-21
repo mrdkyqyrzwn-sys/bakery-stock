@@ -12,8 +12,17 @@
 [Anthropic](https://console.anthropic.com) (Claude), [ElevenLabs](https://elevenlabs.io) (קריין ומוזיקה), [fal.ai](https://fal.ai) (תמונות).
 
 למה Vercel בתשלום ולא בחינם?
-- התוכנית החינמית שלהם מיועדת לשימוש אישי, לא לעסק.
-- בתוכנית החינמית אפשר להריץ משימה אוטומטית רק פעם ביום. אצלנו המשימה (החזרים, מחיקת מידע ישן) רצה כל 15 דקות.
+- התוכנית החינמית שלהם (Hobby) מיועדת לשימוש אישי, לא לעסק.
+- אפשר להתחיל בחינם כל עוד רק אתה בודק את האתר. לפני שפותחים אותו ללקוחות, עוברים ל־Pro.
+- המשימה האוטומטית (החזרים, מחיקת מידע ישן) רצה מתוך שרת ההפקה כל 15 דקות, ולכן היא עובדת בכל תוכנית.
+
+## לפני התשלום באשראי: מצב "רק קופון"
+
+אפשר להעלות את כל האתר עכשיו, עוד לפני שיש Paddle:
+- `PAYMENTS_ENABLED=false` ו־`NEXT_PUBLIC_PAYMENTS_ENABLED=false`.
+- את הגדרות `PADDLE_*` משאירים ריקות.
+- בדף התשלום יופיע "תשלום בכרטיס אשראי, בקרוב", וההזמנה עוברת רק עם קוד קופון.
+- כש־Paddle מאשרת אותך, ממלאים את ההגדרות שלה ומשנים את שני ההגדרות ל־`true`.
 
 ---
 
@@ -43,14 +52,15 @@
 
 ## שלב 4: האתר ב־Vercel
 
-1. נרשמים ב־[vercel.com](https://vercel.com) עם חשבון הגיטהאב, ועוברים לתוכנית Pro.
+1. נרשמים ב־[vercel.com](https://vercel.com) עם חשבון הגיטהאב. לבדיקות אפשר להתחיל ב־Hobby (חינם), וללקוחות עוברים ל־Pro.
 2. לוחצים Add New ואז Project, ובוחרים את הריפו `bakery-stock`.
 3. ב־**Root Directory** בוחרים `ai-video-studio`.
 4. ב־**Environment Variables** מכניסים את כל ההגדרות מהקובץ `.env.example`:
    - פרטי העסק;
    - `DATABASE_URL`;
    - המפתחות משלב 3;
-   - את ההגדרות של Paddle מ[מדריך התשלומים](./payments-guide.md);
+   - `PAYMENTS_ENABLED=false` ו־`NEXT_PUBLIC_PAYMENTS_ENABLED=false` (עד שיש Paddle);
+   - `NEXT_PUBLIC_DEMO_MODE=false`;
    - `CRON_SECRET`: 32 תווים אקראיים או יותר;
    - `IP_HASH_SALT`: 32 תווים אקראיים או יותר.
 
@@ -69,7 +79,7 @@
    - `DATABASE_URL`
    - `ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`, `FAL_KEY`
    - `BLOB_READ_WRITE_TOKEN`
-   - ההגדרות של Paddle (בשביל החזרים)
+   - `PAYMENTS_ENABLED` (וכשיהיה Paddle, גם ההגדרות שלו, בשביל החזרים)
    - `IP_HASH_SALT`, `CRON_SECRET`, `NEXT_PUBLIC_SITE_URL`
 5. כדי לחסוך בהתחלה, מוסיפים `RENDER_CONCURRENCY=2`. השרת יכין פחות סרטונים במקביל ויעלה פחות.
 6. השרת מוגדר להפעיל את עצמו מחדש אם הוא נופל (`restartPolicyType: ALWAYS`), כך שהוא עובד כל הזמן.

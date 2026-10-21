@@ -372,8 +372,22 @@ async function abandonRevision(project: ProjectRow, reason: string) {
 
 // ------------------------------------------------------------------ loop
 
+/** Every 15 minutes, ask the site to run its maintenance job (refund stuck orders, delete old data). */
+function scheduleMaintenance() {
+  const site = process.env.NEXT_PUBLIC_SITE_URL;
+  const secret = process.env.CRON_SECRET;
+  if (!site || !secret) return;
+  const run = () =>
+    fetch(`${site.replace(/\/$/, "")}/api/cron/maintenance`, {
+      headers: { authorization: `Bearer ${secret}` },
+      signal: AbortSignal.timeout(60_000),
+    }).catch((e) => console.error("maintenance call failed", e));
+  setInterval(run, 15 * 60_000).unref();
+}
+
 async function main() {
   console.log("production worker started");
+  scheduleMaintenance();
   while (!stopping) {
     const project = await claimNext().catch((e) => {
       console.error("claim failed", e);
