@@ -51,3 +51,9 @@ C. ALL SAMPLE VIDEOS ON THE SITE MUST BE REMADE, much more attractive and polish
      - loud, clean music.
      Render at 1080×1920 / 1920×1080, 30 fps, H.264 + AAC where possible, with web-optimized file sizes (posters as WebP), hosted on the site's own domain.
    - Show me a contact sheet of every new sample in your report.
+D. LOWER THE AI COST PER ORDER, without making customers wait or lowering quality:
+   - Use Anthropic prompt caching (cache_control) for the fixed parts of every prompt: the system/instructions, the admin skills block and the reference notes. These are identical across orders.
+   - Downscale every image sent to Claude to at most 1024 px on the long side (JPEG quality ~80) before sending. Send at most 8 customer photos plus the logo, and at most 4 reference frames.
+   - Keep the 3 directions in one call, but cap max_tokens sensibly, ask for compact JSON (no prose), and don't resend unchanged images in revisions when the change is text-only.
+   - Add a cost log per order: model, input/output/cached tokens, and the estimated $ and ₪ for every Claude call (scan, concepts, plan, revisions). Show it in /admin (orders tab, plus a monthly total on the statistics tab) so the owner sees the real cost per video.
+   - Don't change which models are used without telling me.
