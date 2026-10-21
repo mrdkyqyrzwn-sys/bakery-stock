@@ -7,7 +7,7 @@ Things the night agent should include in the morning summary, in simple Hebrew.
 - klipi.com is TAKEN (registered since 2005).
 - klipi.co.il LOOKS FREE: a DNS check at ~02:40 Israel time found no such domain. The owner confirmed on 22 Oct that he stays with קליפי. He should buy it at an Israeli registrar (~₪60–100/yr) after confirming it there.
 - English backup: kleepi.com also looks free (the Verisign registry check found no record). Other backups: getklipi.com, tryklipi.com, klipiapp.com.
-- Also check the Israeli trademark database for "קליפי"/"Klipi": https://trademarks.justice.gov.il
+- Trademark check done 22 Oct in the Israeli registry (https://trademarks.justice.gov.il): no mark named קליפי / Klipi / Clipi / Klippi / Kleepi / Klipy. The sound-alike search found only "CLIP" marks, mostly closed or in unrelated classes. The closest active one is "T.V. Clip" (class 41, registered until 2029), a different name. Not legal advice; a lawyer can confirm before registering the name.
 
 ### Earlier analysis (kept for reference)
 - adstudio.co.il, adstudio.com and adstudio.io are all already taken (they resolve to existing sites).
