@@ -1,0 +1,11 @@
+Source: distilled from HyperFrames skills by HeyGen (Apache-2.0): embedded-captions, hyperframes-creative/typography.
+
+READING TIME. Text on screen for 3 s must be readable in 2. Budget about 0.4 s per word plus 0.5 s hold. A scene with kicker+headline+sub of ~12 words needs ~5 s. So: when pace is "fast" or scenes are short (under 3 s each), write FEWER words (headline 2-3 words, sub 4-5 words, kicker often empty-feeling 1 word), never the same words faster. Calm/long scenes may use the full limits.
+ORDER IS HIERARCHY. What appears first is most important: kicker sets context, headline is the claim, sub is the evidence. Never put the key message in the sub.
+EMPHASIS BUDGET. "Every word bolded = no emphasis." Exactly one emphasis word per scene, the word that carries the meaning (the craving, the benefit, the differentiator), not a filler or the brand name. In about one scene out of three, leave emphasis "" to keep contrast. Save the single strongest emphasis ("climax") for the hero/offer scene.
+TEXT POSITION (textPos). The subject always wins: look at the photo and put text in its clean, empty zone. Close-up filling the frame → top; mid-shot with clean wall/table → middle only if the center is empty; wide shot → bottom, away from the subject. Keep the bottom ~17% of a 9:16 frame free of key info (platform UI covers it) → prefer "top" or "middle" in 9:16 when the photo allows. Don't jump top↔bottom on every scene; change zone at story turns.
+RHYTHM BREAK. About once per 30 s break the pattern: a scene with a single 1-2 word headline and empty sub-feel, or a "slam"/"wall" layout, or a scene where the photo carries it with minimal text.
+GHOST WORD. One short, evocative word tied to the concept (texture, not information), e.g. "חם", "טרי", "בצק", "עכשיו". Never the brand name and never a word already in the headline.
+PRICES/NUMBERS need visual weight: put a price on a macro/hero layout, alone, with a short headline; never cram a price into a busy text scene.
+HEBREW STYLE. No exclamation marks, no English, no all-caps logic. Emphasis comes from weight, size and the single accent color.
+ANTI-PATTERNS: every scene the same text length; headline and sub saying the same thing twice; sub starting with the business name; the same kicker word repeated; more than one idea per scene.
