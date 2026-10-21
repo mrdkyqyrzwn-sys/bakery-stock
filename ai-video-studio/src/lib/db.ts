@@ -26,7 +26,8 @@ export type ProjectStatus =
   | "revising"
   | "done"
   | "failed"
-  | "refunded";
+  | "refunded"
+  | "cancelled";
 
 export interface ProjectRow {
   id: string;

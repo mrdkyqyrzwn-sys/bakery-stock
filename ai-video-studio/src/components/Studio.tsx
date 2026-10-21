@@ -8,12 +8,13 @@ import { STYLES } from "@/lib/styles";
 import { DEMO, demoCheckout, demoProject } from "./demo";
 import { DemoPreview } from "./DemoPreview";
 import { PhotoUploader } from "./PhotoUploader";
+import { CancelPanel } from "./CancelPanel";
 import { RevisionPanel } from "./RevisionPanel";
 import { readToken } from "./token";
 
 interface Project {
   id: string;
-  status: "draft" | "awaiting_payment" | "paid" | "rendering" | "revising" | "done" | "failed" | "refunded";
+  status: "draft" | "awaiting_payment" | "paid" | "rendering" | "revising" | "done" | "failed" | "refunded" | "cancelled";
   siteUrl: string;
   brandName: string;
   concepts: { style_id: string; title_he: string; pitch_he: string }[];
@@ -47,13 +48,14 @@ async function fetchProject(id: string, token: string): Promise<Project | null> 
   const res = await fetch(`/api/projects/${id}`, { headers: { authorization: `Bearer ${token}` }, cache: "no-store" });
   return res.ok ? res.json() : null;
 }
-const usd = (n: number) => `$${n.toFixed(2)}`;
+const ils = (n: number) => `₪${n.toLocaleString("he-IL", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
 const BREAKDOWN_LABELS: Record<keyof Quote["breakdown"], string> = {
-  aiUsd: "בינה מלאכותית: תסריט, בימוי, עריכה ובקרת איכות",
-  mediaUsd: "קריינות, מוזיקה מקורית ויצירת תמונות",
-  renderUsd: "ייצוא הסרטון ואחסון",
-  serviceFeeUsd: "עמלת שירות",
-  paymentProcessingUsd: "עמלת סליקה",
+  aiIls: "בינה מלאכותית: תסריט, בימוי, עריכה ובקרת איכות",
+  mediaIls: "קריינות, מוזיקה מקורית ויצירת תמונות",
+  renderIls: "ייצוא הסרטון ואחסון",
+  serviceFeeIls: "עמלת שירות",
+  paymentProcessingIls: "עמלת סליקה",
+  vatIls: "מע״מ",
 };
 
 export function Studio({ id }: { id: string }) {
@@ -130,9 +132,9 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
   const [coupon, setCoupon] = useState<{ code: string; percent: number } | null>(null);
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
   const q = project.quotes.find((x) => x.durationS === duration)!;
-  const discountUsd = coupon ? Math.round(q.totalUsd * coupon.percent) / 100 : 0;
-  const totalUsd = Math.max(0, Math.round((q.totalUsd - discountUsd) * 100) / 100);
-  const free = !!coupon && totalUsd === 0;
+  const discountIls = coupon ? Math.round(q.totalIls * coupon.percent) / 100 : 0;
+  const totalIls = Math.max(0, Math.round((q.totalIls - discountIls) * 100) / 100);
+  const free = !!coupon && totalIls === 0;
 
   async function applyCoupon() {
     setCouponMsg(null);
@@ -285,22 +287,22 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
             {(Object.keys(BREAKDOWN_LABELS) as (keyof Quote["breakdown"])[]).map((k) => (
               <div key={k} className="flex justify-between">
                 <dt className="text-muted">{BREAKDOWN_LABELS[k]}</dt>
-                <dd dir="ltr">{usd(q.breakdown[k])}</dd>
+                <dd dir="ltr">{ils(q.breakdown[k])}</dd>
               </div>
             ))}
             {coupon && (
               <div className="flex justify-between text-emerald-400">
                 <dt>קופון {coupon.code} ({coupon.percent}%)</dt>
-                <dd dir="ltr">-{usd(discountUsd)}</dd>
+                <dd dir="ltr">-{ils(discountIls)}</dd>
               </div>
             )}
             <div className="flex justify-between border-t border-line pt-3 text-lg font-bold">
-              <dt>סה״כ</dt>
-              <dd dir="ltr">{usd(totalUsd)}</dd>
+              <dt>סה״כ כולל מע״מ</dt>
+              <dd dir="ltr">{ils(totalIls)}</dd>
             </div>
           </dl>
           <p className="mt-2 text-xs text-muted">
-            סרטון של {q.durationS} שניות באיכות Full HD. מע״מ או מס מכירה מקומי, אם חלים, יתווספו בעמוד התשלום.
+            סרטון של {q.durationS} שניות באיכות Full HD. המחיר בשקלים וכולל מע״מ. זה הסכום הסופי שתשלמו.
           </p>
           <div className="mt-5">
             <label htmlFor="coupon" className="text-sm font-bold">קוד קופון</label>
@@ -333,7 +335,7 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
           <label className="mt-5 flex items-start gap-2 text-sm text-muted">
             <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} className="mt-1 h-4 w-4 accent-violet-500" />
             <span>
-              קראתי ואני מסכים/ה ל<Link href="/legal/terms" target="_blank" className="underline">תנאי השימוש</Link> ול
+              אני בן/בת 18 ומעלה, קראתי ואני מסכים/ה ל<Link href="/legal/terms" target="_blank" className="underline">תנאי השימוש</Link> ול
               <Link href="/legal/refunds" target="_blank" className="underline">מדיניות הביטולים</Link>. ידוע לי שהסרטון מופק במיוחד עבורי
               ושההפקה מתחילה מיד לאחר התשלום, ולכן לא ניתן לבטל אותה אחרי שהתחילה, למעט במקרים המפורטים במדיניות.
             </span>
@@ -343,7 +345,7 @@ function Chooser({ project, token, onPaid }: { project: Project; token: string; 
               ? DEMO ? "מדמה תשלום…" : free ? "מתחילים…" : "פותח תשלום…"
               : free
                 ? "להתחיל את ההפקה"
-                : DEMO ? `המשך (דמו, ללא חיוב): ${usd(totalUsd)}` : `לתשלום מאובטח: ${usd(totalUsd)}`}
+                : DEMO ? `המשך (דמו, ללא חיוב): ${ils(totalIls)}` : `לתשלום מאובטח: ${ils(totalIls)}`}
           </button>
           {!paddleReady && !free && <p className="mt-2 text-xs text-muted">טוען את מערכת התשלום…</p>}
           <div aria-live="polite">{err && <p role="alert" className="mt-3 text-danger">{err}</p>}</div>
@@ -385,6 +387,14 @@ function Production({ project, token, onChanged }: { project: Project; token: st
     setCopied(true);
   }
 
+  if (status === "cancelled") {
+    return (
+      <div className="mt-10 rounded-3xl border border-line bg-card p-8" role="status">
+        <h2 className="text-2xl font-bold">ההזמנה בוטלה</h2>
+        <p className="mt-3 text-muted">אם שילמתם, ההחזר המלא בדרך לאמצעי התשלום ויופיע בדרך כלל תוך 5 עד 10 ימי עסקים.</p>
+      </div>
+    );
+  }
   if (status === "failed" || status === "refunded") {
     return (
       <div className="mt-10 rounded-3xl border border-line bg-card p-8" role="alert">
@@ -474,6 +484,7 @@ function Production({ project, token, onChanged }: { project: Project; token: st
           </div>
         )}
       </div>
+      <CancelPanel projectId={project.id} token={token} status={status} onDone={onChanged} />
       <aside className="rounded-3xl border border-line bg-card p-6" aria-labelledby="steps">
         <h2 id="steps" className="mb-4 font-bold">שלבי ההפקה</h2>
         <ol className="space-y-3 text-sm">

@@ -1,10 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import Script from "next/script";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { DEMO, createDemoProject } from "./demo";
 import { saveToken } from "./token";
+
+const TURNSTILE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+declare global {
+  interface Window {
+    turnstile?: { render: (el: HTMLElement, opts: Record<string, unknown>) => string; reset: (id?: string) => void };
+  }
+}
 
 const STEPS = ["קוראים את האתר שלך…", "מזהים את המותג, הקהל והמסרים…", "כותבים קונספטים לכל סגנון…"];
 
@@ -15,6 +24,19 @@ export function UrlForm() {
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState(0);
   const [err, setErr] = useState<string | null>(null);
+  const [botToken, setBotToken] = useState<string | undefined>();
+  const botBox = useRef<HTMLDivElement>(null);
+  const botWidget = useRef<string | undefined>(undefined);
+
+  function renderBotCheck() {
+    if (!TURNSTILE_KEY || !botBox.current || !window.turnstile || botWidget.current) return;
+    botWidget.current = window.turnstile.render(botBox.current, {
+      sitekey: TURNSTILE_KEY,
+      language: "he",
+      callback: (t: string) => setBotToken(t),
+      "expired-callback": () => setBotToken(undefined),
+    });
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,10 +53,15 @@ export function UrlForm() {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ url, consent }),
+        body: JSON.stringify({ url, consent, botToken }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "משהו השתבש");
+      if (!res.ok) {
+        // A Turnstile token works once; get a fresh one for the next try.
+        setBotToken(undefined);
+        window.turnstile?.reset(botWidget.current);
+        throw new Error(data.error ?? "משהו השתבש");
+      }
       saveToken(data.id, data.token);
       router.push(`/create/${data.id}#t=${data.token}`);
     } catch (e) {
@@ -62,7 +89,7 @@ export function UrlForm() {
           className="flex-1 rounded-2xl bg-transparent px-5 py-4 text-lg outline-none placeholder:text-muted/60"
           disabled={busy}
         />
-        <button type="submit" className="btn-primary text-lg" disabled={busy || !consent || url.length < 4}>
+        <button type="submit" className="btn-primary text-lg" disabled={busy || !consent || url.length < 4 || (!!TURNSTILE_KEY && !DEMO && !botToken)}>
           {busy ? "סורקים…" : "צרו לי סרטון"}
         </button>
       </div>
@@ -80,11 +107,26 @@ export function UrlForm() {
           disabled={busy}
         />
         <span>
-          אני מאשר/ת שהאתר שייך לי או שאני מורשה לפרסם אותו, ושקראתי את{" "}
+          אני בן/בת 18 ומעלה, האתר שייך לי או שאני מורשה לפרסם אותו, וקראתי את{" "}
           <Link href="/legal/terms" className="underline" target="_blank">תנאי השימוש</Link> ואת{" "}
           <Link href="/legal/privacy" className="underline" target="_blank">מדיניות הפרטיות</Link>.
         </span>
       </label>
+      <p className="mx-auto mt-3 max-w-xl text-center text-xs text-muted">
+        אינכם חייבים למסור לנו מידע לפי חוק, אבל בלי כתובת האתר לא נוכל ליצור את הסרטון. תוכן האתר הציבורי ישמש רק להפקת
+        הסרטון, יועבר לשם כך לספקים שמפורטים במדיניות הפרטיות (בהם Anthropic בארה״ב), ויימחק אוטומטית. בכל שאלה, ולמימוש הזכות
+        לעיין במידע ולתקן אותו, ראו את <Link href="/legal/privacy" className="underline">מדיניות הפרטיות</Link>.
+      </p>
+      {TURNSTILE_KEY && !DEMO && (
+        <>
+          <Script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+            strategy="afterInteractive"
+            onReady={renderBotCheck}
+          />
+          <div ref={botBox} className="mt-4 flex justify-center" />
+        </>
+      )}
       <div aria-live="polite" className="mt-4 min-h-6 text-center">
         {busy && <p className="animate-pulse text-accent2">{STEPS[step]}</p>}
         {err && <p role="alert" className="text-danger">{err}</p>}

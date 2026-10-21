@@ -44,6 +44,7 @@ export async function GET(req: Request) {
   await db`update projects set site_data = '{}'::jsonb where site_data <> '{}'::jsonb and created_at < now() - interval '30 days'`;
   await db`delete from rate_limits where window_start < now() - interval '2 days'`;
   await db`delete from webhook_events where received_at < now() - interval '30 days'`;
+  await db`delete from cancel_requests where created_at < now() - interval '1 year'`;
 
   return json({ refundedStuck: stuck.length, expired: expired.length });
 }

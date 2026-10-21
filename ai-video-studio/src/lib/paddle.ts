@@ -12,12 +12,13 @@ export function paddle(): Paddle {
 
 /**
  * Create a one-off Paddle transaction for this exact video. The price is set here on the
- * server, so a buyer cannot change what they pay. Paddle, as Merchant of Record, adds the
- * correct VAT/sales tax for the buyer's country and issues the invoice.
+ * server, so a buyer cannot change what they pay. The amount is in agorot and already includes
+ * VAT (tax mode "internal"), so the buyer pays exactly the price shown on the site. Paddle, as
+ * Merchant of Record, accounts for the tax and issues the invoice.
  */
 export async function createCheckout(opts: {
   projectId: string;
-  amountCents: number;
+  amountAgorot: number;
   description: string;
 }): Promise<string> {
   const txn = await paddle().transactions.create({
@@ -28,7 +29,8 @@ export async function createCheckout(opts: {
           productId: env().PADDLE_PRODUCT_ID,
           description: opts.description,
           name: opts.description,
-          unitPrice: { amount: String(opts.amountCents), currencyCode: "USD" },
+          unitPrice: { amount: String(opts.amountAgorot), currencyCode: "ILS" },
+          taxMode: "internal",
           quantity: { minimum: 1, maximum: 1 },
         },
       },

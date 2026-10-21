@@ -4,6 +4,7 @@ import { sql } from "@/lib/db";
 import { error, json } from "@/lib/http";
 import { UnsafeUrlError } from "@/lib/safe-fetch";
 import { scrapeSite } from "@/lib/scrape";
+import { passesBotCheck } from "@/lib/turnstile";
 import { clientIp, hashIp, hashToken, isSameOrigin, newAccessToken, rateLimit } from "@/lib/security";
 
 export const runtime = "nodejs";
@@ -12,6 +13,7 @@ export const maxDuration = 120;
 const body = z.strictObject({
   url: z.string().min(4).max(500),
   consent: z.literal(true),
+  botToken: z.string().max(2048).optional(),
 });
 
 /** Step 1: scan the customer's website and propose ad concepts in every style. */
@@ -20,9 +22,12 @@ export async function POST(req: Request) {
   const parsed = body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return error("נא להזין כתובת אתר ולאשר את התנאים", 400);
 
-  const ipHash = hashIp(clientIp(req.headers));
+  const ip = clientIp(req.headers);
+  if (!(await passesBotCheck(parsed.data.botToken, ip))) return error("בדיקת האבטחה נכשלה. רעננו את הדף ונסו שוב.", 403);
+  const ipHash = hashIp(ip);
   const allowed =
-    (await rateLimit(`analyze:ip:${ipHash}`, 6, 3600)) && (await rateLimit("analyze:global", 300, 3600));
+    (await rateLimit(`analyze:ip:${ipHash}`, 6, 3600)) && (await rateLimit("analyze:global", 300, 3600)) &&
+    (await rateLimit("analyze:global:day", 2000, 86400));
   if (!allowed) return error("יותר מדי בקשות. נסו שוב בעוד שעה.", 429);
 
   let site;

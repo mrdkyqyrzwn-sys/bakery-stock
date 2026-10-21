@@ -4,6 +4,7 @@ import { discounted, findCoupon, redeemCoupon } from "@/lib/coupons";
 import { type ProjectRow, sql } from "@/lib/db";
 import { bearer, error, isUuid, json } from "@/lib/http";
 import { createCheckout } from "@/lib/paddle";
+import { env } from "@/lib/env";
 import { quote } from "@/lib/pricing";
 import { clientIp, hashIp, isSameOrigin, rateLimit, tokenMatches } from "@/lib/security";
 import { ASPECTS, DURATIONS, getStyle } from "@/lib/styles";
@@ -49,13 +50,17 @@ export async function POST(req: Request, ctx: RouteContext<"/api/projects/[id]/c
     coupon = await findCoupon(parsed.data.coupon);
     if (!coupon) return error("קוד הקופון לא קיים או שפג תוקפו.", 400);
   }
-  const priceCents = coupon ? discounted(q.totalCents, coupon.percent) : q.totalCents;
+  const priceAgorot = coupon ? discounted(q.totalAgorot, coupon.percent) : q.totalAgorot;
 
-  if (coupon && priceCents === 0) {
+  if (coupon && priceAgorot === 0) {
+    const ip = hashIp(clientIp(req.headers));
+    if (!(await rateLimit(`free:${ip}`, env().FREE_ORDERS_PER_IP_PER_DAY, 86400))) {
+      return error("הגעתם למספר ההזמנות החינמיות המקסימלי להיום.", 429);
+    }
     if (!(await redeemCoupon(coupon.code))) return error("קוד הקופון כבר נוצל עד הסוף.", 400);
     const updated = await db`
       update projects set style = ${style.id}, duration_s = ${q.durationS}, aspect = ${parsed.data.aspect},
-        price_cents = 0, currency = 'USD', paddle_txn_id = null, coupon_code = ${coupon.code},
+        price_cents = 0, currency = 'ILS', paddle_txn_id = null, coupon_code = ${coupon.code},
         status = 'paid', paid_at = now(), updated_at = now()
       where id = ${id} and status in ('draft', 'awaiting_payment')
       returning id`;
@@ -66,13 +71,13 @@ export async function POST(req: Request, ctx: RouteContext<"/api/projects/[id]/c
   const brand = (project.brief as Analysis["brief"]).brand_name.slice(0, 60);
   const transactionId = await createCheckout({
     projectId: id,
-    amountCents: priceCents,
+    amountAgorot: priceAgorot,
     description: `AI ad video for ${brand} - ${style.id}, ${q.durationS}s, ${parsed.data.aspect}`,
   });
 
   await db`
     update projects set style = ${style.id}, duration_s = ${q.durationS}, aspect = ${parsed.data.aspect},
-      price_cents = ${priceCents}, currency = 'USD', paddle_txn_id = ${transactionId}, coupon_code = ${coupon?.code ?? null},
+      price_cents = ${priceAgorot}, currency = 'ILS', paddle_txn_id = ${transactionId}, coupon_code = ${coupon?.code ?? null},
       status = 'awaiting_payment', updated_at = now()
     where id = ${id} and status in ('draft', 'awaiting_payment')`;
 

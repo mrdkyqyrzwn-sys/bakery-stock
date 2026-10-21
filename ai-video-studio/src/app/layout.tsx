@@ -45,7 +45,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 text-sm text-muted sm:grid-cols-2">
             <div>
               <p className="font-bold text-fg">{SITE.brand}</p>
-              <p>{SITE.legalName} · {SITE.businessId}</p>
+              <p>{SITE.legalName}, עוסק מס׳ {SITE.businessId}</p>
               <p>{SITE.address}</p>
               <p>
                 פניות: <a className="underline" href={`mailto:${SITE.email}`}>{SITE.email}</a>
@@ -60,6 +60,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/legal/refunds" className="hover:text-fg">מדיניות ביטולים והחזרים</Link>
               <Link href="/legal/acceptable-use" className="hover:text-fg">מדיניות שימוש הוגן בתוכן</Link>
               <Link href="/legal/accessibility" className="hover:text-fg">הצהרת נגישות</Link>
+              <Link href="/legal/contact" className="hover:text-fg">יצירת קשר ופרטי העסק</Link>
+              <Link href="/legal/cancel" className="hover:text-fg">ביטול עסקה</Link>
             </nav>
           </div>
         </footer>

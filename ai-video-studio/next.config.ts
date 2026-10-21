@@ -3,13 +3,13 @@ import type { NextConfig } from "next";
 const csp = [
   "default-src 'self'",
   // Next.js inlines small bootstrap scripts; Paddle.js loads from its CDN.
-  "script-src 'self' 'unsafe-inline' https://cdn.paddle.com https://public.profitwell.com",
+  "script-src 'self' 'unsafe-inline' https://cdn.paddle.com https://public.profitwell.com https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://cdn.paddle.com",
   "img-src 'self' data: blob: https:",
   "media-src 'self' https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.paddle.com",
-  "frame-src https://*.paddle.com",
+  "connect-src 'self' https://*.paddle.com https://challenges.cloudflare.com",
+  "frame-src https://*.paddle.com https://challenges.cloudflare.com",
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",
@@ -31,6 +31,8 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(self \"https://*.paddle.com\")" },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+          { key: "Cross-Origin-Resource-Policy", value: "same-site" },
+          { key: "X-DNS-Prefetch-Control", value: "off" },
         ],
       },
     ];

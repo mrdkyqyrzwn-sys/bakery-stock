@@ -69,3 +69,15 @@ alter table projects add column if not exists coupon_code text references coupon
 
 -- The owner's free code. Change max_uses, or set active = false, to limit or turn it off.
 insert into coupons (code, percent, max_uses) values ('MORDECHAI10', 100, 50) on conflict (code) do nothing;
+
+-- Cancellation requests. Israeli consumer law lets a buyer cancel the same way they bought, so the
+-- site has a cancel button on every order and a general cancellation form. Kept for one year.
+create table if not exists cancel_requests (
+  id          uuid primary key default gen_random_uuid(),
+  project_id  uuid references projects (id) on delete set null,
+  email       text,
+  details     text,
+  status      text not null default 'open',
+  ip_hash     text,
+  created_at  timestamptz not null default now()
+);

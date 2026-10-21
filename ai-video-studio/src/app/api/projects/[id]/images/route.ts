@@ -1,3 +1,4 @@
+import sharp from "sharp";
 import { type ProjectRow, sql } from "@/lib/db";
 import { bearer, error, isUuid, json } from "@/lib/http";
 import { MAX_UPLOADS, sniffImageType } from "@/lib/image-check";
@@ -33,8 +34,19 @@ export async function POST(req: Request, ctx: RouteContext<"/api/projects/[id]/i
   const type = sniffImageType(bytes);
   if (!type) return error("אפשר להעלות רק תמונות JPG, PNG או WEBP", 415);
 
-  const ext = type.split("/")[1];
-  const url = await storeFile(`uploads/${id}/photo.${ext}`, bytes, type);
+  // Re-encode on the server: drops GPS and all other metadata even if the browser step was skipped,
+  // and turns any file that merely looks like an image (a "polyglot") into a plain JPEG.
+  let clean: Buffer;
+  try {
+    clean = await sharp(bytes, { limitInputPixels: 50_000_000 })
+      .rotate()
+      .resize({ width: 2560, height: 2560, fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 88, mozjpeg: true })
+      .toBuffer();
+  } catch {
+    return error("לא הצלחנו לקרוא את התמונה. נסו קובץ אחר.", 415);
+  }
+  const url = await storeFile(`uploads/${id}/photo.jpg`, clean, "image/jpeg");
   // Append atomically and re-check the limit, so parallel uploads cannot exceed it.
   const updated = await sql()`
     update projects set uploads = uploads || ${sql().json([{ url }])}, updated_at = now()

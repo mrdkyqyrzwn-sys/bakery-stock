@@ -143,6 +143,7 @@ const WRITER_SYSTEM = `You are a senior video editor and motion designer at a to
 - Typography: the scene's onScreenText as a bold, beautifully set headline with an entrance animation, placed where the photo has calm space, always readable (shadow, scrim or color block behind it).
 - Captions: show the spoken words from ASSETS.timeline.words as social-media style subtitles near the bottom (a phrase of up to ~6 words at a time, the current word highlighted). Social video autoplays muted, so these matter.
 - End card (the last ~2-3 s): the logo if available (on a background that keeps it readable), the brand name, the call to action and the website address. Confident and clean.
+- The end card must also show, small but readable (at least 22px at 1080p, in a corner or under the website), the exact text "נוצר בעזרת בינה מלאכותית". This disclosure is required; never omit it.
 - Use the brand palette for accents. You may add graphic shapes, lines and light effects, but the photos are the heroes: do not replace them with drawings.
 - Text at least 44px at the canvas size given (headlines much bigger), inside a 6% safe margin, never overlapping other text. For right-to-left languages set dir="rtl" on text.
 
@@ -229,7 +230,7 @@ const reviewSchema = z.strictObject({
 
 const REVIEW_SYSTEM = `You are the executive producer doing final QC on a commercial before it goes to a paying client. You see frames in time order.
 
-Reject (approved=false) and list concrete, fixable problems for anything a client would notice: text cut off, outside the safe margin, overlapping other text, or hard to read on its background; stretched, pixelated or badly cropped photos (heads or products cut awkwardly); empty, black or broken-looking frames; broken right-to-left text; captions that cover important parts of the photo; a missing or weak end card (logo / call to action / website); anything that looks amateur or does not match the requested style.
+Reject (approved=false) and list concrete, fixable problems for anything a client would notice: text cut off, outside the safe margin, overlapping other text, or hard to read on its background; stretched, pixelated or badly cropped photos (heads or products cut awkwardly); empty, black or broken-looking frames; broken right-to-left text; captions that cover important parts of the photo; a missing or weak end card (logo / call to action / website), or a missing "נוצר בעזרת בינה מלאכותית" line on it; anything that looks amateur or does not match the requested style.
 Each problem must name the time and say exactly what to change. Approve only if it looks like a finished, professional commercial. Minor taste preferences are not problems.`;
 
 export async function reviewAnimation(input: {

@@ -7,5 +7,5 @@ export const SITE = {
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "[support@example.com]",
   address: process.env.NEXT_PUBLIC_POSTAL_ADDRESS ?? "[כתובת למשלוח דואר]",
   accessibilityCoordinator: process.env.NEXT_PUBLIC_ACCESSIBILITY_COORDINATOR ?? "[שם, טלפון ודוא״ל של רכז/ת הנגישות]",
-  legalUpdated: "20 באוקטובר 2026",
+  legalUpdated: "21 באוקטובר 2026",
 };

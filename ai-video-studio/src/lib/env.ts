@@ -11,6 +11,13 @@ const schema = z.object({
   PADDLE_PRODUCT_ID: z.string().startsWith("pro_"),
   PRICE_MARGIN: z.coerce.number().min(0).max(5).default(1),
   PRICE_FIXED_FEE_USD: z.coerce.number().min(0).default(5),
+  // Dollars to shekels for provider costs, and Israeli VAT. Prices are shown and charged in ILS, VAT included.
+  USD_ILS_RATE: z.coerce.number().min(1).max(10).default(3.7),
+  VAT_RATE: z.coerce.number().min(0).max(0.5).default(0.18),
+  // Optional bot protection on the website scan (Cloudflare Turnstile). Strongly recommended in production.
+  TURNSTILE_SECRET_KEY: z.string().optional(),
+  // Most free (100% coupon) orders one visitor can place per day.
+  FREE_ORDERS_PER_IP_PER_DAY: z.coerce.number().int().min(0).default(3),
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
   // Render worker only (image generation, narration, music)
   FAL_KEY: z.string().optional(),

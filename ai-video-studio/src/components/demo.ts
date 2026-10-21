@@ -105,7 +105,7 @@ export function demoRevise(id: string, request: { text: string; headlines: (stri
 export function demoCheckout(id: string, choice: { style: string; durationS: number; aspect: string }) {
   const state = load(id);
   if (!state) return;
-  const priceCents = quoteWith(choice.durationS, DEFAULT_PRICING).totalCents;
+  const priceCents = quoteWith(choice.durationS, DEFAULT_PRICING).totalAgorot;
   save(id, { ...state, choice: { ...choice, priceCents }, paidAt: Date.now() });
 }
 

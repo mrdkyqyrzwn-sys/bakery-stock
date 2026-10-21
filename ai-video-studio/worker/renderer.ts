@@ -230,7 +230,7 @@ export async function renderVideo(opts: {
 
     const args = ["-y", "-loglevel", "error", "-framerate", String(FPS), "-i", path.join(dir, "f%06d.jpg")];
     args.push(...audioArgs(opts.durationS, opts.voiceFile, opts.voiceOffset ?? 0, opts.musicFile));
-    args.push("-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "medium", "-movflags", "+faststart", "-t", String(opts.durationS), opts.outFile);
+    args.push("-metadata", "comment=AI-generated video (נוצר בעזרת בינה מלאכותית)", "-metadata", "description=AI-generated", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "medium", "-movflags", "+faststart", "-t", String(opts.durationS), opts.outFile);
     await run("ffmpeg", args);
     if ((await stat(opts.outFile)).size < 10_000) throw new Error("encoded video is unexpectedly small");
     await opts.onProgress?.(100);
