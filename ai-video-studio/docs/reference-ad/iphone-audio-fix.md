@@ -33,3 +33,21 @@ B. Home page: people without a website need an entry point as clear as the URL o
      2. "אין לי אתר": a large secondary button of the same height and visual weight, "ליצור מתמונות", with an ImagePlus icon, opening the create flow at the photo upload step.
    - On mobile both are full width, stacked, and both visible above the fold. Use the same treatment in the final CTA band.
    - Replace the small text link "אין אתר? מתחילים מתמונות".
+C. ALL SAMPLE VIDEOS ON THE SITE MUST BE REMADE, much more attractive and polished. The owner wants every example video replaced: the home hero, the 5/6 styles strip, the cinema showcase, the before→after, the aside preview in the create flow and the style picker previews.
+   - Make them only AFTER the engine improvements (Phase 1/2: showcase style, scene kinds, beat sync, sound design, quality check) are done, using the new engine itself, so they are honest outputs of the product.
+   - Make one strong sample per category, each in its best-fitting style:
+     - food: a bakery/pizzeria in the showcase style;
+     - beauty: a salon;
+     - a shop/retail product;
+     - services: a course or clinic with the question hook, presenter-stat and benefit cards;
+     - a deal/event: a travel or event offer with the price sticker, object card and hanging price.
+     Make both 9:16 and 16:9 versions.
+   - Use high-quality, commercially licensed stock photos (Pexels/Unsplash license) of fictional businesses with fictional names. Label them "דוגמה שהופקה מתמונות סטוק". Never invent claims that look real (no real brand names, no real phone numbers; use clearly fictional ones like 050-0000000).
+   - Quality bar: compare each sample against the owner's three reference ads (bakery, course, travel). Every sample must have:
+     - a hook in the first second;
+     - continuous motion and beat-synced cuts;
+     - cutouts where relevant;
+     - the gold-quality end card;
+     - loud, clean music.
+     Render at 1080×1920 / 1920×1080, 30 fps, H.264 + AAC where possible, with web-optimized file sizes (posters as WebP), hosted on the site's own domain.
+   - Show me a contact sheet of every new sample in your report.
