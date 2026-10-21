@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Heebo } from "next/font/google";
 import Link from "next/link";
+import { AccessibilityMenu } from "@/components/AccessibilityMenu";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             </nav>
           </div>
         </footer>
+        <AccessibilityMenu />
       </body>
     </html>
   );

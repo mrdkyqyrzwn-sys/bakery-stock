@@ -1,4 +1,4 @@
-# איך מחברים תשלום באשראי (Paddle)
+# איך מחברים תשלום באשראי ([Paddle](https://www.paddle.com))
 
 Paddle היא חברת סליקה שמשמשת "מוכר רשמי" (Merchant of Record). במילים פשוטות: הלקוח קונה מ־Paddle,
 ו־Paddle מעבירה לך את הכסף. היא גובה את האשראי, מנפיקה חשבונית, מטפלת במע״מ ובהחזרים.
@@ -6,10 +6,10 @@ Paddle היא חברת סליקה שמשמשת "מוכר רשמי" (Merchant of 
 
 ## שלב 0: מה צריך לפני שמתחילים
 
-1. **עוסק פטור.** פותחים תיק במע״מ, במס הכנסה ובביטוח לאומי. אפשר לעשות את זה באתר רשות המסים.
+1. **עוסק פטור.** פותחים תיק במע״מ, במס הכנסה ובביטוח לאומי. אפשר לעשות את זה ב[אתר רשות המסים](https://www.gov.il/he/service/opening-a-file-in-vat) ובאתר [ביטוח לאומי](https://www.btl.gov.il).
    מקבלים מספר עוסק.
 2. **חשבון בנק עסקי או פרטי על שמך.** לשם Paddle תעביר את הכסף.
-3. **האתר צריך להיות באוויר, בכתובת אמיתית.** Paddle בודקת את האתר לפני שהיא מאשרת אותך.
+3. **האתר צריך להיות באוויר, בכתובת אמיתית** (ראו [מדריך העלאת האתר](./hosting-guide.md)). Paddle בודקת את האתר לפני שהיא מאשרת אותך.
    הם בודקים שיש באתר, בלי צורך להירשם:
    - מחירים
    - תנאי שימוש שמציינים ש־Paddle היא המוכר הרשמי (כבר כתוב)
@@ -22,7 +22,7 @@ Paddle היא חברת סליקה שמשמשת "מוכר רשמי" (Merchant of 
 
 ## שלב 1: חשבון ניסיון (בלי כסף אמיתי)
 
-1. נרשמים לחשבון ניסיון ב־**sandbox-vendors.paddle.com**.
+1. נרשמים לחשבון ניסיון ב־[sandbox-vendors.paddle.com](https://sandbox-vendors.paddle.com/signup).
 2. **מוצר:** בתפריט Catalog, ואז Products, ואז New product.
    - שם: `AI video ad`.
    - סוג המס (Tax category): `Standard digital goods`.
@@ -41,7 +41,7 @@ Paddle היא חברת סליקה שמשמשת "מוכר רשמי" (Merchant of 
 
 ## שלב 2: מכניסים את המפתחות לאתר
 
-בשרת שבו האתר רץ (למשל Vercel, בתפריט Settings ואז Environment Variables):
+בשרת שבו האתר רץ ([Vercel](https://vercel.com), בתפריט Settings ואז Environment Variables, וגם ב־[Railway](https://railway.com)):
 
 ```
 PADDLE_ENV=sandbox
@@ -53,7 +53,7 @@ NEXT_PUBLIC_PADDLE_CLIENT_TOKEN=...
 NEXT_PUBLIC_DEMO_MODE=false
 ```
 
-ובמסד הנתונים מריצים פעם אחת את `db/schema.sql`. זה יוצר גם את הקופון MORDECHAI10.
+את מסד הנתונים כבר הכנתם ב[מדריך העלאת האתר](./hosting-guide.md). הוא כולל גם את הקופון MORDECHAI10.
 
 ## שלב 3: בודקים
 
@@ -68,7 +68,7 @@ NEXT_PUBLIC_DEMO_MODE=false
 
 ## שלב 4: עוברים לכסף אמיתי
 
-1. נרשמים לחשבון האמיתי ב־**vendors.paddle.com**.
+1. נרשמים לחשבון האמיתי ב־[vendors.paddle.com](https://vendors.paddle.com/signup).
 2. ממלאים את האימות:
    - **בדיקת האתר (domain review):** Paddle בודקת את האתר.
    - **אימות זהות:** תעודה מזהה וצילום.
