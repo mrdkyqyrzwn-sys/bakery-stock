@@ -18,3 +18,18 @@ Fix:
    - check the resulting file with ffprobe: an audio stream is present, the duration is within 0.3 s, and the last frame is not black.
 7. Note: the order "הטשולנט של שמיל" on the published site couldn't be downloaded. I gave the owner one more use on his coupon FREE-ZJNMQT, so don't touch that coupon.
 Do not publish. Report in Hebrew.
+
+TWO MORE OWNER REQUESTS (do them together with the redesign; keep them even if the redesign changes the layout):
+A. The "3 directions" picker (שלושה כיוונים לסרטון שלכם): the owner says there is no clear button to pick a direction, and the cards look blurry/washed out.
+   - Each card gets a big, clear primary button "לבחור בכיוון הזה" (full card width, 48px+, the primary button style, an icon like Check or ArrowLeft) under the preview.
+   - Clicking the preview plays it; clicking the button selects it.
+   - Remove any blur, low opacity or dimming on the cards. Only after a selection, the other cards can dim slightly.
+   - The preview canvases must be sharp: render them at devicePixelRatio, never scale up a small canvas with CSS.
+   - Show each direction's name and one-line description clearly above the button.
+   - On mobile, stack the cards vertically, each with its own button visible without extra taps.
+B. Home page: people without a website need an entry point as clear as the URL one.
+   - Under the hero headline, offer TWO equal, obvious options:
+     1. "יש לי אתר": the URL field plus the primary button "ליצור פרסומת";
+     2. "אין לי אתר": a large secondary button of the same height and visual weight, "ליצור מתמונות", with an ImagePlus icon, opening the create flow at the photo upload step.
+   - On mobile both are full width, stacked, and both visible above the fold. Use the same treatment in the final CTA band.
+   - Replace the small text link "אין אתר? מתחילים מתמונות".
