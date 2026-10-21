@@ -4,7 +4,9 @@ Things the night agent should include in the morning summary, in simple Hebrew.
 
 ## 1. Name and domain
 - DECIDED 22 Oct ~02:20 Israel time: the owner chose the name "קליפי" (Klipi). The rename was sent to Lovable (item E).
-- klipi.com is TAKEN (registered since 2005). klipi.co.il could not be checked from here; the owner should check it at an Israeli registrar and buy it (~₪60–100/yr). Backups that look unregistered: getklipi.com, tryklipi.com, klipiapp.com; klipi.app / klipi.io / klipi.ai may be free (check).
+- klipi.com is TAKEN (registered since 2005).
+- klipi.co.il LOOKS FREE: a DNS check at ~02:40 Israel time found no such domain. The owner confirmed on 22 Oct that he stays with קליפי. He should buy it at an Israeli registrar (~₪60–100/yr) after confirming it there.
+- English backup: kleepi.com also looks free (the Verisign registry check found no record). Other backups: getklipi.com, tryklipi.com, klipiapp.com.
 - Also check the Israeli trademark database for "קליפי"/"Klipi": https://trademarks.justice.gov.il
 
 ### Earlier analysis (kept for reference)
