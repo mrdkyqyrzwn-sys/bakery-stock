@@ -141,3 +141,48 @@ QUALITY LESSONS FROM REELKIT (a video-agent tool the owner found; ideas only, in
 6. Hebrew text: never show vowel points (niqqud) on screen. Always set the RTL direction. Isolate numbers, prices and the domain (LTR runs) so they don't flip.
 7. Three directions: one of the 3 must be clearly unexpected for this business (a different hook type and structure), not 3 variations of the same idea.
 8. Revisions change only what the customer asked; everything else stays frame-identical (same seed, same timings).
+
+ENGINE LESSONS (renderer + music), paraphrased from Reelkit's guidance
+HEBREW RTL
+- Every Hebrew run is RTL, so punctuation sits at the left end. Wrap prices, phone numbers, domains and Latin text in an LTR isolate. Check the rendered string.
+- NO masked or wipe reveals for Hebrew words. That means no clip edges, no rising out of a hidden box and no sliding in from off-frame: half-revealed Hebrew reads as other letters.
+  - Allowed entrances: a rise of 1–2% of the frame height with opacity reaching 1 within 2 frames; a scale-down onto place from at most 1.25×; a short slide that starts inside the frame.
+  - At most 1 word in 3 gets the big scale entrance.
+- Letter-by-letter reveals use whole letters, starting from the right. Never animate letter-spacing on RTL text.
+- Never auto-wrap: lines are broken upstream by meaning. In a stacked headline all lines share one size; shrink the whole stack. The widest line uses at most ~90% of the safe width.
+- A title exits all together.
+- One Hebrew family per film, two weights: 800–900 for headlines, 500–700 for labels (e.g. Heebo/Assistant/Rubik; Secular One for headlines; Frank Ruhl Libre/Suez One for editorial; Varela Round/Fredoka for friendly). Wait for the font to load before drawing. No hollow/outlined Hebrew.
+- Lists and steps run right-to-left; progress bars still fill left-to-right.
+BEAT SYNC (no voice)
+- Tempo 107–145 BPM.
+- Put the impact at the visual peak of a transition (~4 frames before the boundary for an 8-frame transition), not on the boundary.
+- Beat pulses go on the hero element only; decorations move every 4th beat.
+- Pin 2–3 moments to the music: a rest in a quiet bar, the reveal where the track returns, and the end card on the last hit. The music generator should create a drop/breakdown; failing that, dip the music to 5% for ~0.8 s before the reveal.
+- Sound starts at frame 0. Music fades over the last second.
+SOUND DESIGN
+- Starting levels: music 0.4 (max 0.5); pops/taps 0.35–0.5; impacts on scene changes 0.5–0.6; swells/risers 0.25–0.35; ambient beds 0.06–0.12. Effects at 0.2–0.3 vanish under the music.
+- Normalize effects to a −3 dBFS peak. Master to −14 LUFS with a true peak ≤ −1 dBTP.
+- Energetic films: 2–3 hits/s and a swell every 1–2 s, with deliberate silences.
+- Use one family of sounds; on repeats, the first is loudest.
+- Dish carousel: a pop on each dish arrival at ~0.4.
+- End card: a ~1.2 s riser ending on a ~1.5 s chime (0.35 / 0.55), with everything else cleared for the second before.
+- Phone speakers: the music needs mid-range content, not only sub-bass.
+MOTION
+- Springs (stiffness/damping): UI 320/30, containers 170/26, heavy type and logos 120/24.
+- Entrances 0.1–0.25 s; exits ~¾ of the entrance time.
+- The camera pushes the whole group 2–4% per shot. Never scale text as a bitmap.
+- Hit-hold-build: after a move, hold ~0.5 s with nothing new. The picture is still 11–35% of the time, never frozen longer.
+- Reading holds: ≥1.5 s before an element leaves; the final card ≥1.5 s.
+- An outgoing object leaves in 4–6 frames with a directional blur. Content swapping inside a container gets a 6–10 px blur.
+- Phone mockup: ≥70% of the frame width, turned 8–15° with a deep soft shadow; taps dip 4–8%.
+- Safe zones on 1080×1920: no text in the top 250 px or the bottom 350 px; 80 px clear at the sides (140 px for must-read text); an extra 140 px clear on the right in the lower half. Other formats: 6% from every edge.
+- Type sizes: headline 7–10% of the frame width; supporting text 3.5–5%; nothing under 3%; must-read text ≥90 px tall.
+- Text over a photo: dim the photo 0.2–0.45 or use a plate, plus a soft shadow.
+- Colour: 60/30/10 ground/surfaces/accent; the accent on one element per frame.
+- At most 3 full-screen flashes per second, never a red strobe. Rendering is deterministic (seeded).
+- Cutouts: the subject layer can sit in front of the headline. If a cutout's mask covers <3% or >85% of the image, treat it as failed and use the fallback.
+CONTINUITY / LAUNCH-FILM SHAPE
+- Something survives each cut and keeps moving. At most 2 transition types per film; a flash, whip or glitch is used once. Transitions default to 8 frames (max 20); hard cuts only for bursts and the end card.
+- Shot lengths vary at least 4×.
+- 15–45 s films use 6–14 shots; the first big picture change comes within 0.7–3.8 s.
+- Type goes beside or under the object, never over it. The logo comes first or last and is held ≥1.5 s.
