@@ -186,3 +186,17 @@ CONTINUITY / LAUNCH-FILM SHAPE
 - Shot lengths vary at least 4×.
 - 15–45 s films use 6–14 shots; the first big picture change comes within 0.7–3.8 s.
 - Type goes beside or under the object, never over it. The logo comes first or last and is held ≥1.5 s.
+
+THIRD REFERENCE THE OWNER LOVES (c_ref*.jpg, c_ref0_sheet.jpg): a travel-deal ad, about 24 s, 9:16 (Budapest package, "Simcha Travel"; the first frame of the recording belongs to another video, so ignore it)
+This is the model for OFFER / DEAL / EVENT / PACKAGE ads (travel, events, courses with dates, promotions):
+- Background: night/dusk footage or photos of the place, moving slowly (drone-like push/pan). The palette is dark navy + gold, with warm whites.
+- Question hook in gold serif-style type: "4 ימים מלאים בבודפשט?". Then a tilted yellow PRICE STICKER pops in: "רק ₪2,045 לאדם".
+- A DATE STRIP: a gold chip "9–12 בנובמבר" plus a navy strip "3 לילות · שני–חמישי".
+- THEMED OBJECT CARD: a boarding-pass card (flight times "הלוך 07:20 / חזור 20:00", "טיסה ישירה") that slides in, then a red rubber STAMP slams onto it ("✓ טיסות ישירות").
+  - Generalize: the planner picks an object that fits the business: a ticket for events, a receipt for shops, a menu card for restaurants, an appointment card for clinics, a certificate for courses, a boarding pass for travel.
+- A gold DIAGONAL WIPE transition between sections, used about twice.
+- "מה כלול בדיל": a vertical TIMELINE with gold dots, where items appear one by one ("טרולי 7 ק״ג", "מלון 4 ★ · דירוג 9.6", "300 מ׳ מבית הכנסת הגדול", "ברובע היהודי").
+- "מה מחכה לכם": white PAPER TAGS, slightly rotated, each with a small icon, stacking one by one.
+- "והמחיר?": a HANGING PRICE TAG that drops in on a string and swings to rest, with sparkles, plus "לאדם בהרכב זוגי" and a fine-print line with the conditions.
+- END: the brand name in a large gold serif, "לפרטים והזמנות:", a navy pill with the contact name and phone, and fine print.
+Add these scene kinds to the engine: price-sticker, date-strip, object-card (+ stamp), timeline-list, paper-tags, hanging-price, and contact end card. Every date, price and item must come from the customer's details; fine print shows any conditions the customer entered.
