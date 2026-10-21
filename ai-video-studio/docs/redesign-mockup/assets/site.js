@@ -1,4 +1,4 @@
-/* AdStudio mockup: shared behaviour (nav state, mobile menu, scroll reveals) */
+/* Klipi mockup: shared behaviour (nav state, mobile menu, scroll reveals) */
 (function () {
   const nav = document.getElementById('nav');
   if (nav) {

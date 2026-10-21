@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AdStudio redesign mockup: shared styles (home + picker)
+   Klipi (קליפי) redesign mockup: shared styles (home + picker)
    RTL only. Logical properties throughout; the few physical values
    (transform-origin, the browser-chrome bar) are commented.
    ========================================================================== */
@@ -140,6 +140,7 @@ bdi { unicode-bidi: isolate; }
   line-height: 1.06;
   letter-spacing: -.012em;
   color: var(--ink);
+  text-wrap: balance;
 }
 .h2 {
   font-family: var(--f-display);
@@ -147,6 +148,7 @@ bdi { unicode-bidi: isolate; }
   font-size: var(--t-h2);
   line-height: 1.12;
   letter-spacing: -.008em;
+  text-wrap: balance;
 }
 .h3 {
   font-family: var(--f-display);
@@ -268,8 +270,9 @@ bdi { unicode-bidi: isolate; }
 }
 .nav.is-scrolled { border-block-end-color: var(--border); background: rgba(255, 255, 255, .84); }
 .nav-inner { height: 100%; display: flex; align-items: center; gap: 24px; }
-.logo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--f-display); font-weight: 800; font-size: 21px; letter-spacing: -.02em; color: var(--ink); }
+.logo { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-display); font-weight: 800; font-size: 24px; line-height: 1; color: var(--ink); }
 .logo-mark { width: 30px; height: 30px; flex: none; }
+.logo-word { padding-block-start: 2px; }
 .nav-links { display: flex; gap: 4px; margin-inline-start: 16px; }
 .nav-links a { padding: 8px 12px; border-radius: 10px; font-size: 16px; font-weight: 600; color: var(--ink-2); transition: color var(--t-hover) var(--ease), background-color var(--t-hover) var(--ease); }
 .nav-links a:hover { color: var(--ink); background: var(--surface-2); }
