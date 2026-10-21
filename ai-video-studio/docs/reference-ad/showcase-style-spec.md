@@ -69,3 +69,23 @@ Test:
 - Also test a non-food business (a hair salon site), where the steam must not appear and the phone steps must change.
 - Clean up test data and reset MORDECHAI10 to 0.
 - Report in Hebrew.
+
+ALSO FIX IN ALL STYLES: what was wrong in the video the site made for him
+His video ("מאפה-הבית-kinetic-30s.mp4", 30 s, 9:16) is attached as frames (mine_*.jpg and mine_sheet.jpg). Problems:
+1. Headlines don't match the photo.
+   - "סלטים עשירים" sits on a shakshuka photo.
+   - "מרקים חמים וכריכים בהרכבה אישית" sits on a salad.
+   - "מזמינים אונליין ואוספים מהחנות" sits on chicken.
+   - Fix: each scene's text must describe the dish/photo it is on. Validate on the server: ask Claude for a one-word "photoSubject" per photo in the scan, and reject or fix plans where the headline names a different dish.
+2. Text covers the food. Big white text with highlight boxes sits in the middle of the dish.
+   - Keep text in the empty zone (top/bottom gradient) and never over the subject.
+   - Use the highlight box at most once per video.
+3. It is too slow and static: only 6 scenes of about 4–5 s, each mostly still. The reference cuts every ~0.9 s in the carousel and something is always moving.
+   - Use more, shorter scenes for kinetic/fast pace, cut on the beat, and give every scene continuous motion.
+4. The opening wastes 3 s: a black screen with gold diagonal stripes and only the name. Then "מאפייה" on a coffee photo, which is a label, not a hook.
+   - Open on the best food within 0.5 s, with a hook headline.
+5. The prices are tiny badges, and it is unclear which dish they belong to.
+   - Show the dish name + price together, big and gold, as in the reference carousel.
+6. The end card is a flat mustard background that does not match the dark brand, with a tiny logo, a small CTA and no button.
+   - Use the reference end card: brand-dark background, a big logo with a glow ring, a gold gradient tagline, a facts line, a gold pill CTA button and the domain.
+7. The tiny "02 / 06" counters and corner labels are unreadable on a phone. Remove them, or make them at least 2.5% of the frame height.
