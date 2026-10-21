@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Lovable",
+      "mcp__claude-code-remote",
+      "PushNotification",
+      "SendUserFile",
+      "WebFetch",
+      "WebSearch"
+    ]
+  }
+}
