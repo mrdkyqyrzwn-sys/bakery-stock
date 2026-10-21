@@ -172,7 +172,8 @@
 .url-chip { display: flex; align-items: center; gap: 10px; height: 44px; padding-inline: 14px; border-radius: 10px; background: var(--sunken); font-weight: 700; font-size: 16px; }
 .url-chip .ic { color: var(--ink-3); width: 18px; height: 18px; }
 .thumbs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
-.thumbs img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
+.thumbs > img, .thumbs .th { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; overflow: hidden; }
+.thumbs .th img { width: 100%; height: 100%; object-fit: cover; }
 .in-two { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 12px; }
 .logo-tile { display: flex; align-items: center; gap: 14px; }
 .logo-tile .mark { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; font: 700 26px/1 var(--f-accent); flex: none; }
@@ -250,7 +251,8 @@
 .ratio button .ic { width: 16px; height: 16px; }
 .ratio button[aria-pressed="true"] { background: #FAF9F6; color: var(--ink); }
 
-.stage { position: relative; height: var(--stage-h, 600px); margin-block-start: 40px; transition: height .7s var(--ease); }
+.stage { position: relative; height: var(--stage-h, 600px); margin-block-start: 40px; transition: height .7s var(--ease); border-radius: 24px; }
+.stage:focus-visible { outline-offset: 12px; }
 .ambient { position: absolute; z-index: 0; left: 50%; top: 50%; width: min(760px, 120vw); height: 100%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 1.6s var(--ease); }
 .cinema.lights-up .ambient { opacity: 1; }
 .ambient img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(48px) saturate(1.5); opacity: 0; transform: scale(1.1); transition: opacity .9s var(--ease); border-radius: 50%; }
@@ -495,7 +497,9 @@
   .footer-grid { gap: 32px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cycle .ad { opacity: 0; } .cycle .ad:first-of-type { opacity: 1; }
+  .cycle .ad, .cycle .ad > img, .cycle .ad-body > *, .cycle .end > *, .cycle .ad-bars span::after { animation: none !important; }
+  .cycle .ad { opacity: 0; } .cycle .ad.is-first { opacity: 1; }
+  .cycle .ad-bars span:first-child::after { transform: scaleX(.6); }
   .scan, .det::after, .det::before { display: none; }
   .st-ico .ic-wait { display: none; } .st-ico .ic-done { opacity: 1 !important; }
 }
@@ -648,7 +652,7 @@
             <div class="phone-screen cycle">
               <span class="phone-island"></span>
               <div class="ad-bars" aria-hidden="true"><span></span><span></span><span></span></div>
-              <div class="ad ad--cinema" style="--f:0" aria-hidden="true">
+              <div class="ad ad--cinema is-first" style="--f:0" aria-hidden="true">
                 <img src="assets/img/pizza-1.jpg" alt="" style="object-position:50% 40%">
                 <div class="ad-shade"></div>
                 <div class="ad-top"><span class="ad-logo">ר</span><span class="ad-brand">רומא<small>ממומן</small></span></div>
@@ -785,7 +789,7 @@
         <div class="in-card">
           <div class="in-label"><span><bdi>6</bdi> תמונות מהאתר</span></div>
           <div class="thumbs">
-            <img src="assets/img/crop-cafe.jpg" alt=""><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:30% 70%;transform:scale(1.6)"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:70% 20%"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:10% 10%;transform:scale(1.3)"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:90% 90%"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:50% 40%;transform:scale(2)">
+            <span class="th"><img src="assets/img/crop-cafe.jpg" alt=""></span><span class="th"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:30% 70%;transform:scale(1.6)"></span><span class="th"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:70% 20%"></span><span class="th"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:10% 10%;transform:scale(1.3)"></span><span class="th"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:90% 90%"></span><span class="th"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:50% 40%;transform:scale(2)"></span>
           </div>
         </div>
         <div class="in-two">
@@ -835,7 +839,7 @@
         <div class="in-card">
           <div class="in-label"><span><bdi>6</bdi> תמונות מהאתר</span></div>
           <div class="thumbs">
-            <img src="assets/img/crop-lumi.jpg" alt=""><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:80% 40%"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:20% 20%;transform:scale(1.5)"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:60% 90%"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:90% 30%;transform:scale(1.8)"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:10% 80%">
+            <span class="th"><img src="assets/img/crop-lumi.jpg" alt=""></span><span class="th"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:80% 40%"></span><span class="th"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:20% 20%;transform:scale(1.5)"></span><span class="th"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:60% 90%"></span><span class="th"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:90% 30%;transform:scale(1.8)"></span><span class="th"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:10% 80%"></span>
           </div>
         </div>
         <div class="in-two">
@@ -948,7 +952,7 @@
       </div>
     </div>
 
-    <div class="stage" id="stage" aria-roledescription="קרוסלה" aria-label="דוגמאות לפרסומות">
+    <div class="stage" id="stage" tabindex="0" aria-roledescription="קרוסלה" aria-label="דוגמאות לפרסומות. אפשר לעבור ביניהן עם החצים במקלדת">
       <div class="ambient" aria-hidden="true"><img alt=""><img alt=""></div>
 
       <div class="reel" data-cat="food" data-title="פיצרייה" data-style="קולנועי" data-len="30" data-poster="assets/img/pizza-3.jpg">
@@ -1388,7 +1392,10 @@
       const i = vis.indexOf(r);
       r.style.setProperty('--w', W + 'px');
       if (i < 0) { r.classList.add('is-out'); r.style.setProperty('--o', 0); r.style.setProperty('--s', .6); r.setAttribute('aria-hidden', 'true'); return; }
-      const off = i - ai, a = Math.min(Math.abs(off), 3);
+      const n = vis.length;
+      let off = i - ai;
+      if (n > 2) { if (off > n / 2) off -= n; if (off < -n / 2) off += n; } // circular
+      const a = Math.min(Math.abs(off), 3);
       r.classList.remove('is-out');
       r.classList.toggle('is-active', off === 0);
       r.style.setProperty('--x', (-Math.sign(off) * pos[a]) + 'px'); // RTL: next items sit to the left
