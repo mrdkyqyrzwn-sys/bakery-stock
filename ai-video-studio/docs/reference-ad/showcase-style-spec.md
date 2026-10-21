@@ -121,3 +121,23 @@ How the planner uses them:
 - Motion: everything eases in with a short stagger. Counters count up over ~0.8 s. Cards slide up 24 px and fade in. Nothing is static for more than ~1.5 s.
 
 Also: save both reference videos as admin references (the refs table, scope "all", active) using the attached frames, with notes describing the style above, so the planner sees them as well.
+
+QUALITY LESSONS FROM REELKIT (a video-agent tool the owner found; ideas only, in our own words)
+1. Real screens, not drawn ones.
+   - For the phone "how to order" scenes, prefer real mobile screenshots of the customer's site (top, menu, a product page) over a drawn replica.
+   - Take them server-side with a screenshot API at a 390 px mobile width (e.g. Microlink's free tier, or ScreenshotOne). Hide cookie banners and chat bubbles when possible.
+   - Scroll the tall screenshot inside the phone and add a tap ripple.
+   - Fall back to the drawn replica only when capture fails.
+   - Never show a page that needs a login.
+2. Automatic check before the customer sees it. After the plan renders, sample 2 frames per scene plus the frames on each side of every cut, and check in code:
+   - text inside the safe area and not cut by the frame;
+   - text contrast at least 4.5:1 against what is behind it (sample the pixels under the text box), and if lower, add a shadow/scrim automatically;
+   - no empty or near-black frames (except a deliberate fade);
+   - the logo visible and not cropped.
+   Fix what it finds (shrink, move, scrim) before showing the player. Log the checks in the order for the admin.
+3. Loudness. Normalize the exported audio to about -14 LUFS (the social media standard), with a true peak at or below -1 dB, and a fade-out over the last 1–2 s. Show "סאונד ✓" in the download check.
+4. Cuts on the beat. Every scene change lands on a music beat (snap the planned cut to the nearest beat within ±0.15 s). Inside a scene, elements enter on beats.
+5. Continuity. Each direction picks one "visual thread" that carries across cuts (the gold line, the phone, the ring, a color block) so the cuts feel connected, not like a slideshow.
+6. Hebrew text: never show vowel points (niqqud) on screen. Always set the RTL direction. Isolate numbers, prices and the domain (LTR runs) so they don't flip.
+7. Three directions: one of the 3 must be clearly unexpected for this business (a different hook type and structure), not 3 variations of the same idea.
+8. Revisions change only what the customer asked; everything else stays frame-identical (same seed, same timings).
