@@ -92,3 +92,32 @@ His video ("מאפה-הבית-kinetic-30s.mp4", 30 s, 9:16) is attached as frame
 8. Wrong style? The owner says he chose "קולנועי" (cinematic), but the downloaded file is named "מאפה-הבית-kinetic-30s.mp4" and looks kinetic. Check that the style chosen in step 2 is what is saved in the order, sent to writePlan and used by the renderer and the file name. If the selection can silently switch (e.g. clicking a concept card of another style, or a default overriding the choice after sign-in), fix it, and show the chosen style name on the bill and in the player.
 
 NOTE about admin skills: the active skills in the database now include "סגנון הבית של הסטודיו (לפי הרפרנס של מרדכי)", which encodes this reference for the existing styles. Keep the skills system as is; the new style should also follow it.
+
+SECOND REFERENCE THE OWNER LOVES (b_ref*.jpg, b_ref0_sheet.jpg)
+A 45 s, 9:16 ad for a phone-photography course. It has a dark background, an orange-gold accent (#F5A623 → #FFB547 gradient), glass cards and glow, and loud continuous music. This is the model for SERVICE / COURSE / PERSONAL-BRAND businesses, and its motion-graphics scenes should be available to every style. Build these as reusable scene kinds in the engine:
+1. QUESTION HOOK: a 2-line question at the top, written in direct address ("יש לך חלום ל...?"), with 1–2 key words in the gold accent. It appears word by word. Below it, a 3D-tilted phone floats over a glowing orbit ring on the floor, and its screen cycles the customer's photos every ~0.6 s.
+2. VIEWFINDER MONTAGE: full-screen photos cut every ~0.6 s on the beat, with thin camera-viewfinder corner marks.
+3. 3D GALLERY: photos on a curved wall (cylinder perspective) that rotates, then a stacked list of wide photos sliding in.
+4. PRESENTER + STAT:
+   - the person/owner photo as a cutout on the dark background;
+   - a small gold tag "נעים להכיר", the name in large type (the surname in gold), and a one-line role under it;
+   - a big gold number counting up (0 → 15) with a small label ("שנות ניסיון").
+   - Use only real numbers from the site.
+5. PROMISE + "WITHOUT" PILLS: a 3-line promise with gold keywords, then pills that pop in one by one ("✕ בלי ציוד יקר", "✕ בלי רקע קודם"), taken from the site's selling points.
+6. BIG NUMBER: a huge gold-gradient number ("3") with a unit word ("שבועות") over a subtle textured background (map/lines), and one result line under it.
+7. BENEFIT CARDS: a title ("מה תקבל?" with the key word in gold) and 3–5 glass cards that stack in one by one. Each card has an icon in a gold rounded square, a bold title and a small grey subline.
+8. PHONE + RESULT: the phone mockup centered, its screen showing photos, with a result line under it.
+9. OFFER BADGE:
+   - a gold pill "מבצע ..." with a scarcity line ("ל־5 הנרשמים הראשונים בלבד") and a "מתנה" tag on a bonus mockup;
+   - ONLY when the customer's details contain a real offer; never invent scarcity.
+10. WHATSAPP END CARD: a grid collage of the customer's photos, a big green WhatsApp pill with the icon and the phone number, the line "לפרטים והרשמה בוואטסאפ", and the name in small print. Use it when the CTA is "שולחים וואטסאפ" or the business takes orders by phone.
+
+How the planner uses them:
+- Add a per-scene "kind" field: photo (default) | question-hook | montage | gallery3d | presenter-stat | promise-pills | big-number | benefit-cards | phone-result | offer | whatsapp-end.
+- Add the fields each kind needs (e.g. stat {value, label}, pills [..], cards [{title, sub, icon}], offer {title, scarcity}).
+- Claude picks kinds that fit the business: food → the showcase carousel and phone-ordering scenes; services/courses → question hook, presenter-stat, benefit cards, WhatsApp end.
+- Every number, offer and benefit must come from the business details or the site.
+- Icons: a small built-in set of line icons (camera, video, clock, chat, gift, star, check, map-pin, phone, cart).
+- Motion: everything eases in with a short stagger. Counters count up over ~0.8 s. Cards slide up 24 px and fade in. Nothing is static for more than ~1.5 s.
+
+Also: save both reference videos as admin references (the refs table, scope "all", active) using the attached frames, with notes describing the style above, so the planner sees them as well.
