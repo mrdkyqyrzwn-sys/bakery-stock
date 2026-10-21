@@ -89,3 +89,6 @@ His video ("מאפה-הבית-kinetic-30s.mp4", 30 s, 9:16) is attached as frame
 6. The end card is a flat mustard background that does not match the dark brand, with a tiny logo, a small CTA and no button.
    - Use the reference end card: brand-dark background, a big logo with a glow ring, a gold gradient tagline, a facts line, a gold pill CTA button and the domain.
 7. The tiny "02 / 06" counters and corner labels are unreadable on a phone. Remove them, or make them at least 2.5% of the frame height.
+8. Wrong style? The owner says he chose "קולנועי" (cinematic), but the downloaded file is named "מאפה-הבית-kinetic-30s.mp4" and looks kinetic. Check that the style chosen in step 2 is what is saved in the order, sent to writePlan and used by the renderer and the file name. If the selection can silently switch (e.g. clicking a concept card of another style, or a default overriding the choice after sign-in), fix it, and show the chosen style name on the bill and in the player.
+
+NOTE about admin skills: the active skills in the database now include "סגנון הבית של הסטודיו (לפי הרפרנס של מרדכי)", which encodes this reference for the existing styles. Keep the skills system as is; the new style should also follow it.
