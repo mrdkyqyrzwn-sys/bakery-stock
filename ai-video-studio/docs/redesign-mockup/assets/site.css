@@ -310,6 +310,7 @@ bdi { unicode-bidi: isolate; }
   border-radius: calc(var(--r-phone) - 7px);
   background: #000;
   isolation: isolate;
+  container-type: size; /* lets bars/labels outside .ad use cq units */
 }
 .phone-island {
   position: absolute; z-index: 5; top: 2.4%; left: 50%; transform: translateX(-50%);

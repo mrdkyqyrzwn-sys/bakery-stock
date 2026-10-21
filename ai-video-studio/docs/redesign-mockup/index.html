@@ -1,0 +1,1445 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdStudio · פרסומת וידאו לעסק, בעברית</title>
+<meta name="description" content="מדביקים את כתובת האתר, ומקבלים סרטון פרסומת עם תסריט בעברית ומוזיקה מקורית.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@700&family=Heebo:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+/* =====================================================================
+   HOME PAGE
+   ===================================================================== */
+
+/* ---------- 2. Hero ---------- */
+.hero { position: relative; z-index: 2; padding-block: 56px 40px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+.hero-copy { padding-block-start: 44px; }
+.hero h1 { max-width: 9.5em; }
+.hero h1 .accent-word { display: inline-block; margin-block-start: 2px; }
+.hero-lead { margin-block-start: 22px; max-width: 30em; }
+
+.entry { margin-block-start: 36px; max-width: 560px; }
+.entry-label { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin-block-end: 8px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.entry-label .muted { font-size: 15px; font-weight: 400; }
+.entry-row { display: flex; gap: 8px; }
+.entry-row .field { flex: 1; }
+.entry-or { display: flex; align-items: center; gap: 14px; margin-block: 14px; color: var(--ink-3); font-size: 14px; font-weight: 600; }
+.entry-or::before, .entry-or::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+.facts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-block-start: 24px; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+.facts li { display: inline-flex; align-items: center; gap: 7px; }
+.facts .ic { width: 18px; height: 18px; color: var(--success); stroke-width: 2.4; }
+
+/* Hero visual: a fixed 572x560 canvas, zoomed down on small screens */
+.hero-visual { position: relative; height: 560px; }
+.hv-canvas { position: absolute; inset-block-start: 0; inset-inline-start: 0; width: 572px; height: 560px; }
+.hv-stage { position: absolute; inset: 0 0 64px 0; border-radius: var(--r-panel); background: var(--sunken); overflow: hidden; }
+.hv-stage::before { /* faint dot grid on the stage */
+  content: ""; position: absolute; inset: 0;
+  background-image: radial-gradient(rgb(22 22 29 / .09) 1px, transparent 1.2px);
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(80% 70% at 60% 30%, #000 30%, transparent 85%);
+          mask-image: radial-gradient(80% 70% at 60% 30%, #000 30%, transparent 85%);
+}
+
+/* Mini browser with a small business site */
+.browser {
+  position: absolute; inset-block-start: 32px; inset-inline-start: 28px; width: 372px;
+  background: var(--surface); border-radius: 14px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgb(22 22 29 / .06), var(--sh-float);
+  container-type: inline-size;
+}
+.browser-bar { direction: ltr; /* real browser chrome stays LTR */ display: flex; align-items: center; gap: 10px; height: 34px; padding-inline: 12px; background: #F4F2EE; border-bottom: 1px solid #ECE9E2; }
+.browser-bar .dots { display: flex; gap: 5px; }
+.browser-bar .dots i { width: 8px; height: 8px; border-radius: 50%; background: #DDD8CE; }
+.browser-bar .url { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; height: 22px; border-radius: 6px; background: #fff; font: 600 11px/1 var(--f-body); color: var(--ink-2); }
+.browser-bar .url .ic { width: 10px; height: 10px; color: var(--ink-3); }
+.site { position: relative; padding: 0 0 4.5cqw; }
+.site-nav { display: flex; align-items: center; gap: 4.4cqw; padding: 3.4cqw 4.4cqw; font: 600 3cqw/1 var(--f-body); color: #5B4A40; }
+.site-logo { font: 700 5.2cqw/1 var(--f-accent); color: #8E2A1B; margin-inline-end: auto; }
+.site-btn { background: #8E2A1B; color: #fff; padding: 1.8cqw 3cqw; border-radius: 99px; font-weight: 700; }
+.site-hero { position: relative; margin-inline: 4.4cqw; height: 39cqw; border-radius: 2.6cqw; overflow: hidden; }
+.site-hero img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
+.site-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to left, rgb(20 10 5 / .78) 0%, rgb(20 10 5 / .1) 70%); }
+.site-hero-copy { position: absolute; z-index: 1; inset-inline-start: 5cqw; inset-block-start: 50%; transform: translateY(-50%); color: #fff; max-width: 55%; }
+.site-hero-copy b { display: block; font: 800 5.6cqw/1.12 var(--f-display); }
+.site-hero-copy span { display: block; margin-top: 1.8cqw; font: 600 3cqw/1.3 var(--f-body); opacity: .85; }
+.site-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3cqw; margin: 3.6cqw 4.4cqw 0; }
+.site-menu figure { margin: 0; }
+.site-menu img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 2cqw; }
+.site-menu figcaption { display: flex; justify-content: space-between; margin-top: 1.6cqw; font: 600 2.9cqw/1.2 var(--f-body); color: #3E302A; }
+.site-menu figcaption bdi { color: #8E2A1B; font-weight: 700; }
+
+/* "reading the site": scan line + detection boxes */
+.scan { position: absolute; z-index: 3; inset-inline: 0; top: 0; height: 2px; background: var(--accent); box-shadow: 0 0 0 1px rgb(240 86 42 / .15), 0 0 18px 4px rgb(240 86 42 / .35); opacity: 0; animation: scan 6s var(--ease) infinite; }
+@keyframes scan { 0% { top: 0; opacity: 0; } 4% { opacity: 1; } 42% { top: calc(100% - 2px); opacity: 1; } 48%, 100% { top: calc(100% - 2px); opacity: 0; } }
+.det { position: relative; }
+.det::after { content: ""; position: absolute; inset: -1.2cqw; border: 1.5px dashed var(--accent); border-radius: 2.4cqw; opacity: 0; animation: det 6s var(--ease) infinite; animation-delay: var(--dd, 0s); pointer-events: none; }
+.det::before { content: attr(data-tag); position: absolute; z-index: 4; inset-block-start: -4.4cqw; inset-inline-end: -1.2cqw; padding: .8cqw 2cqw; border-radius: 1.4cqw; background: var(--accent); color: var(--ink); font: 700 2.6cqw/1 var(--f-body); opacity: 0; animation: det 6s var(--ease) infinite; animation-delay: var(--dd, 0s); }
+@keyframes det { 0%, 8% { opacity: 0; transform: scale(.96); } 14%, 84% { opacity: 1; transform: none; } 92%, 100% { opacity: 0; } }
+
+/* Status card (the production steps) */
+.status {
+  position: absolute; inset-block-start: 368px; inset-inline-start: 28px; width: 214px;
+  background: var(--surface); border-radius: 14px; padding: 14px 16px;
+  box-shadow: 0 0 0 1px rgb(22 22 29 / .06), var(--sh-float);
+  font-size: 14px;
+}
+.status-title { font-weight: 700; color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.status-title .chip { height: 22px; font-size: 12px; padding-inline: 8px; }
+.status li { display: flex; align-items: center; gap: 8px; height: 28px; color: var(--ink-2); font-weight: 600; }
+.st-ico { position: relative; width: 18px; height: 18px; flex: none; }
+.st-ico .ic { position: absolute; inset: 0; width: 18px; height: 18px; }
+.st-ico .ic-done { color: var(--success); stroke-width: 2.6; opacity: 0; animation: stDone 6s steps(1) infinite; animation-delay: var(--sd); }
+.st-ico .ic-wait { color: var(--ink-3); animation: spin 1s linear infinite, stWait 6s steps(1) infinite; animation-delay: 0s, var(--sd); }
+@keyframes spin { to { rotate: 360deg; } }
+@keyframes stDone { 0% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes stWait { 0% { opacity: 0; } 100% { opacity: 0; } }
+/* simpler, deterministic loop: each row flips from spinner to check at its own time */
+.status li:nth-child(1) .ic-done { animation: done1 6s steps(1) infinite; } .status li:nth-child(1) .ic-wait { animation: spin 1s linear infinite, wait1 6s steps(1) infinite; }
+.status li:nth-child(2) .ic-done { animation: done2 6s steps(1) infinite; } .status li:nth-child(2) .ic-wait { animation: spin 1s linear infinite, wait2 6s steps(1) infinite; }
+.status li:nth-child(3) .ic-done { animation: done3 6s steps(1) infinite; } .status li:nth-child(3) .ic-wait { animation: spin 1s linear infinite, wait3 6s steps(1) infinite; }
+@keyframes done1 { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes wait1 { 0% { opacity: 1; } 30% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes done2 { 0% { opacity: 0; } 55% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes wait2 { 0% { opacity: 1; } 55% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes done3 { 0% { opacity: 0; } 80% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes wait3 { 0% { opacity: 1; } 80% { opacity: 0; } 100% { opacity: 0; } }
+
+/* Flow arrows */
+.flow { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.flow path.track { fill: none; stroke: #CFC9BC; stroke-width: 2; stroke-dasharray: 2 7; stroke-linecap: round; }
+.flow path.run { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 26 400; animation: run 3s var(--ease) infinite; }
+.flow path.head { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes run { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -260; } }
+
+/* The hero phone: big, tilted, hanging into the next section */
+.hero-phone { position: absolute; inset-block-start: 96px; inset-inline-end: 34px; width: 300px; transform: rotate(-4deg); z-index: 4; }
+.hero-phone .phone { box-shadow: inset 0 0 0 1px rgb(255 255 255 / .12), inset 0 0 0 3px #0A0A0E, 0 2px 4px rgb(22 22 29 / .1), 0 40px 80px -24px rgb(22 22 29 / .5), 0 24px 48px -16px rgb(22 22 29 / .25); }
+
+/* Hero ad: 3 frames cross-fading on a 12s loop */
+.cycle .ad { opacity: 0; animation: adCycle 12s linear infinite both; animation-delay: calc(var(--f) * 4s); }
+.cycle .ad > img { animation: kb 12s linear infinite both; animation-delay: calc(var(--f) * 4s); }
+.cycle .ad-body > *, .cycle .end > * { animation: textIn 12s var(--ease) infinite both; animation-delay: calc(var(--f) * 4s + var(--k, 0) * 120ms); }
+@keyframes adCycle { 0% { opacity: 0; } 3% { opacity: 1; } 33.3% { opacity: 1; } 36.6% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes kb { 0% { transform: scale(1.16) translateY(1.5%); } 36% { transform: scale(1.03) translateY(0); } 100% { transform: scale(1.03); } }
+@keyframes textIn { 0%, 3% { opacity: 0; transform: translateY(14px); } 9% { opacity: 1; transform: none; } 100% { opacity: 1; transform: none; } }
+.cycle .ad-bars { z-index: 6; }
+.cycle .ad-bars span:nth-child(1)::after { animation: bar1 12s linear infinite; }
+.cycle .ad-bars span:nth-child(2)::after { animation: bar2 12s linear infinite; }
+.cycle .ad-bars span:nth-child(3)::after { animation: bar3 12s linear infinite; }
+@keyframes bar1 { 0% { transform: scaleX(0); } 33.3% { transform: scaleX(1); } 100% { transform: scaleX(1); } }
+@keyframes bar2 { 0%, 33.3% { transform: scaleX(0); } 66.6% { transform: scaleX(1); } 100% { transform: scaleX(1); } }
+@keyframes bar3 { 0%, 66.6% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+.cycle .ad-top { z-index: 6; }
+
+/* End card (frame 3) */
+.ad .end { position: absolute; z-index: 3; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 8cqw; }
+.ad--endcard > img { filter: blur(2px) brightness(.38) saturate(1.1); transform: scale(1.1); }
+.ad--endcard .ad-shade { background: radial-gradient(70% 50% at 50% 45%, rgb(0 0 0 / 0) 0%, rgb(0 0 0 / .55) 100%); }
+.end-logo { width: 26cqw; height: 26cqw; border-radius: 50%; display: grid; place-items: center; border: .8cqw solid var(--gold-solid); font: 700 13cqw/1 var(--f-accent); color: var(--gold-solid); background: rgb(12 9 6 / .6); }
+.end-name { margin-top: 5cqw; font: 700 13cqw/1 var(--f-accent); color: #fff; }
+.end-tag { margin-top: 2.4cqw; font: 600 4.4cqw/1.3 var(--f-body); color: rgb(255 255 255 / .8); }
+.end-rule { width: 16cqw; height: .5cqw; min-height: 1px; background: var(--gold-solid); margin: 6cqw auto 5cqw; }
+.end-phone { font: 800 7.4cqw/1 var(--f-display); color: var(--gold-solid); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.end .ad-cta { margin-top: 6cqw; }
+
+/* ---------- 3. Trust line ---------- */
+.trust { position: relative; z-index: 1; background: var(--surface); padding-block: 104px 0; }
+.trust-list { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px 44px; padding-block: 18px; font-size: 16px; font-weight: 600; color: var(--ink-2); }
+.trust-list li { display: inline-flex; align-items: center; gap: 10px; }
+.trust-list .ic { color: var(--accent); }
+
+/* ---------- 4. Before -> after ---------- */
+.io { background: var(--surface); padding-block-start: 96px; }
+.tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--sunken); }
+.tab { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding-inline: 18px; border: 0; border-radius: 10px; background: transparent; font-size: 15px; font-weight: 700; color: var(--ink-2); transition: background-color var(--t-hover) var(--ease), color var(--t-hover) var(--ease); }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(22 22 29 / .08); }
+.tabs-wrap { display: flex; justify-content: center; margin-block-end: 24px; }
+
+.io-panel { display: grid; grid-template-columns: minmax(0, 1.3fr) 148px minmax(0, 1fr); align-items: center; padding: 32px; border-radius: var(--r-panel); background: var(--sunken); }
+.io-panel[hidden] { display: none; }
+.io-inputs { display: grid; gap: 12px; }
+.in-card { background: var(--surface); border-radius: 16px; padding: 16px 18px; }
+.in-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-size: 14px; font-weight: 700; color: var(--ink-3); }
+.in-label .ok { display: inline-flex; align-items: center; gap: 4px; color: var(--success); font-size: 13px; }
+.in-label .ok .ic { width: 14px; height: 14px; stroke-width: 2.6; }
+.url-chip { display: flex; align-items: center; gap: 10px; height: 44px; padding-inline: 14px; border-radius: 10px; background: var(--sunken); font-weight: 700; font-size: 16px; }
+.url-chip .ic { color: var(--ink-3); width: 18px; height: 18px; }
+.thumbs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.thumbs img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
+.in-two { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 12px; }
+.logo-tile { display: flex; align-items: center; gap: 14px; }
+.logo-tile .mark { width: 56px; height: 56px; border-radius: 14px; display: grid; place-items: center; font: 700 26px/1 var(--f-accent); flex: none; }
+.swatches { display: flex; gap: 6px; }
+.swatches i { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(22 22 29 / .1); }
+.script { display: grid; gap: 6px; font-size: 15px; line-height: 1.45; color: var(--ink); }
+.script li { display: grid; grid-template-columns: 38px 1fr; gap: 8px; }
+.script time { font-size: 13px; font-weight: 700; color: var(--ink-3); font-variant-numeric: tabular-nums; padding-top: 1px; }
+
+.io-arrow { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--ink-3); }
+.io-arrow .line { position: relative; width: 100%; height: 2px; background-image: linear-gradient(to left, #BDB6A6 50%, transparent 50%); background-size: 10px 2px; }
+.io-arrow .line .ic { position: absolute; inset-inline-end: -6px; top: 50%; transform: translateY(-50%); color: var(--ink); width: 22px; height: 22px; }
+.io-arrow .chip { background: var(--ink); color: #fff; height: 32px; padding-inline: 12px; font-size: 14px; }
+.io-arrow .chip .ic { color: #fff; }
+.io-arrow small { font-size: 13px; font-weight: 600; }
+
+.io-output { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.io-output .phone { width: 252px; }
+.out-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.out-meta .chip { background: var(--surface); }
+
+/* ---------- 5. How it works ---------- */
+.how { background: var(--sunken); }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; }
+.step { position: relative; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r-card); padding: 28px 28px 24px; }
+.step:not(:last-child)::after { /* dashed connector into the gap */
+  content: ""; position: absolute; inset-block-start: 43px; inset-inline-end: -49px; width: 50px;
+  border-block-start: 2px dashed #C3BCAD;
+}
+.step-pill { align-self: flex-start; display: inline-flex; align-items: center; height: 30px; padding-inline: 12px; border-radius: 99px; background: var(--accent-soft); color: var(--accent-strong); font-size: 14px; font-weight: 700; }
+.step h3 { margin-block: 18px 8px; }
+.step p { color: var(--ink-2); font-size: 16px; line-height: 1.65; }
+.snip { margin-block-start: auto; padding-block-start: 24px; }
+.snip-box { border-radius: 14px; background: var(--bg); box-shadow: inset 0 0 0 1px #EEEBE4; padding: 16px; min-height: 148px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.mini-field { display: flex; align-items: center; gap: 8px; height: 44px; padding-inline: 12px 6px; border-radius: 10px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--ink); font-weight: 700; font-size: 15px; }
+.mini-field .ic { width: 16px; height: 16px; color: var(--ink-3); }
+.mini-field .val { flex: 1; text-align: right; }
+.mini-field .caret { display: inline-block; width: 1.5px; height: 18px; background: var(--ink); vertical-align: middle; margin-inline-start: 1px; animation: caret 1s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+.mini-field .btn { --h: 34px; padding-inline: 12px; font-size: 14px; border-radius: 8px; }
+.mini-or { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.mini-or .ic { width: 16px; height: 16px; color: var(--accent); }
+.mini-styles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mini-style { position: relative; }
+.mini-style .frame { position: relative; aspect-ratio: 9/16; border-radius: 10px; overflow: hidden; }
+.mini-style.sel .frame { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
+.mini-style .tick { position: absolute; z-index: 2; inset-block-start: -7px; inset-inline-start: -7px; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--ink); display: grid; place-items: center; }
+.mini-style .tick .ic { width: 13px; height: 13px; stroke-width: 3; }
+.mini-style span { display: block; margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--ink-2); text-align: center; }
+.mini-file { display: flex; align-items: center; gap: 12px; }
+.mini-file .thumb { position: relative; width: 42px; aspect-ratio: 9/16; border-radius: 6px; overflow: hidden; flex: none; }
+.mini-file .meta { flex: 1; min-width: 0; line-height: 1.35; }
+.mini-file .meta b { display: block; font-size: 15px; }
+.mini-file .meta small { font-size: 13px; color: var(--ink-3); font-weight: 600; }
+.mini-file .btn { --h: 40px; padding-inline: 14px; font-size: 14px; }
+.mini-rev { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.mini-rev .ic { width: 15px; height: 15px; color: var(--accent); }
+
+/* ---------- 6. Cinema band ---------- */
+.cinema { position: relative; background: var(--d-bg); color: var(--d-text); padding-block: var(--section-y); overflow: clip; isolation: isolate; }
+.cinema::after { /* static fractal-noise grain, ~6% */
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.cinema > .container { position: relative; z-index: 1; }
+.cinema .h2 { color: var(--d-text); }
+.cinema .lead { color: var(--d-text-2); }
+.cinema-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-block: 40px 8px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.fchip { height: 40px; padding-inline: 16px; border-radius: 99px; border: 0; background: var(--d-surface); box-shadow: inset 0 0 0 1px var(--d-border); color: var(--d-text-2); font-size: 15px; font-weight: 700; transition: background-color var(--t-hover) var(--ease), color var(--t-hover) var(--ease); }
+.fchip:hover { color: var(--d-text); background: #1F1F29; }
+.fchip[aria-pressed="true"] { background: #FAF9F6; color: var(--ink); box-shadow: none; }
+.ratio { display: inline-flex; padding: 4px; gap: 4px; border-radius: 14px; background: var(--d-surface); box-shadow: inset 0 0 0 1px var(--d-border); }
+.ratio button { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding-inline: 14px; border: 0; border-radius: 10px; background: transparent; color: var(--d-text-2); font-size: 14px; font-weight: 700; transition: background-color var(--t-hover) var(--ease), color var(--t-hover) var(--ease); }
+.ratio button .ic { width: 16px; height: 16px; }
+.ratio button[aria-pressed="true"] { background: #FAF9F6; color: var(--ink); }
+
+.stage { position: relative; height: var(--stage-h, 600px); margin-block-start: 40px; transition: height .7s var(--ease); }
+.ambient { position: absolute; z-index: 0; left: 50%; top: 50%; width: min(760px, 120vw); height: 100%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 1.6s var(--ease); }
+.cinema.lights-up .ambient { opacity: 1; }
+.ambient img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(48px) saturate(1.5); opacity: 0; transform: scale(1.1); transition: opacity .9s var(--ease); border-radius: 50%; }
+.ambient img.on { opacity: .5; }
+.reel {
+  position: absolute; z-index: 1; top: 0; left: 50%; /* physical: centring on the stage */
+  width: var(--w, 300px);
+  transform: translateX(-50%) translateX(var(--x, 0px)) scale(var(--s, 1));
+  transform-origin: 50% 50%;
+  opacity: var(--o, 1);
+  transition: transform .7s var(--ease), opacity .7s var(--ease), width .7s var(--ease);
+  cursor: pointer;
+}
+.reel.is-active { z-index: 3; cursor: default; }
+.reel.is-out { pointer-events: none; }
+.reel .phone { box-shadow: inset 0 0 0 1px rgb(255 255 255 / .14), inset 0 0 0 3px #050507, 0 50px 100px -30px rgb(0 0 0 / .9); }
+.reel .wide { display: none; position: relative; aspect-ratio: 16/9; border-radius: 18px; overflow: hidden; background: #000; box-shadow: 0 0 0 1px rgb(255 255 255 / .1), 0 50px 100px -30px rgb(0 0 0 / .9); }
+.reel .wide > img { width: 100%; height: 100%; object-fit: cover; }
+.stage.is-wide .reel .phone { display: none; }
+.stage.is-wide .reel .wide { display: block; }
+.reel.is-active .ad > img.kb { animation: kbSoft 9s var(--ease) infinite alternate; }
+@keyframes kbSoft { from { transform: scale(1.02); } to { transform: scale(1.1); } }
+.reel.is-active .ad-bars span:first-child::after { animation: barOne 9s linear infinite; }
+@keyframes barOne { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.reel-foot { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-block-start: 36px; }
+.reel-cap { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.reel-cap b { font-family: var(--f-display); font-size: 22px; font-weight: 700; color: var(--d-text); margin-inline-end: 4px; }
+.dchip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding-inline: 10px; border-radius: 8px; background: var(--d-surface); box-shadow: inset 0 0 0 1px var(--d-border); color: var(--d-text-2); font-size: 14px; font-weight: 600; }
+.dchip .ic { width: 15px; height: 15px; }
+.dchip-stock { color: #FFB59A; }
+.reel-nav { display: flex; align-items: center; gap: 10px; color: var(--d-text-2); font-size: 15px; font-weight: 600; }
+.reel-nav button { width: 48px; height: 48px; border-radius: 50%; border: 0; display: grid; place-items: center; background: var(--d-surface); box-shadow: inset 0 0 0 1px var(--d-border); color: var(--d-text); transition: background-color var(--t-hover) var(--ease), transform var(--t-press) var(--ease); }
+.reel-nav button:hover { background: #242430; }
+.reel-nav button:active { transform: scale(.97); }
+.reel-nav .count { min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
+
+/* Wide (16:9) pizza frame */
+.ad--wide .ad-shade { background: linear-gradient(to left, rgb(9 7 5 / .94) 0%, rgb(9 7 5 / .7) 36%, rgb(9 7 5 / 0) 62%); }
+.ad--wide .ad-body { inset-inline: 6cqmin auto; bottom: auto; top: 50%; transform: translateY(-50%); width: 46%; }
+.ad--wide .ad-kicker { font-size: 4.4cqmin; }
+.ad--wide .ad-title { font-size: 11cqmin; }
+.ad--wide .ad-price b { font-size: 12cqmin; }
+.ad--wide .ad-price small { font-size: 3.6cqmin; }
+.ad--wide .ad-cta { height: 11cqmin; font-size: 4.4cqmin; padding-inline: 5cqmin 4cqmin; }
+.ad--wide .ad-cta svg { width: 4.4cqmin; height: 4.4cqmin; }
+.ad--wide .ad-row { margin-top: 5cqmin; justify-content: flex-start; gap: 6cqmin; }
+.ad--wide .ad-top { top: 6cqmin; inset-inline: 6cqmin; }
+.ad--wide .ad-logo { width: 9cqmin; height: 9cqmin; font-size: 5cqmin; }
+.ad--wide .ad-brand { font-size: 4.2cqmin; }
+.ad--wide .ad-brand small { font-size: 3.2cqmin; }
+
+/* ---------- 7. One business, six styles ---------- */
+.styles { background: var(--bg); }
+.posters { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+.poster { display: block; padding: 0; border: 0; background: none; text-align: start; border-radius: 16px; }
+.poster:focus-visible { outline: none; }
+.poster-frame { position: relative; aspect-ratio: 9/16; border-radius: 16px; overflow: hidden; transition: box-shadow var(--t-hover) var(--ease), transform var(--t-hover) var(--ease); }
+.poster:hover .poster-frame { transform: translateY(-4px); box-shadow: 0 0 0 3px var(--bg), 0 0 0 5.5px var(--accent); }
+.poster:focus-visible .poster-frame { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--focus); }
+.poster:active .poster-frame { transform: scale(.98); }
+.poster h3 { margin-block: 14px 2px; font-family: var(--f-display); font-size: 18px; font-weight: 700; }
+.poster p { font-size: 14px; line-height: 1.5; color: var(--ink-3); }
+
+/* ---------- 8. Pricing ---------- */
+.pricing { background: var(--surface); }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.plan { display: flex; flex-direction: column; padding: 32px; border-radius: var(--r-card); background: var(--sunken); }
+.plan-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 30px; }
+.plan-use { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--ink-2); }
+.plan-use .ic { width: 18px; height: 18px; color: var(--accent); }
+.plan-badge { display: inline-flex; align-items: center; height: 28px; padding-inline: 10px; border-radius: 8px; background: var(--accent); color: var(--ink); font-size: 13px; font-weight: 700; }
+.plan-price { display: flex; align-items: baseline; gap: 12px; margin-block-start: 28px; }
+.plan-price b { font-family: var(--f-display); font-weight: 800; font-size: 64px; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.plan-price span { font-size: 15px; color: var(--ink-3); font-weight: 600; }
+.plan-len { margin-block-start: 10px; font-family: var(--f-display); font-size: 22px; font-weight: 700; }
+.plan-list { display: grid; gap: 12px; margin-block: 24px 32px; padding-block-start: 24px; border-block-start: 1px solid #E3DFD5; font-size: 16px; }
+.plan-list li { display: flex; align-items: flex-start; gap: 10px; line-height: 1.45; }
+.plan-list .ic { width: 18px; height: 18px; margin-top: 2px; color: var(--success); stroke-width: 2.4; }
+.plan .btn { margin-block-start: auto; }
+.plan.featured { background: var(--ink); color: #fff; }
+.plan.featured .plan-use, .plan.featured .plan-price span { color: #B9B9C3; }
+.plan.featured .plan-list { border-color: #2E2E3A; }
+.plan.featured .plan-list .ic { color: var(--accent); }
+
+.lengths { margin-block-start: 20px; border-radius: var(--r-card); background: var(--sunken); }
+.lengths summary { list-style: none; display: flex; align-items: center; gap: 12px; min-height: 64px; padding-inline: 28px; cursor: pointer; font-size: 17px; font-weight: 700; border-radius: var(--r-card); }
+.lengths summary::-webkit-details-marker { display: none; }
+.lengths summary .muted { font-weight: 400; font-size: 15px; }
+.lengths summary .ic { margin-inline-start: auto; transition: transform var(--t-hover) var(--ease); }
+.lengths[open] summary .ic { transform: rotate(180deg); }
+.lengths summary:hover { background: #ECE9E2; }
+.len-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0 16px 16px; }
+.len { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 14px; background: var(--surface); }
+.len b { font-family: var(--f-display); font-size: 20px; font-weight: 700; }
+.len .p { font-family: var(--f-display); font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.len a { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; color: var(--accent-strong); }
+.len a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.len a .ic { width: 16px; height: 16px; }
+.price-note { display: flex; align-items: flex-start; gap: 10px; margin-block-start: 24px; font-size: 15px; color: var(--ink-2); }
+.price-note .ic { width: 18px; height: 18px; margin-top: 3px; color: var(--ink-3); }
+
+/* ---------- 9. Guarantees (bento: 2 large with UI, 2 small) ---------- */
+.guarantees { background: var(--sunken); }
+.g-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.g-card { background: var(--surface); border-radius: var(--r-card); padding: 32px; display: flex; flex-direction: column; }
+.g-ico { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
+.g-ico .ic { width: 22px; height: 22px; }
+.g-card h3 { font-family: var(--f-display); font-size: 24px; font-weight: 700; line-height: 1.3; margin-block: 20px 8px; }
+.g-card p { color: var(--ink-2); font-size: 16px; line-height: 1.65; max-width: 34em; }
+.g-link { display: inline-flex; align-items: center; gap: 6px; margin-block-start: 16px; font-size: 15px; font-weight: 700; color: var(--accent-strong); align-self: flex-start; border-radius: 6px; }
+.g-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.g-link .ic { width: 16px; height: 16px; }
+.g-ui { margin-block-start: 28px; padding: 20px; border-radius: 16px; background: var(--bg); box-shadow: inset 0 0 0 1px #EEEBE4; }
+.g-small { flex-direction: row; gap: 20px; align-items: flex-start; padding: 28px 32px; }
+.g-small h3 { margin-block-start: 6px; font-size: 20px; }
+/* refund notice snippet */
+.notice { display: flex; gap: 14px; align-items: flex-start; }
+.notice .dot { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #E6F4EA; color: var(--success); flex: none; }
+.notice .dot .ic { width: 18px; height: 18px; stroke-width: 2.4; }
+.notice b { display: block; font-size: 16px; }
+.notice span { display: block; font-size: 14px; color: var(--ink-2); line-height: 1.5; margin-top: 2px; }
+.notice-steps { display: flex; gap: 6px; margin-top: 16px; }
+.notice-steps i { flex: 1; height: 6px; border-radius: 9px; background: var(--success); opacity: .9; }
+.notice-steps i:last-child { background: #DCD8CF; }
+.notice-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+/* revision box snippet */
+.rev-box { border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--border-strong); padding: 12px 14px; font-size: 15px; line-height: 1.5; min-height: 70px; }
+.rev-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.rev-count { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.rev-count .ic { width: 16px; height: 16px; color: var(--accent); }
+
+/* ---------- 10. FAQ ---------- */
+.faq { background: var(--bg); }
+.faq-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 72px; align-items: start; }
+.faq-aside { position: sticky; top: calc(var(--nav-h) + 32px); }
+.faq-aside p { margin-block-start: 16px; color: var(--ink-2); }
+.faq-aside .btn { margin-block-start: 24px; }
+.qa { border-block-end: 1px solid var(--border); }
+.qa:first-child { border-block-start: 1px solid var(--border); }
+.qa summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-block: 22px; cursor: pointer; font-size: 19px; font-weight: 700; line-height: 1.4; border-radius: 8px; }
+.qa summary::-webkit-details-marker { display: none; }
+.qa summary .chev { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--sunken); flex: none; transition: transform var(--t-hover) var(--ease), background-color var(--t-hover) var(--ease); }
+.qa summary:hover .chev { background: #E9E6DF; }
+.qa[open] summary .chev { transform: rotate(180deg); }
+.qa p { padding-block-end: 24px; padding-inline-end: 56px; color: var(--ink-2); max-width: 40em; }
+
+/* ---------- 11. Final CTA band ---------- */
+.final { background: var(--bg); padding-block: 0 var(--section-y); }
+.band { position: relative; overflow: hidden; isolation: isolate; border-radius: var(--r-band); background: var(--ink); color: #fff; padding: 80px 72px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: center; }
+.band::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--glow); }
+.band .h2 { color: #fff; }
+.band p { margin-block-start: 16px; color: #B9B9C3; font-size: 18px; max-width: 26em; }
+.band .entry { margin: 0; max-width: none; }
+.band .entry-label { color: #fff; }
+.band .entry-label .muted { color: #9A9AA6; }
+.band .entry-or { color: #8D8D99; }
+.band .entry-or::before, .band .entry-or::after { background: #2E2E3A; }
+.band .field { border-color: transparent; }
+
+/* ---------- 12. Footer ---------- */
+.footer { background: var(--ink); color: #B9B9C3; padding-block: 72px 32px; font-size: 15px; }
+.footer-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 48px; }
+.footer .logo { color: #fff; }
+.footer h4 { font-family: var(--f-display); color: #fff; font-size: 16px; font-weight: 700; margin-block-end: 16px; }
+.footer li + li { margin-block-start: 10px; }
+.footer a { color: #D4D4DC; border-radius: 4px; }
+.footer a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+.footer .about { margin-block-start: 16px; max-width: 26em; line-height: 1.6; }
+.footer .pending { display: inline-flex; align-items: center; gap: 8px; margin-block-start: 16px; padding: 8px 12px; border-radius: 10px; background: #1F1F28; color: #D4D4DC; font-size: 14px; font-weight: 600; }
+.footer .pending .ic { width: 16px; height: 16px; color: #8D8D99; }
+.footer-bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-block-start: 56px; padding-block-start: 24px; border-block-start: 1px solid #2A2A35; font-size: 14px; color: #8D8D99; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1180px) {
+  .hero-grid { gap: 32px; }
+  .posters { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 32px; }
+}
+@media (max-width: 1080px) {
+  .io-panel { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .io-arrow { flex-direction: row; justify-content: center; }
+  .io-arrow .line { width: 2px; height: 40px; background-image: linear-gradient(to bottom, #BDB6A6 50%, transparent 50%); background-size: 2px 10px; }
+  .io-arrow .line .ic { display: none; }
+}
+@media (max-width: 980px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-copy { padding-block-start: 8px; }
+  .hero-visual { height: calc(560px * var(--hvz, .62)); max-width: 572px; }
+  .hv-canvas { zoom: var(--hvz, .62); }
+  .trust { padding-block-start: 40px; }
+  .steps { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .step:not(:last-child)::after { inset-block-start: 100%; inset-inline-end: auto; inset-inline-start: 41px; width: 0; height: 28px; border-block-start: 0; border-inline-start: 2px dashed #C3BCAD; }
+  .plans { grid-template-columns: minmax(0, 1fr); }
+  .g-grid { grid-template-columns: minmax(0, 1fr); }
+  .faq-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .faq-aside { position: static; }
+  .band { grid-template-columns: minmax(0, 1fr); padding: 56px 40px; gap: 36px; }
+  .footer-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .footer-grid > :first-child { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .hero { padding-block: 28px 32px; }
+  .hero-lead { margin-block-start: 16px; }
+  .entry { margin-block-start: 24px; }
+  .entry-row { flex-direction: column; }
+  .entry-row .btn { width: 100%; }
+  .entry-or { margin-block: 10px; }
+  .facts { gap: 6px 16px; margin-block-start: 18px; font-size: 14px; }
+  .hero-visual { margin-block-start: 8px; }
+  .trust-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; font-size: 14px; justify-items: start; }
+  .trust-list li { align-items: flex-start; line-height: 1.4; }
+  .trust-list .ic { width: 18px; height: 18px; margin-top: 1px; }
+  .io { padding-block-start: 64px; }
+  .tabs-wrap { justify-content: stretch; }
+  .tabs { width: 100%; }
+  .tab { flex: 1; justify-content: center; padding-inline: 8px; }
+  .io-panel { padding: 16px; border-radius: 22px; }
+  .thumbs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .in-two { grid-template-columns: minmax(0, 1fr); }
+  .io-output .phone { width: 220px; }
+  .step { padding: 24px 20px 20px; }
+  .cinema-bar { flex-direction: column; align-items: stretch; }
+  .filters { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); scrollbar-width: none; }
+  .filters::-webkit-scrollbar { display: none; }
+  .fchip { flex: none; }
+  .ratio { align-self: flex-start; }
+  .reel-foot { flex-direction: column; align-items: stretch; gap: 20px; }
+  .reel-nav { justify-content: center; }
+  .posters { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 44%; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: calc(var(--gutter) * -1); padding: 8px var(--gutter) 12px; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
+  .posters::-webkit-scrollbar { display: none; }
+  .poster { scroll-snap-align: start; }
+  .plan { padding: 24px; }
+  .plan-price b { font-size: 56px; }
+  .len-grid { grid-template-columns: minmax(0, 1fr); padding: 0 12px 12px; }
+  .lengths summary { padding-inline: 20px; flex-wrap: wrap; row-gap: 0; }
+  .g-card { padding: 24px; }
+  .g-small { padding: 24px; gap: 16px; }
+  .qa summary { font-size: 17px; padding-block: 18px; }
+  .qa p { padding-inline-end: 0; }
+  .band { padding: 40px 20px; border-radius: 24px; }
+  .footer-grid { gap: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cycle .ad { opacity: 0; } .cycle .ad:first-of-type { opacity: 1; }
+  .scan, .det::after, .det::before { display: none; }
+  .st-ico .ic-wait { display: none; } .st-ico .ic-done { opacity: 1 !important; }
+}
+</style>
+</head>
+<body>
+<!-- Lucide icons (ISC licence), inlined as a sprite. Usage: <svg class="ic"><use href="#i-check"/></svg>
+     Paste this block right after <body> on every page. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="i-image-plus" viewBox="0 0 24 24"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-rotate-ccw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="i-languages" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-smartphone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></symbol>
+  <symbol id="i-badge-check" viewBox="0 0 24 24"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol>
+  <symbol id="i-pen-line" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></symbol>
+  <symbol id="i-loader" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></symbol>
+  <symbol id="i-scan-line" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol>
+  <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></symbol>
+  <symbol id="i-accessibility" viewBox="0 0 24 24"><circle cx="16" cy="4" r="1"/><path d="m18 19 1-7-6 1"/><path d="m5 8 3-3 5.5 3-2.36 3.5"/><path d="M4.24 14.5a5 5 0 0 0 6.88 6"/><path d="M13.76 17.5a5 5 0 0 0-6.88-6"/></symbol>
+</svg>
+
+<a class="skip-link" href="#main">דילוג לתוכן</a>
+
+<!-- 1. NAV -->
+<header class="nav" id="nav">
+  <div class="container nav-inner">
+    <a class="logo" href="#top" aria-label="AdStudio, לדף הבית">
+      <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#16161D"/><rect x="11" y="6.5" width="10" height="19" rx="2.6" fill="none" stroke="#fff" stroke-width="2"/><rect x="13.2" y="20.4" width="5.6" height="2.2" rx="1.1" fill="#F0562A"/></svg>
+      <bdi>AdStudio</bdi>
+    </a>
+    <nav class="nav-links" aria-label="ראשי">
+      <a href="#styles">סגנונות</a>
+      <a href="#how">איך זה עובד</a>
+      <a href="#pricing">מחירים</a>
+      <a href="#faq">שאלות</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="btn btn-ghost btn-sm" href="#">כניסה</a>
+      <a class="btn btn-primary btn-sm" href="#top">ליצור פרסומת</a>
+      <button class="nav-menu-btn" type="button" aria-label="תפריט" aria-expanded="false" aria-controls="nav-sheet"><svg class="ic ic-lg"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+  <div class="nav-sheet" id="nav-sheet" data-open="false">
+    <a href="#styles">סגנונות</a>
+    <a href="#how">איך זה עובד</a>
+    <a href="#pricing">מחירים</a>
+    <a href="#faq">שאלות</a>
+    <a href="#">כניסה</a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- 2. HERO -->
+<section class="hero" id="top">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <h1 class="display">מהאתר שלכם<br><span class="accent-word">לפרסומת מוכנה</span></h1>
+      <p class="lead hero-lead">מדביקים את כתובת האתר, והמערכת כותבת תסריט בעברית, מוסיפה מוזיקה מקורית ומפיקה סרטון מוכן לסטורי, לרילס וליוטיוב.</p>
+
+      <div class="entry">
+        <form class="entry-opt" action="#" onsubmit="return false">
+          <label class="entry-label" for="hero-url">יש לי אתר</label>
+          <div class="entry-row">
+            <span class="field">
+              <svg class="ic"><use href="#i-link"/></svg>
+              <input id="hero-url" name="url" type="url" dir="ltr" inputmode="url" autocomplete="url" placeholder="yourbusiness.co.il">
+            </span>
+            <button class="btn btn-primary btn-lg" type="submit">ליצור פרסומת <svg class="ic"><use href="#i-arrow-left"/></svg></button>
+          </div>
+        </form>
+        <div class="entry-or" aria-hidden="true">או</div>
+        <div class="entry-opt">
+          <p class="entry-label" id="noweb-hint">אין לי אתר <span class="muted">מעלים עד <bdi>12</bdi> תמונות של העסק</span></p>
+          <a class="btn btn-secondary btn-lg btn-block" href="#" aria-describedby="noweb-hint"><svg class="ic"><use href="#i-image-plus"/></svg> ליצור מתמונות</a>
+        </div>
+      </div>
+
+      <ul class="facts">
+        <li><svg class="ic"><use href="#i-check"/></svg>מ־<bdi>₪29</bdi> לסרטון</li>
+        <li><svg class="ic"><use href="#i-check"/></svg>בלי מנוי</li>
+        <li><svg class="ic"><use href="#i-check"/></svg><bdi>2</bdi> סבבי תיקונים</li>
+      </ul>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hv-canvas">
+        <div class="hv-stage"></div>
+
+        <!-- the business website -->
+        <figure class="browser" aria-label="אתר של עסק לדוגמה: פיצרייה">
+          <div class="browser-bar"><span class="dots"><i></i><i></i><i></i></span><span class="url"><svg class="ic"><use href="#i-lock"/></svg>roma-pizza.co.il</span></div>
+          <div class="site">
+            <span class="scan" aria-hidden="true"></span>
+            <div class="site-nav"><b class="site-logo det" data-tag="לוגו" style="--dd:.6s">רומא</b><span>תפריט</span><span>משלוחים</span><span class="site-btn">להזמנה</span></div>
+            <div class="site-hero det" data-tag="תמונות" style="--dd:1.2s"><img src="assets/img/pizza-2.jpg" alt=""><div class="site-hero-copy"><b>פיצה נפוליטנית מתנור אבנים</b><span>בצק שתופח 48 שעות</span></div></div>
+            <div class="site-menu det" data-tag="מחירים" style="--dd:1.8s">
+              <figure><img src="assets/img/pizza-3.jpg" alt=""><figcaption>פפרוני <bdi>₪62</bdi></figcaption></figure>
+              <figure><img src="assets/img/pizza-4.jpg" alt=""><figcaption>מרגריטה <bdi>₪54</bdi></figcaption></figure>
+              <figure><img src="assets/img/pizza-6.jpg" alt=""><figcaption>ארוגולה <bdi>₪58</bdi></figcaption></figure>
+            </div>
+          </div>
+        </figure>
+
+        <!-- flow: site -> production -> ad -->
+        <svg class="flow" viewBox="0 0 572 560" aria-hidden="true">
+          <path class="track" d="M410 330 C 410 350, 400 356, 392 366"/>
+          <path class="run" d="M410 330 C 410 350, 400 356, 392 366"/>
+          <path class="track" d="M326 452 C 300 452, 292 440, 268 432"/>
+          <path class="run" d="M326 452 C 300 452, 292 440, 268 432"/>
+          <path class="head" d="M276 425 L 266 432 L 277 438"/>
+        </svg>
+
+        <div class="status" aria-hidden="true">
+          <div class="status-title">מכינים את הפרסומת <span class="chip chip-accent"><bdi>30</bdi> שנ׳</span></div>
+          <ul>
+            <li><span class="st-ico"><svg class="ic ic-wait"><use href="#i-loader"/></svg><svg class="ic ic-done"><use href="#i-check"/></svg></span>קוראים את האתר</li>
+            <li><span class="st-ico"><svg class="ic ic-wait"><use href="#i-loader"/></svg><svg class="ic ic-done"><use href="#i-check"/></svg></span>כותבים תסריט בעברית</li>
+            <li><span class="st-ico"><svg class="ic ic-wait"><use href="#i-loader"/></svg><svg class="ic ic-done"><use href="#i-check"/></svg></span>מלחינים מוזיקה</li>
+          </ul>
+        </div>
+
+        <!-- the ad, playing -->
+        <div class="hero-phone">
+          <div class="phone" role="img" aria-label="דוגמה לפרסומת שנוצרה מהאתר: פיצרייה רומא, שלוש סצנות ומסך סיום">
+            <div class="phone-screen cycle">
+              <span class="phone-island"></span>
+              <div class="ad-bars" aria-hidden="true"><span></span><span></span><span></span></div>
+              <div class="ad ad--cinema" style="--f:0" aria-hidden="true">
+                <img src="assets/img/pizza-1.jpg" alt="" style="object-position:50% 40%">
+                <div class="ad-shade"></div>
+                <div class="ad-top"><span class="ad-logo">ר</span><span class="ad-brand">רומא<small>ממומן</small></span></div>
+                <div class="ad-body">
+                  <p class="ad-kicker" style="--k:0">פיצה נפוליטנית</p>
+                  <h4 class="ad-title" style="--k:1">המרגריטה <span class="gold">שכולם מדברים עליה</span></h4>
+                  <div class="ad-row" style="--k:2">
+                    <span class="ad-price"><b class="gold"><bdi>₪54</bdi></b><small>מגש אישי</small></span>
+                    <span class="ad-cta">להזמנה <svg viewBox="0 0 24 24"><use href="#i-arrow-left"/></svg></span>
+                  </div>
+                </div>
+              </div>
+              <div class="ad ad--cinema" style="--f:1" aria-hidden="true">
+                <img src="assets/img/pizza-4.jpg" alt="" style="object-position:50% 50%">
+                <div class="ad-shade"></div>
+                <div class="ad-body">
+                  <p class="ad-kicker" style="--k:0">מתנור אבנים</p>
+                  <h4 class="ad-title" style="--k:1">חמה וטרייה, <span class="gold">ישר לשולחן</span></h4>
+                  <div class="ad-row" style="--k:2">
+                    <span class="ad-price"><b class="gold"><bdi>₪49</bdi></b><small>פיצה אישית</small></span>
+                    <span class="ad-cta">להזמנה <svg viewBox="0 0 24 24"><use href="#i-arrow-left"/></svg></span>
+                  </div>
+                </div>
+              </div>
+              <div class="ad ad--cinema ad--endcard" style="--f:2" aria-hidden="true">
+                <img src="assets/img/pizza-6.jpg" alt="">
+                <div class="ad-shade"></div>
+                <div class="end">
+                  <span class="end-logo" style="--k:0">ר</span>
+                  <span class="end-name" style="--k:1">רומא</span>
+                  <span class="end-tag" style="--k:2">פיצה בעבודת יד, משלוחים עד <bdi>23:00</bdi></span>
+                  <span class="end-rule" style="--k:3"></span>
+                  <span class="end-phone" style="--k:3"><bdi>050-0000000</bdi></span>
+                  <span class="ad-cta" style="--k:4">להזמנה עכשיו <svg viewBox="0 0 24 24"><use href="#i-arrow-left"/></svg></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. TRUST LINE -->
+<section class="trust" aria-label="מה כלול בכל סרטון">
+  <div class="container">
+    <ul class="trust-list">
+      <li><svg class="ic"><use href="#i-rotate-ccw"/></svg><span><bdi>2</bdi> סבבי תיקונים כלולים</span></li>
+      <li><svg class="ic"><use href="#i-shield-check"/></svg><span>החזר מלא אם ההפקה נכשלת</span></li>
+      <li><svg class="ic"><use href="#i-music"/></svg><span>מוזיקה שנוצרת במיוחד לכל סרטון</span></li>
+      <li><svg class="ic"><use href="#i-languages"/></svg><span>תסריט וכותרות בעברית</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 4. BEFORE -> AFTER -->
+<section class="section io" id="example" aria-labelledby="io-title">
+  <div class="container">
+    <div class="section-head center">
+      <div>
+        <h2 class="h2" id="io-title">מה שיש באתר, הופך לסרטון</h2>
+        <p class="lead">המערכת אוספת מהאתר את הטקסטים, הלוגו, הצבעים והתמונות, וכותבת מהם תסריט בעברית. אין אתר? אותו דבר, מתמונות שמעלים.</p>
+      </div>
+    </div>
+
+    <div class="tabs-wrap">
+      <div class="tabs" role="tablist" aria-label="עסקים לדוגמה">
+        <button class="tab" role="tab" id="tab-pizza" aria-selected="true" aria-controls="panel-pizza">פיצרייה</button>
+        <button class="tab" role="tab" id="tab-cafe" aria-selected="false" aria-controls="panel-cafe" tabindex="-1">בית קפה</button>
+        <button class="tab" role="tab" id="tab-lumi" aria-selected="false" aria-controls="panel-lumi" tabindex="-1">קוסמטיקה</button>
+      </div>
+    </div>
+
+    <!-- Pizza -->
+    <div class="io-panel" role="tabpanel" id="panel-pizza" aria-labelledby="tab-pizza">
+      <div class="io-inputs">
+        <div class="in-card">
+          <div class="in-label">הכתובת <span class="ok"><svg class="ic"><use href="#i-check"/></svg>נקרא</span></div>
+          <div class="url-chip"><svg class="ic"><use href="#i-link"/></svg><bdi dir="ltr">roma-pizza.co.il</bdi></div>
+        </div>
+        <div class="in-card">
+          <div class="in-label"><span><bdi>6</bdi> תמונות מהאתר</span></div>
+          <div class="thumbs">
+            <img src="assets/img/pizza-1.jpg" alt=""><img src="assets/img/pizza-2.jpg" alt=""><img src="assets/img/pizza-3.jpg" alt=""><img src="assets/img/pizza-4.jpg" alt=""><img src="assets/img/pizza-5.jpg" alt=""><img src="assets/img/pizza-6.jpg" alt="">
+          </div>
+        </div>
+        <div class="in-two">
+          <div class="in-card">
+            <div class="in-label">לוגו וצבעים</div>
+            <div class="logo-tile"><span class="mark" style="background:#1C1410;color:#E9C27A">ר</span><span class="swatches"><i style="background:#8E2A1B"></i><i style="background:#E9C27A"></i><i style="background:#1C1410"></i></span></div>
+          </div>
+          <div class="in-card">
+            <div class="in-label">קטע מהתסריט</div>
+            <ol class="script">
+              <li><time><bdi>0:00</bdi></time>בצק שתופח 48 שעות.</li>
+              <li><time><bdi>0:03</bdi></time>תנור אבנים, 450 מעלות.</li>
+              <li><time><bdi>0:07</bdi></time>רומא. פיצה כמו פעם, עד הבית.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="io-arrow" aria-hidden="true">
+        <span class="chip"><svg class="ic"><use href="#i-clock"/></svg><bdi>20–120</bdi> שניות</span>
+        <span class="line"><svg class="ic"><use href="#i-arrow-left"/></svg></span>
+        <small>אנכי או רוחבי</small>
+      </div>
+      <div class="io-output">
+        <div class="phone"><div class="phone-screen">
+          <span class="phone-island"></span>
+          <div class="ad ad--cinema">
+            <img src="assets/img/pizza-3.jpg" alt="פרוסת פיצה נמשכת מהמגש" style="object-position:62% 50%">
+            <div class="ad-shade"></div>
+            <div class="ad-bars"><span style="--p:1"></span><span style="--p:.4"></span><span></span></div>
+            <div class="ad-top"><span class="ad-logo">ר</span><span class="ad-brand">רומא<small>ממומן</small></span></div>
+            <div class="ad-body">
+              <p class="ad-kicker">פיצה בעבודת יד</p>
+              <h4 class="ad-title">הביס הראשון <span class="gold">כבר מחכה</span></h4>
+              <div class="ad-row"><span class="ad-price"><b class="gold"><bdi>₪54</bdi></b><small>מגש אישי</small></span><span class="ad-cta">להזמנה <svg viewBox="0 0 24 24"><use href="#i-arrow-left"/></svg></span></div>
+            </div>
+          </div>
+        </div></div>
+        <div class="out-meta"><span class="chip"><bdi>9:16</bdi></span><span class="chip"><bdi>30</bdi> שניות</span><span class="chip"><bdi>Full HD</bdi></span></div>
+      </div>
+    </div>
+
+    <!-- Cafe -->
+    <div class="io-panel" role="tabpanel" id="panel-cafe" aria-labelledby="tab-cafe" hidden>
+      <div class="io-inputs">
+        <div class="in-card">
+          <div class="in-label">הכתובת <span class="ok"><svg class="ic"><use href="#i-check"/></svg>נקרא</span></div>
+          <div class="url-chip"><svg class="ic"><use href="#i-link"/></svg><bdi dir="ltr">boker-cafe.co.il</bdi></div>
+        </div>
+        <div class="in-card">
+          <div class="in-label"><span><bdi>6</bdi> תמונות מהאתר</span></div>
+          <div class="thumbs">
+            <img src="assets/img/crop-cafe.jpg" alt=""><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:30% 70%;transform:scale(1.6)"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:70% 20%"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:10% 10%;transform:scale(1.3)"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:90% 90%"><img src="assets/img/crop-cafe.jpg" alt="" style="object-position:50% 40%;transform:scale(2)">
+          </div>
+        </div>
+        <div class="in-two">
+          <div class="in-card">
+            <div class="in-label">לוגו וצבעים</div>
+            <div class="logo-tile"><span class="mark" style="background:#3A2414;color:#F8E9D6">ב</span><span class="swatches"><i style="background:#3A2414"></i><i style="background:#D9773E"></i><i style="background:#F8E9D6"></i></span></div>
+          </div>
+          <div class="in-card">
+            <div class="in-label">קטע מהתסריט</div>
+            <ol class="script">
+              <li><time><bdi>0:00</bdi></time>הבוקר שלך מתחיל כאן.</li>
+              <li><time><bdi>0:03</bdi></time>פולים שנקלים כל שבוע.</li>
+              <li><time><bdi>0:06</bdi></time>בוקר. פתוח כל יום מ־<bdi>7:00</bdi>.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="io-arrow" aria-hidden="true">
+        <span class="chip"><svg class="ic"><use href="#i-clock"/></svg><bdi>20–120</bdi> שניות</span>
+        <span class="line"><svg class="ic"><use href="#i-arrow-left"/></svg></span>
+        <small>אנכי או רוחבי</small>
+      </div>
+      <div class="io-output">
+        <div class="phone"><div class="phone-screen">
+          <span class="phone-island"></span>
+          <div class="ad ad--life">
+            <div class="ad-top"><span class="ad-logo">ב</span><span class="ad-brand">בוקר<small>ממומן</small></span></div>
+            <div class="ad-photo"><img src="assets/img/crop-cafe.jpg" alt="כוס קפוצ׳ינו עם ציור בחלב"></div>
+            <div class="ad-body">
+              <h4 class="ad-title">הבוקר שלך<br>מתחיל כאן.</h4>
+              <p class="ad-sub">כל יום מ־<bdi>7:00</bdi></p>
+              <svg class="ad-scribble" viewBox="0 0 120 14" aria-hidden="true"><path d="M2 9 C 30 2, 60 14, 118 5" fill="none" stroke="#D9773E" stroke-width="3" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div></div>
+        <div class="out-meta"><span class="chip"><bdi>9:16</bdi></span><span class="chip"><bdi>20</bdi> שניות</span><span class="chip"><bdi>Full HD</bdi></span></div>
+      </div>
+    </div>
+
+    <!-- Cosmetics -->
+    <div class="io-panel" role="tabpanel" id="panel-lumi" aria-labelledby="tab-lumi" hidden>
+      <div class="io-inputs">
+        <div class="in-card">
+          <div class="in-label">הכתובת <span class="ok"><svg class="ic"><use href="#i-check"/></svg>נקרא</span></div>
+          <div class="url-chip"><svg class="ic"><use href="#i-link"/></svg><bdi dir="ltr">lumi-skin.co.il</bdi></div>
+        </div>
+        <div class="in-card">
+          <div class="in-label"><span><bdi>6</bdi> תמונות מהאתר</span></div>
+          <div class="thumbs">
+            <img src="assets/img/crop-lumi.jpg" alt=""><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:80% 40%"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:20% 20%;transform:scale(1.5)"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:60% 90%"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:90% 30%;transform:scale(1.8)"><img src="assets/img/crop-lumi.jpg" alt="" style="object-position:10% 80%">
+          </div>
+        </div>
+        <div class="in-two">
+          <div class="in-card">
+            <div class="in-label">לוגו וצבעים</div>
+            <div class="logo-tile"><span class="mark" style="background:#F4F0EA;color:#2B2621;font:400 15px/1 var(--f-body);letter-spacing:.3em;box-shadow:inset 0 0 0 1px #E3DDD3" dir="ltr">LUMI</span><span class="swatches"><i style="background:#2B2621"></i><i style="background:#E9A5A0"></i><i style="background:#F4F0EA"></i></span></div>
+          </div>
+          <div class="in-card">
+            <div class="in-label">קטע מהתסריט</div>
+            <ol class="script">
+              <li><time><bdi>0:00</bdi></time>פחות שלבים.</li>
+              <li><time><bdi>0:02</bdi></time>יותר עור שמרגיש טוב.</li>
+              <li><time><bdi>0:05</bdi></time><span><bdi>LUMI</bdi>. טיפוח, בפשטות.</span></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="io-arrow" aria-hidden="true">
+        <span class="chip"><svg class="ic"><use href="#i-clock"/></svg><bdi>20–120</bdi> שניות</span>
+        <span class="line"><svg class="ic"><use href="#i-arrow-left"/></svg></span>
+        <small>אנכי או רוחבי</small>
+      </div>
+      <div class="io-output">
+        <div class="phone"><div class="phone-screen">
+          <span class="phone-island"></span>
+          <div class="ad ad--minimal">
+            <div class="ad-photo"><img src="assets/img/crop-lumi.jpg" alt="בקבוקון סרום על עלי ורדים"></div>
+            <div class="ad-body">
+              <div class="ad-wordmark">LUMI</div>
+              <div class="ad-hair"></div>
+              <p class="ad-sub">טיפוח, בפשטות.</p>
+            </div>
+          </div>
+        </div></div>
+        <div class="out-meta"><span class="chip"><bdi>9:16</bdi></span><span class="chip"><bdi>45</bdi> שניות</span><span class="chip"><bdi>Full HD</bdi></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. HOW IT WORKS -->
+<section class="section how" id="how" aria-labelledby="how-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2 class="h2" id="how-title">איך זה עובד</h2>
+        <p class="lead">שלושה צעדים. בלי ידע בעריכה, ובלי לצלם מחדש.</p>
+      </div>
+    </div>
+    <ol class="steps" data-reveal-group>
+      <li class="step" data-reveal style="--i:0">
+        <span class="step-pill">שלב <bdi>1</bdi></span>
+        <h3 class="h3">מדביקים כתובת, או מעלים תמונות</h3>
+        <p>המערכת קוראת את האתר ולוקחת ממנו טקסטים, לוגו ותמונות. אין אתר? מעלים עד <bdi>12</bdi> תמונות.</p>
+        <div class="snip"><div class="snip-box" aria-hidden="true">
+          <div class="mini-field"><svg class="ic"><use href="#i-link"/></svg><span class="val"><bdi dir="ltr">roma-pizza.co.il</bdi><span class="caret"></span></span><span class="btn btn-primary">ליצור פרסומת</span></div>
+          <div class="mini-or"><svg class="ic"><use href="#i-image-plus"/></svg>או ליצור מתמונות</div>
+        </div></div>
+      </li>
+      <li class="step" data-reveal style="--i:1">
+        <span class="step-pill">שלב <bdi>2</bdi></span>
+        <h3 class="h3">בוחרים כיוון מתוך <bdi>3</bdi></h3>
+        <p>נכתבים שלושה תסריטים בסגנונות שונים. צופים בכל אחד, ובוחרים את מה שמתאים לעסק.</p>
+        <div class="snip"><div class="snip-box" aria-hidden="true">
+          <div class="mini-styles">
+            <div class="mini-style"><div class="frame"><div class="ad ad--cinema"><img src="assets/img/pizza-2.jpg" alt="" style="object-position:30% 50%"><div class="ad-shade"></div></div></div><span>דרמה של אש</span></div>
+            <div class="mini-style sel"><span class="tick"><svg class="ic"><use href="#i-check"/></svg></span><div class="frame"><div class="ad ad--stage"><span class="beam"></span><span class="plinth"></span><span class="dish"><img src="assets/img/pizza-1.jpg" alt=""></span></div></div><span>מנה על במה</span></div>
+            <div class="mini-style"><div class="frame"><div class="ad ad--life"><div class="ad-photo" style="top:20cqh;height:50cqh"><img src="assets/img/pizza-5.jpg" alt="" style="object-position:40% 50%"></div></div></div><span>ערב משפחתי</span></div>
+          </div>
+        </div></div>
+      </li>
+      <li class="step" data-reveal style="--i:2">
+        <span class="step-pill">שלב <bdi>3</bdi></span>
+        <h3 class="h3">מורידים את הסרטון</h3>
+        <p>בדרך כלל תוך <bdi>5</bdi> עד <bdi>15</bdi> דקות. משהו לא מדויק? יש <bdi>2</bdi> סבבי תיקונים במחיר.</p>
+        <div class="snip"><div class="snip-box" aria-hidden="true">
+          <div class="mini-file">
+            <span class="thumb"><span class="ad ad--cinema"><img src="assets/img/pizza-1.jpg" alt=""></span></span>
+            <span class="meta"><b><bdi dir="ltr">roma-30s.mp4</bdi></b><small><bdi>Full HD</bdi>, <bdi>30</bdi> שניות</small></span>
+            <span class="btn btn-primary"><svg class="ic ic-sm"><use href="#i-download"/></svg>להוריד</span>
+          </div>
+          <div class="mini-rev"><svg class="ic"><use href="#i-rotate-ccw"/></svg>נשארו <bdi>2</bdi> סבבי תיקונים</div>
+        </div></div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- 6. CINEMA SHOWCASE -->
+<section class="cinema" id="showcase" aria-labelledby="cin-title">
+  <div class="container">
+    <div class="section-head center" style="margin-block-end:0">
+      <div>
+        <h2 class="h2" id="cin-title">ככה זה נראה בפועל</h2>
+        <p class="lead">עסקים שונים, סגנונות שונים. אפשר לעבור בין הפורמט האנכי לרוחבי.</p>
+      </div>
+    </div>
+
+    <div class="cinema-bar">
+      <div class="filters" role="group" aria-label="סינון לפי סוג עסק">
+        <button class="fchip" type="button" data-filter="all" aria-pressed="true">הכול</button>
+        <button class="fchip" type="button" data-filter="food" aria-pressed="false">אוכל</button>
+        <button class="fchip" type="button" data-filter="fit" aria-pressed="false">כושר</button>
+        <button class="fchip" type="button" data-filter="home" aria-pressed="false">נדל״ן</button>
+        <button class="fchip" type="button" data-filter="beauty" aria-pressed="false">טיפוח</button>
+      </div>
+      <div class="ratio" role="group" aria-label="פורמט">
+        <button type="button" data-ratio="tall" aria-pressed="true"><svg class="ic"><use href="#i-smartphone"/></svg>אנכי <bdi>9:16</bdi></button>
+        <button type="button" data-ratio="wide" aria-pressed="false"><svg class="ic"><use href="#i-monitor"/></svg>רוחבי <bdi>16:9</bdi></button>
+      </div>
+    </div>
+
+    <div class="stage" id="stage" aria-roledescription="קרוסלה" aria-label="דוגמאות לפרסומות">
+      <div class="ambient" aria-hidden="true"><img alt=""><img alt=""></div>
+
+      <div class="reel" data-cat="food" data-title="פיצרייה" data-style="קולנועי" data-len="30" data-poster="assets/img/pizza-3.jpg">
+        <div class="phone"><div class="phone-screen"><span class="phone-island"></span>
+          <div class="ad ad--cinema">
+            <img class="kb" src="assets/img/pizza-3.jpg" alt="" style="object-position:62% 50%">
+            <div class="ad-shade"></div>
+            <div class="ad-bars"><span></span><span></span><span></span></div>
+            <div class="ad-top"><span class="ad-logo">ר</span><span class="ad-brand">רומא<small>ממומן</small></span></div>
+            <div class="ad-body"><p class="ad-kicker">פיצה בעבודת יד</p><h4 class="ad-title">הביס הראשון <span class="gold">כבר מחכה</span></h4>
+              <div class="ad-row"><span class="ad-price"><b class="gold"><bdi>₪54</bdi></b><small>מגש אישי</small></span><span class="ad-cta">להזמנה <svg viewBox="0 0 24 24"><use href="#i-arrow-left"/></svg></span></div></div>
+          </div>
+        </div></div>
+        <div class="wide">
+          <div class="ad ad--cinema ad--wide">
+            <img class="kb" src="assets/img/pizza-2.jpg" alt="" style="object-position:30% 50%">
+            <div class="ad-shade"></div>
+            <div class="ad-top"><span class="ad-logo">ר</span><span class="ad-brand">רומא<small>ממומן</small></span></div>
+            <div class="ad-body"><p class="ad-kicker">מתנור אבנים</p><h4 class="ad-title">הביס הראשון <span class="gold">כבר מחכה</span></h4>
+              <div class="ad-row"><span class="ad-price"><b class="gold"><bdi>₪54</bdi></b><small>מגש אישי</small></span><span class="ad-cta">להזמנה <svg viewBox="0 0 24 24"><use href="#i-arrow-left"/></svg></span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reel" data-cat="food" data-title="בית קפה" data-style="לייפסטייל" data-len="20" data-poster="assets/img/crop-cafe.jpg">
+        <div class="phone"><div class="phone-screen"><span class="phone-island"></span>
+          <div class="ad ad--life">
+            <div class="ad-top"><span class="ad-logo">ב</span><span class="ad-brand">בוקר<small>ממומן</small></span></div>
+            <div class="ad-photo"><img class="kb" src="assets/img/crop-cafe.jpg" alt=""></div>
+            <div class="ad-body"><h4 class="ad-title">הבוקר שלך<br>מתחיל כאן.</h4><p class="ad-sub">כל יום מ־<bdi>7:00</bdi></p>
+              <svg class="ad-scribble" viewBox="0 0 120 14" aria-hidden="true"><path d="M2 9 C 30 2, 60 14, 118 5" fill="none" stroke="#D9773E" stroke-width="3" stroke-linecap="round"/></svg></div>
+          </div>
+        </div></div>
+        <div class="wide"><img src="assets/img/style-lifestyle.jpg" alt="פריים מסרטון לדוגמה לבית קפה"></div>
+      </div>
+
+      <div class="reel" data-cat="fit" data-title="סטודיו לכושר" data-style="קינטי" data-len="30" data-poster="assets/img/crop-gym.jpg">
+        <div class="phone"><div class="phone-screen"><span class="phone-island"></span>
+          <div class="ad ad--kinetic">
+            <img class="kb" src="assets/img/crop-gym.jpg" alt="" style="object-position:40% 30%">
+            <div class="ad-shade"></div>
+            <div class="ad-bars"><span></span><span></span><span></span></div>
+            <div class="ad-stack"><span>כוח.</span><span>אנרגיה.</span><span>עכשיו.</span></div>
+            <div class="ad-tag"><span>אימון ניסיון ראשון</span><em>להירשם</em></div>
+          </div>
+        </div></div>
+        <div class="wide"><img src="assets/img/style-kinetic.jpg" alt="פריים מסרטון לדוגמה לסטודיו לכושר"></div>
+      </div>
+
+      <div class="reel" data-cat="home" data-title="נדל״ן" data-style="קולנועי" data-len="60" data-poster="assets/img/crop-house.jpg">
+        <div class="phone"><div class="phone-screen"><span class="phone-island"></span>
+          <div class="ad ad--estate">
+            <img class="kb" src="assets/img/crop-house.jpg" alt="">
+            <div class="ad-shade"></div>
+            <div class="ad-body"><h4 class="ad-title">בית עם חצר, <br>עשר דקות מהעיר</h4><div class="ad-rule"></div><p class="ad-sub">5 חדרים, גינה פרטית</p></div>
+          </div>
+        </div></div>
+        <div class="wide"><img src="assets/img/style-cinematic.jpg" alt="פריים מסרטון לדוגמה לנדל״ן"></div>
+      </div>
+
+      <div class="reel" data-cat="food" data-title="גלידרייה" data-style="צבעוני" data-len="20" data-poster="assets/img/crop-icecream.jpg">
+        <div class="phone"><div class="phone-screen"><span class="phone-island"></span>
+          <div class="ad ad--play">
+            <i class="dot" style="width:14cqw;height:14cqw;background:#FF9FC8;top:6cqh;left:8cqw"></i>
+            <i class="dot" style="width:10cqw;height:10cqw;background:#9ED9D0;top:12cqh;right:10cqw"></i>
+            <i class="dot" style="width:18cqw;height:18cqw;background:#FFC48A;bottom:24cqh;left:-4cqw"></i>
+            <div class="ad-photo"><span><img class="kb" src="assets/img/crop-icecream.jpg" alt=""></span></div>
+            <div class="ad-body"><h4 class="ad-title">מתוק?</h4><p class="ad-sub">גלידה איטלקית, <bdi>24</bdi> טעמים</p><div class="ad-row" style="margin-top:4cqw"><span class="ad-cta">לבוא לטעום</span></div></div>
+          </div>
+        </div></div>
+        <div class="wide"><img src="assets/img/style-playful.jpg" alt="פריים מסרטון לדוגמה לגלידרייה"></div>
+      </div>
+
+      <div class="reel" data-cat="beauty" data-title="קוסמטיקה" data-style="מינימלי" data-len="45" data-poster="assets/img/crop-lumi.jpg">
+        <div class="phone"><div class="phone-screen"><span class="phone-island"></span>
+          <div class="ad ad--minimal">
+            <div class="ad-photo"><img class="kb" src="assets/img/crop-lumi.jpg" alt=""></div>
+            <div class="ad-body"><div class="ad-wordmark">LUMI</div><div class="ad-hair"></div><p class="ad-sub">טיפוח, בפשטות.</p></div>
+          </div>
+        </div></div>
+        <div class="wide"><img src="assets/img/style-minimal.jpg" alt="פריים מסרטון לדוגמה לקוסמטיקה"></div>
+      </div>
+    </div>
+
+    <div class="reel-foot">
+      <div class="reel-cap" aria-live="polite">
+        <b id="cap-title">פיצרייה</b>
+        <span class="dchip" id="cap-style">סגנון קולנועי</span>
+        <span class="dchip"><svg class="ic"><use href="#i-clock"/></svg><span id="cap-len"><bdi>30</bdi> שנ׳</span></span>
+        <span class="dchip dchip-stock"><svg class="ic"><use href="#i-info"/></svg>דוגמה שהופקה מתמונות סטוק</span>
+      </div>
+      <div class="reel-nav">
+        <button type="button" id="reel-prev" aria-label="הדוגמה הקודמת"><svg class="ic"><use href="#i-chevron-right"/></svg></button>
+        <span class="count" id="reel-count"><bdi>1 / 6</bdi></span>
+        <button type="button" id="reel-next" aria-label="הדוגמה הבאה"><svg class="ic"><use href="#i-chevron-left"/></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. ONE BUSINESS, SIX STYLES -->
+<section class="section styles" id="styles" aria-labelledby="styles-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2 class="h2" id="styles-title">עסק אחד, שישה סגנונות</h2>
+        <p class="lead">אותה פיצרייה ואותן תמונות, בשישה סגנונות עריכה. בכל הזמנה מקבלים <bdi>3</bdi> כיוונים שמתאימים לעסק, ובוחרים אחד.</p>
+      </div>
+    </div>
+    <div class="posters" data-reveal-group>
+      <button class="poster" type="button" data-reveal style="--i:0">
+        <div class="poster-frame"><div class="ad ad--cinema">
+          <img src="assets/img/pizza-1.jpg" alt="" style="object-position:50% 40%"><div class="ad-shade"></div>
+          <div class="ad-body"><p class="ad-kicker">רומא</p><h4 class="ad-title">המרגריטה <span class="gold">של הבית</span></h4><div class="ad-row"><span class="ad-price"><b class="gold"><bdi>₪54</bdi></b></span></div></div>
+        </div></div>
+        <h3>קולנועי</h3><p>אור חם, מצלמה איטית, כותרת בזהב</p>
+      </button>
+      <button class="poster" type="button" data-reveal style="--i:1">
+        <div class="poster-frame"><div class="ad ad--kinetic">
+          <img src="assets/img/pizza-3.jpg" alt="" style="object-position:60% 50%"><div class="ad-shade"></div>
+          <div class="ad-stack"><span>חם.</span><span>טרי.</span><span>עכשיו.</span></div>
+        </div></div>
+        <h3>קינטי</h3><p>טקסט גדול שזז בקצב המוזיקה</p>
+      </button>
+      <button class="poster" type="button" data-reveal style="--i:2">
+        <div class="poster-frame"><div class="ad ad--life">
+          <div class="ad-photo" style="top:9cqh;height:50cqh"><img src="assets/img/pizza-5.jpg" alt="" style="object-position:45% 50%"></div>
+          <div class="ad-body"><h4 class="ad-title" style="font-size:11cqw">ערב טוב מתחיל בשולחן</h4><p class="ad-sub">פתוח עד חצות</p></div>
+        </div></div>
+        <h3>לייפסטייל</h3><p>תחושה ביתית וצבעים רכים</p>
+      </button>
+      <button class="poster" type="button" data-reveal style="--i:3">
+        <div class="poster-frame"><div class="ad ad--minimal">
+          <div class="ad-photo"><img src="assets/img/pizza-6.jpg" alt="" style="object-position:60% 60%"></div>
+          <div class="ad-body"><div class="ad-wordmark">ROMA</div><div class="ad-hair"></div><p class="ad-sub">פיצה. וזהו.</p></div>
+        </div></div>
+        <h3>מינימלי</h3><p>הרבה אוויר, מעט מילים</p>
+      </button>
+      <button class="poster" type="button" data-reveal style="--i:4">
+        <div class="poster-frame"><div class="ad ad--play" style="background:#FFE45C">
+          <i class="dot" style="width:16cqw;height:16cqw;background:#FF7AB6;top:5cqh;right:8cqw"></i>
+          <i class="dot" style="width:22cqw;height:22cqw;background:#7FD6C9;bottom:22cqh;left:-6cqw"></i>
+          <div class="ad-photo" style="background:#fff"><span><img src="assets/img/pizza-4.jpg" alt=""></span></div>
+          <div class="ad-body"><h4 class="ad-title" style="color:#fff">רעבים?</h4><p class="ad-sub">מגש משפחתי ב־<bdi>₪89</bdi></p></div>
+        </div></div>
+        <h3>צבעוני</h3><p>צבעים עזים ומדבקות</p>
+      </button>
+      <button class="poster" type="button" data-reveal style="--i:5">
+        <div class="poster-frame"><div class="ad ad--stage">
+          <span class="beam"></span><span class="plinth"></span>
+          <span class="dish"><img src="assets/img/pizza-1.jpg" alt=""></span>
+          <div class="ad-body"><h4 class="ad-title">המרגריטה</h4><div class="ad-row" style="margin-top:3cqw"><span class="ad-price"><b class="gold"><bdi>₪54</bdi></b></span></div></div>
+        </div></div>
+        <h3>מנות על במה</h3><p>כל מנה בזרקור משלה</p>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- 8. PRICING -->
+<section class="section pricing" id="pricing" aria-labelledby="pricing-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2 class="h2" id="pricing-title">משלמים על <span class="accent-word">סרטון</span>, לא על מנוי</h2>
+        <p class="lead">המחיר נקבע לפי אורך הסרטון, והוא המחיר הסופי.</p>
+      </div>
+    </div>
+    <div class="plans" data-reveal-group>
+      <article class="plan" data-reveal style="--i:0">
+        <div class="plan-top"><span class="plan-use"><svg class="ic"><use href="#i-smartphone"/></svg>לסטורי</span></div>
+        <div class="plan-price"><b><bdi>₪29</bdi></b><span>לסרטון</span></div>
+        <div class="plan-len"><bdi>20</bdi> שניות</div>
+        <ul class="plan-list">
+          <li><svg class="ic"><use href="#i-check"/></svg>תסריט וכותרות בעברית</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>מוזיקה מקורית לסרטון</li>
+          <li><svg class="ic"><use href="#i-check"/></svg><bdi>2</bdi> סבבי תיקונים</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>קובץ <bdi>Full HD</bdi>, אנכי או רוחבי</li>
+        </ul>
+        <a class="btn btn-secondary btn-lg btn-block" href="#top">ליצור סרטון של <bdi>20</bdi> שניות</a>
+      </article>
+      <article class="plan featured" data-reveal style="--i:1">
+        <div class="plan-top"><span class="plan-use"><svg class="ic"><use href="#i-smartphone"/></svg>לרילס ולטיקטוק</span><span class="plan-badge">הכי פופולרי</span></div>
+        <div class="plan-price"><b><bdi>₪39</bdi></b><span>לסרטון</span></div>
+        <div class="plan-len"><bdi>30</bdi> שניות</div>
+        <ul class="plan-list">
+          <li><svg class="ic"><use href="#i-check"/></svg>תסריט וכותרות בעברית</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>מוזיקה מקורית לסרטון</li>
+          <li><svg class="ic"><use href="#i-check"/></svg><bdi>2</bdi> סבבי תיקונים</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>קובץ <bdi>Full HD</bdi>, אנכי או רוחבי</li>
+        </ul>
+        <a class="btn btn-light btn-lg btn-block" href="#top">ליצור סרטון של <bdi>30</bdi> שניות</a>
+      </article>
+      <article class="plan" data-reveal style="--i:2">
+        <div class="plan-top"><span class="plan-use"><svg class="ic"><use href="#i-monitor"/></svg>ליוטיוב ולאתר</span></div>
+        <div class="plan-price"><b><bdi>₪59</bdi></b><span>לסרטון</span></div>
+        <div class="plan-len"><bdi>60</bdi> שניות</div>
+        <ul class="plan-list">
+          <li><svg class="ic"><use href="#i-check"/></svg>תסריט וכותרות בעברית</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>מוזיקה מקורית לסרטון</li>
+          <li><svg class="ic"><use href="#i-check"/></svg><bdi>2</bdi> סבבי תיקונים</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>קובץ <bdi>Full HD</bdi>, אנכי או רוחבי</li>
+        </ul>
+        <a class="btn btn-secondary btn-lg btn-block" href="#top">ליצור סרטון של <bdi>60</bdi> שניות</a>
+      </article>
+    </div>
+
+    <details class="lengths">
+      <summary>כל האורכים <span class="muted"><bdi>45</bdi>, <bdi>90</bdi> ו־<bdi>120</bdi> שניות</span><svg class="ic"><use href="#i-chevron-down"/></svg></summary>
+      <div class="len-grid">
+        <div class="len"><b><bdi>45</bdi> שנ׳</b><span class="p"><bdi>₪49</bdi></span><a href="#top">ליצור<svg class="ic"><use href="#i-arrow-left"/></svg></a></div>
+        <div class="len"><b><bdi>90</bdi> שנ׳</b><span class="p"><bdi>₪69</bdi></span><a href="#top">ליצור<svg class="ic"><use href="#i-arrow-left"/></svg></a></div>
+        <div class="len"><b><bdi>120</bdi> שנ׳</b><span class="p"><bdi>₪79</bdi></span><a href="#top">ליצור<svg class="ic"><use href="#i-arrow-left"/></svg></a></div>
+      </div>
+    </details>
+    <p class="price-note"><svg class="ic"><use href="#i-info"/></svg>מחיר סופי בשקלים, בלי תוספות. כרגע ההזמנה עם קוד קופון; תשלום באשראי בקרוב.</p>
+  </div>
+</section>
+
+<!-- 9. GUARANTEES -->
+<section class="section guarantees" id="guarantees" aria-labelledby="g-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2 class="h2" id="g-title">מה מובטח לכם, בכתב</h2>
+        <p class="lead">כל אחת מההתחייבויות האלה כתובה במדיניות של האתר, ואפשר לקרוא אותה במלואה.</p>
+      </div>
+    </div>
+    <div class="g-grid">
+      <article class="g-card">
+        <span class="g-ico"><svg class="ic"><use href="#i-shield-check"/></svg></span>
+        <h3>החזר מלא אם ההפקה נכשלת</h3>
+        <p>אם לא הצלחנו להפיק ולמסור את הסרטון, ההחזר יוצא אוטומטית לאמצעי התשלום, בלי שתצטרכו לפנות אלינו.</p>
+        <div class="g-ui" aria-hidden="true">
+          <div class="notice">
+            <span class="dot"><svg class="ic"><use href="#i-check"/></svg></span>
+            <span><b>ההחזר בדרך אליכם</b><span>ההפקה לא הושלמה, ולכן החזר מלא נשלח לאמצעי התשלום.</span></span>
+          </div>
+          <div class="notice-steps"><i></i><i></i><i></i></div>
+          <div class="notice-meta"><span>ההחזר נשלח</span><span>מגיע בדרך כלל תוך <bdi>5</bdi> עד <bdi>10</bdi> ימי עסקים</span></div>
+        </div>
+        <a class="g-link" href="/legal/refunds">מדיניות ביטולים והחזרים<svg class="ic"><use href="#i-arrow-left"/></svg></a>
+      </article>
+      <article class="g-card">
+        <span class="g-ico"><svg class="ic"><use href="#i-rotate-ccw"/></svg></span>
+        <h3><bdi>2</bdi> סבבי תיקונים בכל סרטון</h3>
+        <p>עורכים את הכותרות ישירות, או כותבים במילים מה לשנות. גרסה מתוקנת מגיעה תוך כמה דקות.</p>
+        <div class="g-ui" aria-hidden="true">
+          <div class="rev-box">להגדיל את הלוגו, ולשנות את הטלפון במסך האחרון ל־<bdi>050-0000000</bdi></div>
+          <div class="rev-row">
+            <span class="rev-count"><svg class="ic"><use href="#i-rotate-ccw"/></svg>נשארו <bdi>2</bdi> מתוך <bdi>2</bdi></span>
+            <span class="btn btn-primary btn-sm"><svg class="ic ic-sm"><use href="#i-send"/></svg>לשלוח תיקון</span>
+          </div>
+        </div>
+        <a class="g-link" href="/legal/terms">תנאי השימוש<svg class="ic"><use href="#i-arrow-left"/></svg></a>
+      </article>
+      <article class="g-card g-small">
+        <span class="g-ico"><svg class="ic"><use href="#i-trash"/></svg></span>
+        <div>
+          <h3>התמונות שלכם נמחקות אוטומטית</h3>
+          <p>טיוטות ותמונות שהעליתם נמחקות אחרי <bdi>7</bdi> ימים, וכל השאר אחרי <bdi>90</bdi>.</p>
+          <a class="g-link" href="/legal/privacy">מדיניות הפרטיות<svg class="ic"><use href="#i-arrow-left"/></svg></a>
+        </div>
+      </article>
+      <article class="g-card g-small">
+        <span class="g-ico"><svg class="ic"><use href="#i-badge-check"/></svg></span>
+        <div>
+          <h3>הסרטון שלכם, לשימוש מסחרי</h3>
+          <p>מקבלים רישיון מלא לשימוש מסחרי בסרטון, בכפוף לתנאי השימוש.</p>
+          <a class="g-link" href="/legal/terms">תנאי השימוש<svg class="ic"><use href="#i-arrow-left"/></svg></a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 10. FAQ -->
+<section class="section faq" id="faq" aria-labelledby="faq-title">
+  <div class="container faq-grid">
+    <div class="faq-aside">
+      <h2 class="h2" id="faq-title">שאלות נפוצות</h2>
+      <p>לא מצאתם תשובה? כתבו לנו, ונחזור אליכם.</p>
+      <a class="btn btn-secondary" href="/legal/contact"><svg class="ic"><use href="#i-mail"/></svg>לכתוב לנו</a>
+    </div>
+    <div class="faq-list">
+      <details class="qa" open>
+        <summary>כמה זה עולה?<span class="chev"><svg class="ic"><use href="#i-chevron-down"/></svg></span></summary>
+        <p>בין <bdi>₪29</bdi> ל־<bdi>₪79</bdi> לסרטון, לפי האורך. המחיר שמוצג הוא המחיר הסופי בשקלים, בלי תוספות ובלי מנוי.</p>
+      </details>
+      <details class="qa">
+        <summary>איך משלמים?<span class="chev"><svg class="ic"><use href="#i-chevron-down"/></svg></span></summary>
+        <p>כרגע ההזמנה נעשית עם קוד קופון. תשלום בכרטיס אשראי יתווסף בקרוב.</p>
+      </details>
+      <details class="qa">
+        <summary>כמה זמן לוקחת ההפקה?<span class="chev"><svg class="ic"><use href="#i-chevron-down"/></svg></span></summary>
+        <p>בדרך כלל <bdi>5</bdi> עד <bdi>15</bdi> דקות, לפי האורך. אפשר לסגור את הדף ולחזור אליו דרך הקישור הפרטי.</p>
+      </details>
+      <details class="qa">
+        <summary>אין לי אתר. אפשר בכל זאת?<span class="chev"><svg class="ic"><use href="#i-chevron-down"/></svg></span></summary>
+        <p>כן. לוחצים על "ליצור מתמונות" ומעלים עד <bdi>12</bdi> תמונות של העסק. מהן נכתב התסריט ונבנה הסרטון.</p>
+      </details>
+      <details class="qa">
+        <summary>ומה אם משהו בסרטון לא מדויק?<span class="chev"><svg class="ic"><use href="#i-chevron-down"/></svg></span></summary>
+        <p>המחיר כולל שני סבבי תיקונים. בעמוד הסרטון אפשר לערוך את הכותרות ישירות, או לכתוב במילים מה לשנות (למשל צבע, גודל הלוגו או מספר טלפון), ותוך כמה דקות מקבלים גרסה מתוקנת.</p>
+      </details>
+      <details class="qa">
+        <summary>מה קורה אם ההפקה נכשלת?<span class="chev"><svg class="ic"><use href="#i-chevron-down"/></svg></span></summary>
+        <p>אם לא הצלחנו להפיק ולמסור את הסרטון, מקבלים החזר כספי מלא באופן אוטומטי, בלי צורך לפנות אלינו.</p>
+      </details>
+      <details class="qa">
+        <summary>למי שייך הסרטון?<span class="chev"><svg class="ic"><use href="#i-chevron-down"/></svg></span></summary>
+        <p>לכם. מקבלים רישיון מלא לשימוש מסחרי בסרטון, בכפוף לתנאי השימוש. שימו לב שבחלק מהמדינות תוכן שנוצר בבינה מלאכותית אינו מוגן בזכויות יוצרים.</p>
+      </details>
+      <details class="qa">
+        <summary>באיזה פורמט מקבלים את הסרטון?<span class="chev"><svg class="ic"><use href="#i-chevron-down"/></svg></span></summary>
+        <p>קובץ <bdi>MP4</bdi> באיכות <bdi>Full HD</bdi>: אנכי (<bdi>9:16</bdi>) לסטורי ולרילס, או רוחבי (<bdi>16:9</bdi>) ליוטיוב ולאתר.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- 11. FINAL CTA -->
+<section class="final" aria-labelledby="final-title">
+  <div class="container">
+    <div class="band on-ink">
+      <div>
+        <h2 class="h2" id="final-title">מתחילים את <span class="accent-word">הפרסומת</span> הבאה</h2>
+        <p>מדביקים כתובת או מעלים תמונות, ובוחרים כיוון מתוך שלושה.</p>
+      </div>
+      <div class="entry">
+        <form class="entry-opt" action="#" onsubmit="return false">
+          <label class="entry-label" for="final-url">יש לי אתר</label>
+          <div class="entry-row">
+            <span class="field">
+              <svg class="ic"><use href="#i-link"/></svg>
+              <input id="final-url" name="url" type="url" dir="ltr" inputmode="url" autocomplete="url" placeholder="yourbusiness.co.il">
+            </span>
+            <button class="btn btn-light btn-lg" type="submit">ליצור פרסומת <svg class="ic"><use href="#i-arrow-left"/></svg></button>
+          </div>
+        </form>
+        <div class="entry-or" aria-hidden="true">או</div>
+        <div class="entry-opt">
+          <p class="entry-label" id="noweb-hint-2">אין לי אתר <span class="muted">מעלים עד <bdi>12</bdi> תמונות של העסק</span></p>
+          <a class="btn btn-outline-light btn-lg btn-block" href="#" aria-describedby="noweb-hint-2"><svg class="ic"><use href="#i-image-plus"/></svg> ליצור מתמונות</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- 12. FOOTER -->
+<footer class="footer on-ink">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="logo" href="#top"><svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#FAF9F6"/><rect x="11" y="6.5" width="10" height="19" rx="2.6" fill="none" stroke="#16161D" stroke-width="2"/><rect x="13.2" y="20.4" width="5.6" height="2.2" rx="1.1" fill="#F0562A"/></svg><bdi>AdStudio</bdi></a>
+        <p class="about">סרטוני פרסומת בעברית לעסקים קטנים, מהאתר או מתמונות.</p>
+        <p class="pending"><svg class="ic"><use href="#i-info"/></svg>פרטי העסק יעודכנו בקרוב</p>
+      </div>
+      <div>
+        <h4>המוצר</h4>
+        <ul>
+          <li><a href="#styles">סגנונות</a></li>
+          <li><a href="#how">איך זה עובד</a></li>
+          <li><a href="#pricing">מחירים</a></li>
+          <li><a href="#faq">שאלות נפוצות</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>מידע ומדיניות</h4>
+        <ul>
+          <li><a href="/legal/terms">תנאי שימוש</a></li>
+          <li><a href="/legal/privacy">מדיניות פרטיות</a></li>
+          <li><a href="/legal/refunds">ביטולים והחזרים</a></li>
+          <li><a href="/legal/accessibility">הצהרת נגישות</a></li>
+          <li><a href="/legal/contact">יצירת קשר</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <bdi>2026</bdi> <bdi>AdStudio</bdi></span>
+      <span>הדוגמאות באתר הופקו מתמונות סטוק של עסקים בדיוניים.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+<script>
+/* ---------- Tabs (before -> after) ---------- */
+(function () {
+  const tabs = [...document.querySelectorAll('.tab')];
+  function select(tab, focus) {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', on);
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) tab.focus();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', e => {
+      // RTL: ArrowLeft moves forward
+      const d = e.key === 'ArrowLeft' ? 1 : e.key === 'ArrowRight' ? -1 : 0;
+      if (d) { e.preventDefault(); select(tabs[(i + d + tabs.length) % tabs.length], true); }
+    });
+  });
+})();
+
+/* ---------- Cinema carousel ---------- */
+(function () {
+  const band = document.querySelector('.cinema');
+  const stage = document.getElementById('stage');
+  const reels = [...stage.querySelectorAll('.reel')];
+  const amb = [...stage.querySelectorAll('.ambient img')];
+  const cap = { title: document.getElementById('cap-title'), style: document.getElementById('cap-style'), len: document.getElementById('cap-len'), count: document.getElementById('reel-count') };
+  let active = reels[0], filter = 'all', wide = false, ambIdx = 0;
+
+  const visible = () => reels.filter(r => filter === 'all' || r.dataset.cat === filter);
+
+  function layout() {
+    const vis = visible();
+    if (!vis.includes(active)) active = vis[0];
+    const ai = vis.indexOf(active);
+    const sw = stage.clientWidth;
+    const small = window.innerWidth < 760;
+    const W = wide ? Math.min(720, sw * (small ? 0.86 : 0.62)) : (small ? 228 : 300);
+    const H = wide ? W * 9 / 16 : (W - 14) * 16 / 9 + 14;
+    const gap = small ? 14 : 32;
+    const scales = [1, .88, .76, .66];
+    const pos = [0];
+    for (let k = 1; k < 4; k++) pos[k] = pos[k - 1] + W * scales[k - 1] / 2 + W * scales[k] / 2 + gap;
+    stage.style.setProperty('--stage-h', Math.round(H) + 'px');
+    reels.forEach(r => {
+      const i = vis.indexOf(r);
+      r.style.setProperty('--w', W + 'px');
+      if (i < 0) { r.classList.add('is-out'); r.style.setProperty('--o', 0); r.style.setProperty('--s', .6); r.setAttribute('aria-hidden', 'true'); return; }
+      const off = i - ai, a = Math.min(Math.abs(off), 3);
+      r.classList.remove('is-out');
+      r.classList.toggle('is-active', off === 0);
+      r.style.setProperty('--x', (-Math.sign(off) * pos[a]) + 'px'); // RTL: next items sit to the left
+      r.style.setProperty('--s', scales[a]);
+      r.style.setProperty('--o', [1, .5, .2, 0][a]);
+      r.setAttribute('aria-hidden', off === 0 ? 'false' : 'true');
+    });
+    cap.title.textContent = active.dataset.title;
+    cap.style.textContent = 'סגנון ' + active.dataset.style;
+    cap.len.innerHTML = '<bdi>' + active.dataset.len + '</bdi> שנ׳';
+    cap.count.innerHTML = '<bdi>' + (ai + 1) + ' / ' + vis.length + '</bdi>';
+    // ambient glow from the active poster (cross-fade)
+    const src = active.dataset.poster;
+    if (amb[ambIdx].getAttribute('src') !== src) {
+      ambIdx = 1 - ambIdx;
+      amb[ambIdx].src = src;
+      amb[ambIdx].classList.add('on');
+      amb[1 - ambIdx].classList.remove('on');
+    }
+  }
+  function go(d) { const vis = visible(); active = vis[(vis.indexOf(active) + d + vis.length) % vis.length]; layout(); }
+
+  document.getElementById('reel-next').addEventListener('click', () => go(1));
+  document.getElementById('reel-prev').addEventListener('click', () => go(-1));
+  stage.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') go(1); if (e.key === 'ArrowRight') go(-1); });
+  reels.forEach(r => r.addEventListener('click', () => { if (r !== active && !r.classList.contains('is-out')) { active = r; layout(); } }));
+  document.querySelectorAll('.fchip').forEach(b => b.addEventListener('click', () => {
+    filter = b.dataset.filter;
+    document.querySelectorAll('.fchip').forEach(x => x.setAttribute('aria-pressed', x === b));
+    layout();
+  }));
+  document.querySelectorAll('.ratio button').forEach(b => b.addEventListener('click', () => {
+    wide = b.dataset.ratio === 'wide';
+    document.querySelectorAll('.ratio button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    stage.classList.toggle('is-wide', wide);
+    layout();
+  }));
+  window.addEventListener('resize', layout);
+  layout();
+
+  // signature: "house lights down" — the ambient glow fades up as the band enters
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { band.classList.add('lights-up'); io.disconnect(); } }), { threshold: .3 });
+    io.observe(band);
+  } else band.classList.add('lights-up');
+})();
+
+/* ---------- Hero visual zoom on small screens ---------- */
+(function () {
+  const hv = document.querySelector('.hero-visual');
+  function fit() { if (window.innerWidth <= 980) hv.style.setProperty('--hvz', Math.min(1, hv.clientWidth / 572).toFixed(4)); }
+  fit(); window.addEventListener('resize', fit);
+})();
+</script>
+</body>
+</html>

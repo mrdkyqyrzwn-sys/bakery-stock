@@ -67,3 +67,8 @@ D. LOWER THE AI COST PER ORDER, without making customers wait or lowering qualit
    - Keep the 3 directions in one call, but cap max_tokens sensibly, ask for compact JSON (no prose), and don't resend unchanged images in revisions when the change is text-only.
    - Add a cost log per order: model, input/output/cached tokens, and the estimated $ and ₪ for every Claude call (scan, concepts, plan, revisions). Show it in /admin (orders tab, plus a monthly total on the statistics tab) so the owner sees the real cost per video.
    - Don't change which models are used without telling me.
+E. NEW BRAND NAME: the owner renamed the product to "קליפי" (Latin: Klipi). The planned domain is klipi.co.il (not bought yet).
+   - Replace "AdStudio" everywhere the user can see it: the logo/wordmark, page titles and meta/OG tags, the favicon, the nav, the footer, the legal pages (e.g. "השירות קליפי מופעל על ידי…"), emails, the admin title, toasts, the AI-generated label in the end card if it names the brand, sample captions ("נוצר בקליפי") and download file names (klipi-…mp4).
+   - Wordmark: "קליפי" in Heebo 800 plus a small SVG mark in the accent color (a rounded clip/play or film-frame shape; no emoji, no sparkles). Make a matching favicon and an OG image.
+   - Keep internal code names as they are if renaming is risky; this is about what users see.
+   - Update the privacy policy and terms wording accordingly, without changing their meaning.

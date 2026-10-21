@@ -2,7 +2,12 @@
 
 Things the night agent should include in the morning summary, in simple Hebrew.
 
-## 1. The name "AdStudio" and a domain: decide before buying
+## 1. Name and domain
+- DECIDED 22 Oct ~02:20 Israel time: the owner chose the name "קליפי" (Klipi). The rename was sent to Lovable (item E).
+- klipi.com is TAKEN (registered since 2005). klipi.co.il could not be checked from here; the owner should check it at an Israeli registrar and buy it (~₪60–100/yr). Backups that look unregistered: getklipi.com, tryklipi.com, klipiapp.com; klipi.app / klipi.io / klipi.ai may be free (check).
+- Also check the Israeli trademark database for "קליפי"/"Klipi": https://trademarks.justice.gov.il
+
+### Earlier analysis (kept for reference)
 - adstudio.co.il, adstudio.com and adstudio.io are all already taken (they resolve to existing sites).
 - "Ad Studio" is also the name of Spotify's well-known advertising product (Spotify Ad Studio), in exactly the same field (ads). Building a brand on that name invites confusion and a trademark risk. A lawyer can confirm, but a distinctive name is safer and better for marketing.
 - Recommendation: pick a distinctive name before buying a domain and before printing anything. Candidates whose domains did not resolve at 23:10 UTC (they may be free, but this must be checked at a registrar):
