@@ -1,0 +1,91 @@
+{
+  "style_prefix": "Ultra-realistic commercial photograph for a premium social-media ad, shot by a top food/product photographer on a full-frame camera. Natural, believable, not CGI, not illustration, no AI look.",
+  "rules": "Strict rules: no text, no letters, no numbers, no logos, no signage, no watermarks, no brand names anywhere in the image. No recognizable faces (hands, backs, blurred or out-of-frame people are fine). Real textures and imperfections, accurate proportions, physically correct light and shadows, rich but natural color, sharp focus on the subject, clean composition with breathing room for text at the top.",
+  "consistency": "Use the attached image as the visual reference: the SAME business, same place, same surfaces, props, color palette, lighting direction and color grade, as if shot in the same photo session. New angle and subject as described.",
+  "businesses": [
+    {
+      "id": "food",
+      "world": "A warm Israeli neighborhood bakery and wood-fired pizzeria in Tel Aviv: dark walnut counter, matte black ceramic plates, a glowing wood-fired oven, golden late-afternoon light with deep shadows.",
+      "shots": [
+        {"name": "hero-pizza", "aspect": "4:5", "prompt": "Hero shot: a just-baked Neapolitan margherita pizza on a dark wooden peel, leopard-spotted puffy crust, molten mozzarella, basil leaves, a thin wisp of steam, the glowing oven softly blurred behind. 45-degree angle, 85mm lens, shallow depth of field."},
+        {"name": "croissants", "aspect": "4:5", "prompt": "Three flaky butter croissants on a black plate, crisp laminated layers, a light dusting of powdered sugar falling, side light revealing texture."},
+        {"name": "macro-crust", "aspect": "1:1", "prompt": "Extreme macro of pizza crust and bubbling cheese pulling apart, glistening oil, very shallow depth of field."},
+        {"name": "hands-dough", "aspect": "4:5", "prompt": "A baker's flour-dusted hands stretching pizza dough on a floured wooden counter, motion in the dough, face out of frame."},
+        {"name": "burekas-tray", "aspect": "4:5", "prompt": "A tray of golden cheese burekas with sesame seeds fresh from the oven, top-down with a slight angle, warm light."},
+        {"name": "oven", "aspect": "9:16", "prompt": "The wood-fired oven mouth with flames and two pizzas baking inside, embers glowing, cinematic vertical composition with dark space at the top."},
+        {"name": "coffee-pastry", "aspect": "4:5", "prompt": "A cappuccino with latte art next to a chocolate rugelach pastry on the dark counter, morning window light."},
+        {"name": "counter", "aspect": "16:9", "prompt": "Wide interior shot of the bakery counter full of pastries and breads in warm light, people as soft blurred silhouettes in the background."}
+      ]
+    },
+    {
+      "id": "beauty",
+      "world": "A bright, calm, boutique hair and beauty salon in Haifa: soft white and warm beige interior, natural daylight from large windows, brass details, green plants, elegant and minimal.",
+      "shots": [
+        {"name": "hero-hair", "aspect": "4:5", "prompt": "Hero shot from behind: a woman's glossy, freshly styled wavy hair catching the window light, salon softly blurred, face not visible."},
+        {"name": "stylist-hands", "aspect": "4:5", "prompt": "A stylist's hands with a round brush and blow dryer shaping glossy hair, motion in the strands, faces out of frame."},
+        {"name": "products", "aspect": "1:1", "prompt": "Unbranded amber glass bottles and jars of hair care products on a travertine shelf with a sprig of eucalyptus, soft shadow, no labels."},
+        {"name": "macro-texture", "aspect": "1:1", "prompt": "Macro of a creamy hair mask texture swirled on a stone surface, soft daylight."},
+        {"name": "nails", "aspect": "4:5", "prompt": "Close-up of hands with a fresh nude-pink manicure resting on a linen towel, delicate gold ring, soft daylight."},
+        {"name": "salon-chair", "aspect": "9:16", "prompt": "Vertical shot of an empty styling chair facing a round mirror with warm lights, plants, calm luxurious mood, nobody in frame."},
+        {"name": "color-bowl", "aspect": "4:5", "prompt": "Hair color being mixed in a bowl with a brush, foils and comb nearby on a marble counter, top-down."},
+        {"name": "interior", "aspect": "16:9", "prompt": "Wide shot of the bright salon interior with two styling stations, plants and daylight, no people."}
+      ]
+    },
+    {
+      "id": "retail",
+      "world": "A small design and home-goods shop in Jerusalem: handmade ceramics, linen textiles and candles on light oak shelves, soft natural light, terracotta and sand tones.",
+      "shots": [
+        {"name": "hero-vase", "aspect": "4:5", "prompt": "Hero shot: a handmade speckled ceramic vase with dried flowers on an oak table, soft window light and a long elegant shadow."},
+        {"name": "mugs", "aspect": "1:1", "prompt": "Three handmade ceramic mugs in sand, terracotta and sage glazes on a clean light background, soft shadow, product-catalog lighting."},
+        {"name": "candle", "aspect": "4:5", "prompt": "A lit soy candle in an unbranded amber glass jar on a linen cloth, warm glow, shallow depth of field."},
+        {"name": "macro-glaze", "aspect": "1:1", "prompt": "Macro of a ceramic glaze surface with speckles and drips catching light."},
+        {"name": "hands-wrapping", "aspect": "4:5", "prompt": "Hands wrapping a ceramic bowl in kraft paper with twine on the shop counter, gift-ready, face out of frame."},
+        {"name": "shelf", "aspect": "9:16", "prompt": "Vertical shot of oak shelves styled with ceramics, candles and folded linens, airy and curated."},
+        {"name": "tableware", "aspect": "4:5", "prompt": "A styled table setting with handmade plates, linen napkin and a small vase, top-down at an angle, soft light."},
+        {"name": "storefront", "aspect": "16:9", "prompt": "Wide shot of the shop interior from the entrance, warm afternoon light, inviting, no people, no signs."}
+      ]
+    },
+    {
+      "id": "course",
+      "world": "A photography course studio in Tel Aviv: vintage and modern cameras, prints pinned on a wall, a large worktable, soft studio light with warm accents.",
+      "shots": [
+        {"name": "hero-camera", "aspect": "4:5", "prompt": "Hero shot: a film camera on a worktable with scattered photo prints and a map, warm directional light, rich detail."},
+        {"name": "hands-camera", "aspect": "4:5", "prompt": "A student's hands adjusting the lens of a mirrorless camera, shallow depth of field, face out of frame."},
+        {"name": "prints-wall", "aspect": "9:16", "prompt": "Vertical shot of a wall with pinned black-and-white and color landscape prints, clothespins and string."},
+        {"name": "macro-lens", "aspect": "1:1", "prompt": "Macro of a camera lens front element with beautiful reflections."},
+        {"name": "workshop", "aspect": "16:9", "prompt": "Wide shot of a small workshop: a few people seen from behind around a table with laptops and cameras, warm light."},
+        {"name": "contact-sheet", "aspect": "4:5", "prompt": "A loupe on a contact sheet of film negatives on a light table, top-down."},
+        {"name": "outdoor-shoot", "aspect": "4:5", "prompt": "A photographer seen from behind shooting the Jaffa old port at golden hour, silhouette, cinematic."},
+        {"name": "gear-flatlay", "aspect": "1:1", "prompt": "Organized flat-lay of camera gear: bodies, lenses, filters and a notebook on a dark surface."}
+      ]
+    },
+    {
+      "id": "travel",
+      "world": "A boutique travel agency's dream destinations for Israeli travelers: Greek islands, Italian coast and Alpine lakes, bright summer light, turquoise water, vivid but natural color.",
+      "shots": [
+        {"name": "hero-santorini", "aspect": "9:16", "prompt": "Hero vertical shot: whitewashed cliffside houses with blue domes over the deep blue Aegean sea at golden hour, no people."},
+        {"name": "beach", "aspect": "4:5", "prompt": "A turquoise cove with white sand and two beach chairs under an umbrella, top-down drone view."},
+        {"name": "amalfi", "aspect": "16:9", "prompt": "Wide view of colorful Amalfi coast houses cascading to the sea, boats in the harbor, sunny."},
+        {"name": "suitcase", "aspect": "4:5", "prompt": "An unbranded vintage leather suitcase, a straw hat and sunglasses on a hotel bed with white linen, morning light."},
+        {"name": "lake", "aspect": "4:5", "prompt": "An Alpine lake with emerald water, a wooden pier and mountains, crisp morning light."},
+        {"name": "pool", "aspect": "1:1", "prompt": "An infinity pool overlooking the sea at sunset, calm water reflections, no people."},
+        {"name": "breakfast", "aspect": "4:5", "prompt": "A hotel balcony breakfast with fruit, croissants and coffee overlooking the sea, sunny."},
+        {"name": "boarding", "aspect": "4:5", "prompt": "An airplane window view over clouds and the sea at sunrise, the wing visible."}
+      ]
+    },
+    {
+      "id": "playful",
+      "world": "A colorful Israeli ice-cream and party-desserts shop: bright pastel and candy colors, playful props, clean bright light, joyful.",
+      "shots": [
+        {"name": "hero-icecream", "aspect": "4:5", "prompt": "Hero shot: a triple-scoop ice-cream cone with pistachio, strawberry and chocolate scoops, sprinkles, a small drip, against a solid bright pink background, studio light."},
+        {"name": "cupcakes", "aspect": "1:1", "prompt": "Colorful cupcakes with swirled frosting and sprinkles on a pastel yellow background, top-down, playful arrangement."},
+        {"name": "popsicles", "aspect": "4:5", "prompt": "Three fruit popsicles with visible fruit pieces on crushed ice against a turquoise background."},
+        {"name": "macro-sprinkles", "aspect": "1:1", "prompt": "Macro of rainbow sprinkles falling onto glossy frosting."},
+        {"name": "party-table", "aspect": "16:9", "prompt": "A birthday dessert table with balloons, cakes, cookies and lollipops, bright and joyful, no people, no text."},
+        {"name": "hands-cone", "aspect": "4:5", "prompt": "A child's hand holding a colorful ice-cream cone against a mint wall, face out of frame."},
+        {"name": "milkshake", "aspect": "9:16", "prompt": "A tall strawberry milkshake with whipped cream, a cherry and a striped paper straw on a pastel background, vertical."},
+        {"name": "donuts", "aspect": "4:5", "prompt": "Glazed donuts in pink, blue and yellow with sprinkles arranged in a playful pattern, top-down on a bright background."}
+      ]
+    }
+  ]
+}

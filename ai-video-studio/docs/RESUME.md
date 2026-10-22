@@ -26,3 +26,8 @@
 2. Re-render all 12 samples with the engine-fill branch, upload them with the lovable-assets flow or through Lovable, and replace src/assets/samples/*.asset.json.
 3. Merge home-redesign and engine-fill into main after the owner approves the screenshots. Test, build, push, publish on yes.
 4. Then: Nano Banana photo enhancement for customers (opt-in, before/after, real photos only).
+
+## Nano Banana tool (ready, waiting for the key)
+- Folder: ai-video-studio/tools/nano-banana/ (generate.py + shots.json: 6 businesses × 8 shots, consistent sets).
+- Run: `python3 -I generate.py --out <dir>` with GEMINI_API_KEY in the environment.
+- It auto-picks the newest image model. Try `--only food` first, review the images, then run the rest.
