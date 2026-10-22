@@ -40,8 +40,9 @@ def best_image_model(key):
         if not page:
             break
     def rank(n):
+        # Quality first: "pro" image models beat flash ones; then newer versions; GA over preview.
         v = re.search(r"gemini-(\d+(?:\.\d+)?)", n)
-        return (float(v.group(1)) if v else 0, "pro" in n, "preview" not in n)
+        return ("pro" in n, "lite" not in n, float(v.group(1)) if v else 0, "preview" not in n)
     names.sort(key=rank, reverse=True)
     return names
 
@@ -50,7 +51,7 @@ def generate(model, prompt, aspect, key, refs=()):
     parts = [{"inline_data": {"mime_type": "image/png", "data": base64.b64encode(r).decode()}} for r in refs]
     parts.append({"text": prompt})
     body = {"contents": [{"role": "user", "parts": parts}],
-            "generationConfig": {"responseModalities": ["IMAGE"], "imageConfig": {"aspectRatio": aspect}}}
+            "generationConfig": {"responseModalities": ["IMAGE"], "imageConfig": {"aspectRatio": aspect, "imageSize": os.environ.get("NB_SIZE", "2K")}}}
     for attempt in range(4):
         try:
             res = call(f"models/{model}:generateContent", body, key=key)
