@@ -31,3 +31,17 @@ Things the night agent should include in the morning summary, in simple Hebrew.
 ## 3. Design notes
 - The design follows the installed Lovable workspace skill "adstudio-design-excellence" plus the redesign mockup.
 - Contrast: the orange accent is only for buttons, icons and big text, not small text.
+
+## 4. Night run result (22 Oct)
+- Sent to Lovable: the iPhone-audio message (items A–E) and the continue-plan message. Lovable ran out of credits partway through the first one. The mockup (step c) and the new products (step d) were NOT sent.
+- Done by Lovable (not yet verified end to end):
+  - an AAC audio fallback for iPhone (ffmpeg.wasm);
+  - the last frame now holds the end card instead of going black;
+  - download names are klipi-…;
+  - the misleading "try another browser" message is gone;
+  - a "לבחור בכיוון הזה" button;
+  - unit tests.
+- Open issues:
+  - the call api.logExportFailure may not exist yet, so the build could be broken;
+  - @ffmpeg/core is GPL-2.0-or-later, not LGPL. Lovable added public/licenses/ffmpeg.txt. Fine for a website in practice (the code runs in the browser and source links are given), but a lawyer can confirm.
+- Next, after credits reset: re-send step (c), the mockup files already uploaded (8 screenshots + index/picker/css), then step (d).
